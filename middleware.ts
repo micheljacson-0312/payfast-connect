@@ -5,7 +5,18 @@ import { getAppUrl } from '@/lib/app-url';
 
 const secret = () => new TextEncoder().encode(process.env.SESSION_SECRET!);
 
-const PROTECTED = ['/dashboard', '/payments', '/settings', '/subscriptions'];
+const PROTECTED = [
+  '/dashboard',
+  '/payments',
+  '/payment-links',
+  '/products',
+  '/invoices',
+  '/order-forms',
+  '/coupons',
+  '/subscriptions',
+  '/text2pay',
+  '/settings',
+];
 
 export async function middleware(request: NextRequest) {
   const path = request.nextUrl.pathname;
@@ -34,7 +45,13 @@ export const config = {
   matcher: [
     '/dashboard/:path*',
     '/payments/:path*',
+    '/payment-links/:path*',
+    '/products/:path*',
+    '/invoices/:path*',
+    '/order-forms/:path*',
+    '/coupons/:path*',
     '/settings/:path*',
     '/subscriptions/:path*',
+    '/text2pay/:path*',
   ],
 };
