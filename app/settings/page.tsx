@@ -1,0 +1,205 @@
+'use client';
+import { useState, useEffect } from 'react';
+import Sidebar from '@/components/Sidebar';
+
+interface Settings {
+  merchant_id:         string;
+  merchant_key:        string;
+  passphrase:          string;
+  environment:         string;
+  tag_on_payment:      string;
+  tag_on_fail:         string;
+  move_opp_stage:      string;
+  auto_create_contact: boolean;
+  fire_workflow:       boolean;
+}
+
+export default function SettingsPage() {
+  const [cfg,     setCfg]     = useState<Settings>({ merchant_id: '', merchant_key: '', passphrase: '', environment: 'live', tag_on_payment: 'paid,customer', tag_on_fail: 'payment-failed', move_opp_stage: 'won', auto_create_contact: true, fire_workflow: true });
+  const [saving,  setSaving]  = useState(false);
+  const [saved,   setSaved]   = useState(false);
+  const [error,   setError]   = useState('');
+  const [tab,     setTab]     = useState<'payfast' | 'ghl' | 'webhooks'>('payfast');
+
+  useEffect(() => {
+    fetch('/api/settings').then(r => r.json()).then(d => { if (d) setCfg({ ...cfg, ...d }); }).catch(() => {});
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const set = (k: keyof Settings, v: string | boolean) => setCfg(c => ({ ...c, [k]: v }));
+
+  async function save() {
+    setSaving(true); setError(''); setSaved(false);
+    try {
+      const res = await fetch('/api/settings', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(cfg),
+      });
+      if (!res.ok) { setError('Failed to save. Please try again.'); return; }
+      setSaved(true);
+      setTimeout(() => setSaved(false), 3000);
+    } catch {
+      setError('Network error.');
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  const inp = (style?: object) => ({
+    width: '100%', background: 'var(--dark3)', border: '1px solid var(--border)',
+    borderRadius: 10, padding: '11px 16px', color: 'white', fontSize: 13,
+    outline: 'none', fontFamily: 'inherit', ...style,
+  });
+  const lbl = { fontSize: 13, color: 'var(--gray)', marginBottom: 8, display: 'block' as const };
+  const sec = { background: 'var(--dark2)', border: '1px solid var(--border)', borderRadius: 16, padding: 28, marginBottom: 20 };
+
+  const appUrl = typeof window !== 'undefined' ? window.location.origin : '';
+
+  return (
+    <div className="app-shell">
+      <Sidebar />
+      <div className="main-content">
+        <div style={{ padding: '20px 32px', borderBottom: '1px solid var(--border)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <div>
+            <h2 style={{ fontFamily: 'var(--font-head)', fontSize: 20, fontWeight: 700 }}>Settings</h2>
+            <p style={{ fontSize: 13, color: 'var(--gray)', marginTop: 2 }}>GoPayFast credentials &amp; CRM automation config</p>
+          </div>
+          <button onClick={save} disabled={saving}
+            style={{ background: 'var(--blue)', color: 'white', border: 'none', padding: '9px 24px', borderRadius: 8, fontSize: 13, fontWeight: 500, cursor: 'pointer', opacity: saving ? 0.6 : 1 }}>
+            {saving ? 'Saving…' : saved ? '✓ Saved!' : 'Save Changes'}
+          </button>
+        </div>
+
+        <div style={{ padding: '28px 32px', maxWidth: 760 }}>
+
+          {/* Tabs */}
+          <div style={{ display: 'flex', gap: 4, background: 'var(--dark2)', border: '1px solid var(--border)', padding: 4, borderRadius: 10, marginBottom: 28, width: 'fit-content' }}>
+            {([['payfast', 'GoPayFast'], ['ghl', 'CRM Rules'], ['webhooks', 'Webhooks']] as const).map(([k, label]) => (
+              <button key={k} onClick={() => setTab(k)}
+                style={{ padding: '8px 20px', borderRadius: 7, border: 'none', fontSize: 13, fontWeight: 500, cursor: 'pointer', background: tab === k ? 'var(--blue)' : 'transparent', color: tab === k ? 'white' : 'var(--gray)' }}>
+                {label}
+              </button>
+            ))}
+          </div>
+
+          {/* GoPayFast Tab */}
+          {tab === 'payfast' && (
+            <div style={sec}>
+              <div style={{ fontFamily: 'var(--font-head)', fontSize: 16, fontWeight: 600, marginBottom: 4 }}>GoPayFast Credentials</div>
+              <div style={{ fontSize: 13, color: 'var(--gray)', marginBottom: 24, lineHeight: 1.5 }}>
+                Save your GoPayFast `store_id` in Merchant ID and `store_password` in Merchant Key.
+              </div>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 16 }}>
+                <div>
+                  <label style={lbl}>Store ID *</label>
+                  <input style={inp()} value={cfg.merchant_id} onChange={e => set('merchant_id', e.target.value)} placeholder="10012345" />
+                </div>
+                <div>
+                  <label style={lbl}>Store Password *</label>
+                  <input style={inp()} value={cfg.merchant_key} onChange={e => set('merchant_key', e.target.value)} placeholder="Your store password" />
+                </div>
+              </div>
+              <div style={{ marginBottom: 20 }}>
+                <label style={lbl}>Passphrase (optional)</label>
+                <input style={inp()} type="password" value={cfg.passphrase} onChange={e => set('passphrase', e.target.value)} placeholder="Leave blank if not set" />
+                <div style={{ fontSize: 11, color: 'var(--gray)', marginTop: 6 }}>Only use this if your GoPayFast setup provides an extra signing secret.</div>
+              </div>
+              <div>
+                <label style={lbl}>Environment</label>
+                <select style={inp({ cursor: 'pointer', appearance: 'none' }) as object} value={cfg.environment} onChange={e => set('environment', e.target.value)}>
+                  <option value="live">🟢 Live (Production)</option>
+                  <option value="sandbox">🟡 Sandbox (Testing)</option>
+                </select>
+              </div>
+            </div>
+          )}
+
+          {/* CRM Rules Tab */}
+          {tab === 'ghl' && (
+            <div style={sec}>
+              <div style={{ fontFamily: 'var(--font-head)', fontSize: 16, fontWeight: 600, marginBottom: 4 }}>CRM Automation Rules</div>
+              <div style={{ fontSize: 13, color: 'var(--gray)', marginBottom: 24 }}>
+                Configure what happens in your CRM when GoPayFast sends a payment notification.
+              </div>
+
+              <div style={{ marginBottom: 20 }}>
+                <label style={lbl}>Tags to add on successful payment</label>
+                <input style={inp()} value={cfg.tag_on_payment} onChange={e => set('tag_on_payment', e.target.value)} placeholder="paid,customer,active" />
+                <div style={{ fontSize: 11, color: 'var(--gray)', marginTop: 6 }}>Comma-separated. Tags are auto-created in your CRM if they don&apos;t exist.</div>
+              </div>
+              <div style={{ marginBottom: 20 }}>
+                <label style={lbl}>Tags to add on failed payment</label>
+                <input style={inp()} value={cfg.tag_on_fail} onChange={e => set('tag_on_fail', e.target.value)} placeholder="payment-failed" />
+              </div>
+              <div style={{ marginBottom: 24 }}>
+                <label style={lbl}>Move opportunity stage to</label>
+                <input style={inp()} value={cfg.move_opp_stage} onChange={e => set('move_opp_stage', e.target.value)} placeholder="won" />
+                <div style={{ fontSize: 11, color: 'var(--gray)', marginTop: 6 }}>Leave blank to not move opportunities. Must match stage name exactly in your CRM.</div>
+              </div>
+
+              {/* Toggles */}
+              {[
+                { key: 'auto_create_contact' as const, title: 'Auto-create contact if not found', desc: 'Creates a new CRM contact when the payer email doesn\'t exist' },
+                { key: 'fire_workflow' as const,       title: 'Fire CRM workflow on payment',    desc: 'Triggers automation workflows linked to the contact' },
+              ].map(t => (
+                <div key={t.key} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '14px 0', borderBottom: '1px solid var(--border)' }}>
+                  <div>
+                    <div style={{ fontSize: 14, fontWeight: 500 }}>{t.title}</div>
+                    <div style={{ fontSize: 12, color: 'var(--gray)', marginTop: 2 }}>{t.desc}</div>
+                  </div>
+                  <div onClick={() => set(t.key, !cfg[t.key])}
+                    style={{ width: 44, height: 24, background: cfg[t.key] ? 'var(--blue)' : 'var(--dark3)', borderRadius: 12, position: 'relative', cursor: 'pointer', flexShrink: 0, transition: 'background .2s' }}>
+                    <div style={{ position: 'absolute', top: 3, left: cfg[t.key] ? 23 : 3, width: 18, height: 18, background: 'white', borderRadius: '50%', transition: 'left .2s' }} />
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {/* Webhooks Tab */}
+          {tab === 'webhooks' && (
+            <div style={sec}>
+              <div style={{ fontFamily: 'var(--font-head)', fontSize: 16, fontWeight: 600, marginBottom: 4 }}>Webhook URLs</div>
+              <div style={{ fontSize: 13, color: 'var(--gray)', marginBottom: 24 }}>Add these in your GoPayFast merchant dashboard.</div>
+
+              <div style={{ marginBottom: 20 }}>
+                <label style={lbl}>ITN (Instant Transaction Notification) URL</label>
+                <div style={{ background: 'var(--dark3)', borderRadius: 10, padding: '12px 16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                  <code style={{ fontSize: 13, color: 'var(--blue-light)', fontFamily: 'monospace' }}>
+                    {appUrl}/api/payfast/itn
+                  </code>
+                  <button
+                    onClick={() => navigator.clipboard.writeText(`${appUrl}/api/payfast/itn`)}
+                    style={{ background: 'var(--dark)', border: '1px solid var(--border)', color: 'var(--gray)', padding: '4px 10px', borderRadius: 6, fontSize: 11, cursor: 'pointer' }}>
+                    Copy
+                  </button>
+                </div>
+                <div style={{ fontSize: 11, color: 'var(--gray)', marginTop: 8 }}>
+                  In GoPayFast dashboard, paste this as your callback/notification URL.
+                </div>
+              </div>
+
+              <div style={{ background: 'rgba(0,82,255,0.06)', border: '1px solid rgba(0,82,255,0.15)', borderRadius: 10, padding: 16, fontSize: 13 }}>
+                <strong>How it works:</strong>
+                <ol style={{ marginTop: 8, paddingLeft: 18, color: 'var(--gray)', lineHeight: 1.8, fontSize: 12 }}>
+                  <li>Customer completes payment on GoPayFast</li>
+                  <li>GoPayFast sends POST to your ITN URL</li>
+                  <li>Your app verifies the signature</li>
+                  <li>Contact is tagged &amp; opportunity moved in your CRM</li>
+                  <li>Payment is recorded in your dashboard</li>
+                </ol>
+              </div>
+            </div>
+          )}
+
+          {error && (
+            <div style={{ background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.2)', borderRadius: 8, padding: '10px 14px', fontSize: 13, color: 'var(--danger)' }}>
+              {error}
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
