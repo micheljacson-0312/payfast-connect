@@ -9,3 +9,6 @@ yarn-debug.log*
 yarn-error.log*
 dist/
 build/
+.docx-extract/
+*.zip
+*.docx
