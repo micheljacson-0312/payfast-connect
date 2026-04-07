@@ -1,6 +1,6 @@
 import { query } from './db';
 
-export type PublicPaySourceKind = 'payment_link' | 'text2pay' | 'invoice' | 'order_form';
+export type PublicPaySourceKind = 'payment_link' | 'text2pay' | 'invoice' | 'order_form' | 'schedule_installment';
 
 export interface PublicPaySource {
   kind: PublicPaySourceKind;
@@ -47,6 +47,31 @@ export async function resolvePublicPaySource(token: string): Promise<PublicPaySo
   );
 
   if (orderForms[0]) return { kind: 'order_form', data: orderForms[0] };
+
+  const installments = await query<any[]>(
+    `SELECT
+       si.*,
+       ps.location_id,
+       ps.client_name,
+       ps.client_email,
+       ps.contact_id,
+       ps.description,
+       CONCAT('Installment ', si.installment_num, ' of ', ps.installments) AS title,
+       ps.installments,
+       i.merchant_id,
+       i.merchant_key,
+       i.passphrase,
+       i.environment
+     FROM schedule_installments si
+     JOIN payment_schedules ps ON ps.id = si.schedule_id
+     JOIN installations i ON i.location_id = ps.location_id
+     WHERE si.token = ?
+       AND si.status IN ('pending','sent','overdue')
+       AND ps.status = 'active'`,
+    [token]
+  );
+
+  if (installments[0]) return { kind: 'schedule_installment', data: installments[0] };
 
   return null;
 }

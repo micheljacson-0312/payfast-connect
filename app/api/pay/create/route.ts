@@ -28,6 +28,10 @@ export async function POST(request: NextRequest) {
     }
   }
 
+  if (source.kind === 'schedule_installment' && data.status === 'overdue') {
+    // Allow overdue installments to remain payable.
+  }
+
   let finalAmount = parseFloat(amount || data.amount || data.total || '0');
   let couponCode: string | null = null;
 

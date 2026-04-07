@@ -105,6 +105,37 @@ export async function POST(request: NextRequest) {
           await query('UPDATE order_forms SET submissions = submissions + 1 WHERE id = ?', [sourceMeta.id]);
         }
 
+        if (sourceMeta.kind === 'schedule_installment') {
+          await query(
+            `UPDATE schedule_installments
+             SET status = 'paid', paid_at = NOW(), pf_payment_id = ?
+             WHERE id = ?`,
+            [itn.pf_payment_id, sourceMeta.id]
+          );
+
+          const scheduleRows = await query<any[]>(
+            `SELECT schedule_id FROM schedule_installments WHERE id = ? LIMIT 1`,
+            [sourceMeta.id]
+          );
+
+          if (scheduleRows[0]) {
+            const scheduleId = scheduleRows[0].schedule_id;
+            await query(
+              `UPDATE payment_schedules ps
+               JOIN (
+                 SELECT schedule_id, COUNT(*) AS paid_count, COALESCE(SUM(amount), 0) AS amount_paid
+                 FROM schedule_installments
+                 WHERE schedule_id = ? AND status = 'paid'
+               ) stats ON stats.schedule_id = ps.id
+               SET ps.paid_count = stats.paid_count,
+                   ps.amount_paid = stats.amount_paid,
+                   ps.status = CASE WHEN stats.paid_count >= ps.installments THEN 'completed' ELSE ps.status END
+               WHERE ps.id = ?`,
+              [scheduleId, scheduleId]
+            );
+          }
+        }
+
         if (sourceMeta.couponCode) {
           await query(
             'UPDATE coupons SET uses_count = uses_count + 1 WHERE location_id = ? AND code = ?',

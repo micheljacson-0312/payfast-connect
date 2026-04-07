@@ -8,6 +8,7 @@ const secret = () => new TextEncoder().encode(process.env.SESSION_SECRET!);
 const PROTECTED = [
   '/dashboard',
   '/payments',
+  '/payment-schedules',
   '/payment-links',
   '/products',
   '/invoices',
@@ -45,6 +46,7 @@ export const config = {
   matcher: [
     '/dashboard/:path*',
     '/payments/:path*',
+    '/payment-schedules/:path*',
     '/payment-links/:path*',
     '/products/:path*',
     '/invoices/:path*',

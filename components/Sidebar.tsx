@@ -9,6 +9,7 @@ const SECTIONS = [
   { label: 'Payments', items: [
     { label: 'Transactions',  href: '/payments',      icon: '💳' },
     { label: 'Payment Links', href: '/payment-links', icon: '🔗' },
+    { label: 'Installments',  href: '/payment-schedules', icon: '🗓️' },
     { label: 'Invoices',      href: '/invoices',      icon: '🧾' },
     { label: 'Text2Pay',      href: '/text2pay',      icon: '📱' },
     { label: 'Order Forms',   href: '/order-forms',   icon: '📋' },
