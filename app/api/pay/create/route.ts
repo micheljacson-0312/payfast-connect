@@ -59,23 +59,56 @@ export async function POST(request: NextRequest) {
 
   const appUrl = process.env.NEXT_PUBLIC_APP_URL!;
   const successRedirect = data.success_redirect || `${appUrl}/pay/success`;
+  const basketId = `PUB-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+  const paymentMeta = {
+    kind: source.kind,
+    id: data.id,
+    couponCode,
+    successRedirect,
+    cancelRedirect: `${appUrl}/pay/${token}`,
+  };
+
+  await query(
+    `INSERT INTO payments
+      (location_id, pf_token, contact_id, payer_email, payer_first, payer_last, amount, item_name, item_description, payment_type, status)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+     ON DUPLICATE KEY UPDATE payer_email = VALUES(payer_email), amount = VALUES(amount), item_description = VALUES(item_description), updated_at = NOW()`,
+    [
+      data.location_id,
+      basketId,
+      data.contact_id || null,
+      email,
+      name_first || '',
+      name_last || '.',
+      finalAmount,
+      (data.name || data.title || data.description || 'Payment Request').slice(0, 100),
+      JSON.stringify(paymentMeta),
+      is_recurring || data.type === 'subscription' ? 'subscription' : 'one-time',
+      'pending',
+    ]
+  );
+
   const baseParams = {
     merchantId: data.merchant_id,
     merchantKey: data.merchant_key,
+    merchantName: data.merchant_name || null,
+    storeId: data.store_id || null,
     passphrase: data.passphrase,
     environment: data.environment,
-    returnUrl: successRedirect,
-    cancelUrl: `${appUrl}/pay/${token}`,
-    notifyUrl: `${appUrl}/api/payfast/itn`,
+    returnUrl: `${appUrl}/api/payfast/itn?location_id=${encodeURIComponent(data.location_id)}&basket_id=${encodeURIComponent(basketId)}&redirect=Y`,
+    cancelUrl: `${appUrl}/api/payfast/itn?location_id=${encodeURIComponent(data.location_id)}&basket_id=${encodeURIComponent(basketId)}&redirect=Y`,
+    notifyUrl: `${appUrl}/api/payfast/itn?location_id=${encodeURIComponent(data.location_id)}&basket_id=${encodeURIComponent(basketId)}`,
     nameFirst: name_first || '',
     nameLast: name_last || '.',
     emailAddress: email,
+    phone,
     amount: finalAmount.toFixed(2),
     itemName: (data.name || data.title || data.description || 'Payment Request').slice(0, 100),
     itemDescription: (data.description || data.notes || '').slice(0, 255),
     customStr1: data.contact_id || '',
     customStr2: data.location_id,
     customStr4: encodePublicPayMeta({ kind: source.kind, id: data.id, couponCode }),
+    mPaymentId: basketId,
   };
 
   const frequencyMap: Record<string, '3' | '4' | '6'> = {
@@ -96,5 +129,7 @@ export async function POST(request: NextRequest) {
       })
     : buildPaymentForm(baseParams);
 
-  return NextResponse.json({ actionUrl: form.actionUrl, fields: form.fields });
+  const resolvedForm = await form;
+
+  return NextResponse.json({ actionUrl: resolvedForm.actionUrl, fields: resolvedForm.fields });
 }

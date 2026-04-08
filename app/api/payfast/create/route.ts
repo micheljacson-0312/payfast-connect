@@ -41,15 +41,18 @@ export async function POST(request: NextRequest) {
   }
 
   const appUrl = process.env.NEXT_PUBLIC_APP_URL!;
+  const basketId = `MAN-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
 
   const baseParams = {
+    merchantName:    inst.merchant_name || null,
     merchantId:      inst.merchant_id,
     merchantKey:     inst.merchant_key,
+    storeId:         inst.store_id || null,
     passphrase:      inst.passphrase,
     environment:     inst.environment,
-    returnUrl:       `${appUrl}/payments?status=success`,
-    cancelUrl:       `${appUrl}/payments?status=cancelled`,
-    notifyUrl:       `${appUrl}/api/payfast/itn`,
+    returnUrl:       `${appUrl}/api/payfast/itn?location_id=${encodeURIComponent(locationId)}&basket_id=${encodeURIComponent(basketId)}&redirect=Y`,
+    cancelUrl:       `${appUrl}/api/payfast/itn?location_id=${encodeURIComponent(locationId)}&basket_id=${encodeURIComponent(basketId)}&redirect=Y`,
+    notifyUrl:       `${appUrl}/api/payfast/itn?location_id=${encodeURIComponent(locationId)}&basket_id=${encodeURIComponent(basketId)}`,
     nameFirst:       firstName || '',
     nameLast:        lastName  || '',
     emailAddress:    email     || '',
@@ -58,6 +61,7 @@ export async function POST(request: NextRequest) {
     itemDescription: itemDescription || '',
     customStr1:      contactId  || '',
     customStr2:      locationId,
+    mPaymentId:      basketId,
   };
 
   let form;
@@ -67,8 +71,10 @@ export async function POST(request: NextRequest) {
     form = buildPaymentForm(baseParams);
   }
 
+  const resolvedForm = await form;
+
   return NextResponse.json({
-    actionUrl: form.actionUrl,
-    fields: form.fields,
+    actionUrl: resolvedForm.actionUrl,
+    fields: resolvedForm.fields,
   });
 }

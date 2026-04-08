@@ -43,13 +43,14 @@ export async function POST(request: NextRequest) {
 
   // Store the ghlTransactionId so ITN can find it and notify CRM
   const payToken = generateToken(16);
+  const basketId = `CRM-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
 
   // Save pending payment record
   await query(
     `INSERT INTO payments
       (location_id, contact_id, payer_email, payer_first, payer_last,
-       amount, item_name, item_description, payment_type, status, custom_str1, custom_str2, custom_str3)
-     VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)`,
+       amount, item_name, item_description, payment_type, status, pf_token, custom_str1, custom_str2, custom_str3)
+     VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)`,
     [
       locationId, contactId || null, email,
       nameFirst || '', nameLast || '.',
@@ -58,6 +59,7 @@ export async function POST(request: NextRequest) {
       JSON.stringify({ invoiceId: invoiceId || null, orderId: orderId || null, contactId: contactId || null }),
       isRecurring ? 'subscription' : 'one-time',
       'pending',
+      basketId,
       payToken,       // custom_str1 = our token
       locationId,     // custom_str2 = locationId
       ghlTransactionId, // custom_str3 = CRM transaction ID
@@ -67,14 +69,17 @@ export async function POST(request: NextRequest) {
   const baseParams = {
     merchantId:   inst.merchant_id!,
     merchantKey:  inst.merchant_key!,
+    merchantName: inst.merchant_name || null,
+    storeId: inst.store_id || null,
     passphrase:   inst.passphrase,
     environment:  inst.environment,
-    returnUrl:    `${appUrl}/ghl-checkout/success?token=${payToken}&ghlTxn=${ghlTransactionId}`,
-    cancelUrl:    `${appUrl}/ghl-checkout/cancel?token=${payToken}`,
-    notifyUrl:    `${appUrl}/api/payfast/itn`,
+    returnUrl:    `${appUrl}/api/payfast/itn?location_id=${encodeURIComponent(locationId)}&basket_id=${encodeURIComponent(basketId)}&redirect=Y`,
+    cancelUrl:    `${appUrl}/api/payfast/itn?location_id=${encodeURIComponent(locationId)}&basket_id=${encodeURIComponent(basketId)}&redirect=Y`,
+    notifyUrl:    `${appUrl}/api/payfast/itn?location_id=${encodeURIComponent(locationId)}&basket_id=${encodeURIComponent(basketId)}`,
     nameFirst:    nameFirst || '',
     nameLast:     nameLast  || '.',
     emailAddress: email,
+    phone,
     amount:       parseFloat(amount).toFixed(2),
     itemName:     (description || 'CRM Payment').slice(0, 100),
     itemDescription: invoiceId ? `Invoice: ${invoiceId}` : orderId ? `Order: ${orderId}` : '',
@@ -87,9 +92,11 @@ export async function POST(request: NextRequest) {
     ? buildSubscriptionForm({ ...baseParams, frequency: frequency as '3' | '4' | '6', recurringAmount: baseParams.amount })
     : buildPaymentForm(baseParams);
 
+  const resolvedForm = await form;
+
   return NextResponse.json({
-    actionUrl: form.actionUrl,
-    fields: form.fields,
+    actionUrl: resolvedForm.actionUrl,
+    fields: resolvedForm.fields,
     payToken,
   });
 }
