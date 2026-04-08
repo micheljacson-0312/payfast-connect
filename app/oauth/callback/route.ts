@@ -11,6 +11,27 @@ function pickString(...values: unknown[]) {
   return null;
 }
 
+async function resolveLocationIdFallback() {
+  for (let attempt = 0; attempt < 10; attempt += 1) {
+    const rows = await query<any[]>(
+      `SELECT location_id
+       FROM installations
+       WHERE (access_token = '' OR access_token IS NULL)
+         AND created_at >= DATE_SUB(NOW(), INTERVAL 10 MINUTE)
+       ORDER BY created_at DESC, id DESC
+       LIMIT 1`
+    );
+
+    if (rows[0]?.location_id) {
+      return rows[0].location_id as string;
+    }
+
+    await new Promise((resolve) => setTimeout(resolve, 500));
+  }
+
+  return null;
+}
+
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
   const code  = searchParams.get('code');
@@ -53,7 +74,7 @@ export async function GET(request: NextRequest) {
 
     const accessToken = pickString(tokens.access_token, tokens.accessToken, tokens.data?.access_token, tokens.data?.accessToken);
     const refreshToken = pickString(tokens.refresh_token, tokens.refreshToken, tokens.data?.refresh_token, tokens.data?.refreshToken);
-    const locationId = pickString(
+    let locationId = pickString(
       tokens.locationId,
       tokens.location_id,
       tokens.data?.locationId,
@@ -72,6 +93,10 @@ export async function GET(request: NextRequest) {
       companyIdFromQuery
     );
     const expiresIn = Number(tokens.expires_in ?? tokens.expiresIn ?? tokens.data?.expires_in ?? tokens.data?.expiresIn ?? 3600);
+
+    if (!locationId) {
+      locationId = await resolveLocationIdFallback();
+    }
 
     if (!accessToken || !refreshToken || !locationId) {
       throw new Error(`Missing OAuth fields. access_token=${!!accessToken} refresh_token=${!!refreshToken} locationId=${locationId || 'missing'}`);

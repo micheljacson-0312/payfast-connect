@@ -14,6 +14,30 @@ export async function POST(request: NextRequest) {
 
   switch (type) {
 
+    case 'INSTALL': {
+      if (!locationId) {
+        return NextResponse.json({ error: 'locationId required' }, { status: 400 });
+      }
+
+      await query(
+        `INSERT INTO installations (location_id, access_token, refresh_token, expires_at)
+         VALUES (?, '', '', NOW())
+         ON DUPLICATE KEY UPDATE updated_at = NOW()`,
+        [locationId]
+      );
+
+      return NextResponse.json({ success: true, locationId });
+    }
+
+    case 'UNINSTALL': {
+      if (!locationId) {
+        return NextResponse.json({ error: 'locationId required' }, { status: 400 });
+      }
+
+      await query('DELETE FROM installations WHERE location_id = ?', [locationId]);
+      return NextResponse.json({ success: true, locationId });
+    }
+
     // ── Verify Payment ──────────────────────────────────────
     case 'verify': {
       const rows = await query<any[]>(
