@@ -23,8 +23,8 @@ const SECTIONS = [
     { label: 'Settings',      href: '/settings',      icon: '⚙️' },
   ]},
   { label: 'Help', items: [
-    { label: 'Docs',          href: '#',              icon: '📚' },
-    { label: 'Support',       href: '#',              icon: '💬' },
+    { label: 'Docs',          href: '/docs',          icon: '📚' },
+    { label: 'Support',       href: '/support',       icon: '💬' },
   ]},
 ];
 

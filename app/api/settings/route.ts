@@ -7,7 +7,7 @@ export async function GET() {
   if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
   const rows = await query<Installation[]>(
-    `SELECT merchant_id, merchant_key, passphrase, environment,
+    `SELECT merchant_name, store_id, merchant_id, merchant_key, passphrase, environment,
             tag_on_payment, tag_on_fail, move_opp_stage,
             auto_create_contact, fire_workflow
      FROM installations WHERE location_id = ?`,
@@ -16,6 +16,8 @@ export async function GET() {
   if (!rows.length) return NextResponse.json(null);
   const r = rows[0];
   return NextResponse.json({
+    merchant_name:       r.merchant_name      || '',
+    store_id:            r.store_id           || '',
     merchant_id:         r.merchant_id        || '',
     merchant_key:        r.merchant_key       || '',
     passphrase:          r.passphrase         || '',
@@ -34,6 +36,8 @@ export async function POST(request: NextRequest) {
 
   const body = await request.json();
   const {
+    merchant_name,
+    store_id,
     merchant_id,
     merchant_key,
     passphrase,
@@ -47,6 +51,8 @@ export async function POST(request: NextRequest) {
 
   await query(
     `UPDATE installations SET
+       merchant_name       = ?,
+       store_id            = ?,
        merchant_id         = ?,
        merchant_key        = ?,
        passphrase          = ?,
@@ -58,6 +64,8 @@ export async function POST(request: NextRequest) {
        fire_workflow       = ?
      WHERE location_id = ?`,
     [
+      merchant_name || null,
+      store_id || null,
       merchant_id,
       merchant_key,
       passphrase || null,

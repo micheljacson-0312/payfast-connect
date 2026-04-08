@@ -13,6 +13,8 @@ CREATE TABLE IF NOT EXISTS installations (
   refresh_token   TEXT NOT NULL,
   expires_at      DATETIME NOT NULL,
   -- GoPayFast credentials (set in Settings page after install)
+  merchant_name   VARCHAR(200),
+  store_id        VARCHAR(100),
   merchant_id     VARCHAR(50),
   merchant_key    VARCHAR(100),
   passphrase      VARCHAR(255),

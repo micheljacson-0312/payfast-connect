@@ -3,6 +3,8 @@ import { useState, useEffect } from 'react';
 import Sidebar from '@/components/Sidebar';
 
 interface Settings {
+  merchant_name:       string;
+  store_id:            string;
   merchant_id:         string;
   merchant_key:        string;
   passphrase:          string;
@@ -15,14 +17,19 @@ interface Settings {
 }
 
 export default function SettingsPage() {
-  const [cfg,     setCfg]     = useState<Settings>({ merchant_id: '', merchant_key: '', passphrase: '', environment: 'live', tag_on_payment: 'paid,customer', tag_on_fail: 'payment-failed', move_opp_stage: 'won', auto_create_contact: true, fire_workflow: true });
+  const [cfg,     setCfg]     = useState<Settings>({ merchant_name: '', store_id: '', merchant_id: '', merchant_key: '', passphrase: '', environment: 'live', tag_on_payment: 'paid,customer', tag_on_fail: 'payment-failed', move_opp_stage: 'won', auto_create_contact: true, fire_workflow: true });
   const [saving,  setSaving]  = useState(false);
   const [saved,   setSaved]   = useState(false);
   const [error,   setError]   = useState('');
   const [tab,     setTab]     = useState<'payfast' | 'ghl' | 'webhooks'>('payfast');
+  const [installed, setInstalled] = useState(false);
 
   useEffect(() => {
     fetch('/api/settings').then(r => r.json()).then(d => { if (d) setCfg({ ...cfg, ...d }); }).catch(() => {});
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      setInstalled(params.get('installed') === '1');
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -72,6 +79,17 @@ export default function SettingsPage() {
         </div>
 
         <div style={{ padding: '28px 32px', maxWidth: 760 }}>
+          {installed && (
+            <div style={{ background: 'rgba(34,197,94,0.08)', border: '1px solid rgba(34,197,94,0.2)', borderRadius: 10, padding: '12px 16px', fontSize: 13, color: '#22C55E', marginBottom: 18 }}>
+              Install successful. Save your payment gateway fields below to activate GoPayFast for this CRM location.
+            </div>
+          )}
+
+          {saved && (
+            <div style={{ background: 'rgba(0,82,255,0.08)', border: '1px solid rgba(0,82,255,0.2)', borderRadius: 10, padding: '12px 16px', fontSize: 13, color: '#3D7FFF', marginBottom: 18 }}>
+              Settings saved successfully.
+            </div>
+          )}
 
           {/* Tabs */}
           <div style={{ display: 'flex', gap: 4, background: 'var(--dark2)', border: '1px solid var(--border)', padding: 4, borderRadius: 10, marginBottom: 28, width: 'fit-content' }}>
@@ -88,22 +106,35 @@ export default function SettingsPage() {
             <div style={sec}>
               <div style={{ fontFamily: 'var(--font-head)', fontSize: 16, fontWeight: 600, marginBottom: 4 }}>GoPayFast Credentials</div>
               <div style={{ fontSize: 13, color: 'var(--gray)', marginBottom: 24, lineHeight: 1.5 }}>
-                Save your GoPayFast `store_id` in Merchant ID and `store_password` in Merchant Key.
+                Enter the main GoPayFast gateway credentials here. These are the live values used by the hosted checkout flow.
               </div>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 16 }}>
                 <div>
-                  <label style={lbl}>Store ID *</label>
-                  <input style={inp()} value={cfg.merchant_id} onChange={e => set('merchant_id', e.target.value)} placeholder="10012345" />
+                  <label style={lbl}>Merchant Name</label>
+                  <input style={inp()} value={cfg.merchant_name} onChange={e => set('merchant_name', e.target.value)} placeholder="Mentoring Hub" />
                 </div>
                 <div>
-                  <label style={lbl}>Store Password *</label>
-                  <input style={inp()} value={cfg.merchant_key} onChange={e => set('merchant_key', e.target.value)} placeholder="Your store password" />
+                  <label style={lbl}>Store ID</label>
+                  <input style={inp()} value={cfg.store_id} onChange={e => set('store_id', e.target.value)} placeholder="Store ID" />
+                </div>
+              </div>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 16 }}>
+                <div>
+                  <label style={lbl}>Merchant ID *</label>
+                  <input style={inp()} value={cfg.merchant_id} onChange={e => set('merchant_id', e.target.value)} placeholder="26290" />
+                </div>
+                <div>
+                  <label style={lbl}>Merchant Secured Key *</label>
+                  <input style={inp()} value={cfg.merchant_key} onChange={e => set('merchant_key', e.target.value)} placeholder="Merchant secured key" />
                 </div>
               </div>
               <div style={{ marginBottom: 20 }}>
-                <label style={lbl}>Passphrase (optional)</label>
+                <label style={lbl}>Merchant Secret Word</label>
                 <input style={inp()} type="password" value={cfg.passphrase} onChange={e => set('passphrase', e.target.value)} placeholder="Leave blank if not set" />
-                <div style={{ fontSize: 11, color: 'var(--gray)', marginTop: 6 }}>Only use this if your GoPayFast setup provides an extra signing secret.</div>
+                <div style={{ fontSize: 11, color: 'var(--gray)', marginTop: 6 }}>Use this only if GoPayFast issued an additional signing secret for your account.</div>
+              </div>
+              <div style={{ background: 'var(--dark3)', border: '1px solid var(--border)', borderRadius: 10, padding: '12px 14px', marginBottom: 20, fontSize: 12, color: 'var(--gray)', lineHeight: 1.7 }}>
+                If your provider also gave you a separate <strong style={{ color: 'white' }}>Merchant Name</strong> or <strong style={{ color: 'white' }}>Store ID</strong>, keep them for reference. This hosted integration currently uses the three credentials above for payment requests and signature validation.
               </div>
               <div>
                 <label style={lbl}>Environment</label>

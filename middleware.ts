@@ -17,10 +17,21 @@ const PROTECTED = [
   '/subscriptions',
   '/text2pay',
   '/settings',
+  '/docs',
+  '/support',
 ];
 
 export async function middleware(request: NextRequest) {
   const path = request.nextUrl.pathname;
+
+  if (path.startsWith('/admin') && path !== '/admin/login') {
+    const adminCookie = request.cookies.get('pf_admin')?.value;
+    const expectedAdmin = process.env.ADMIN_PASSWORD || process.env.NEXT_PUBLIC_ADMIN_PASSWORD || 'admin123';
+
+    if (adminCookie !== expectedAdmin) {
+      return NextResponse.redirect(new URL('/admin/login', request.url));
+    }
+  }
 
   if (PROTECTED.some(p => path.startsWith(p))) {
     const token = request.cookies.get('pf_session')?.value;
@@ -45,6 +56,7 @@ export async function middleware(request: NextRequest) {
 export const config = {
   matcher: [
     '/dashboard/:path*',
+    '/admin/:path*',
     '/payments/:path*',
     '/payment-schedules/:path*',
     '/payment-links/:path*',
@@ -55,5 +67,7 @@ export const config = {
     '/settings/:path*',
     '/subscriptions/:path*',
     '/text2pay/:path*',
+    '/docs/:path*',
+    '/support/:path*',
   ],
 };

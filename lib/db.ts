@@ -39,6 +39,8 @@ export interface Installation {
   access_token: string;
   refresh_token: string;
   expires_at: string;
+  merchant_name: string | null;
+  store_id: string | null;
   merchant_id: string | null;
   merchant_key: string | null;
   passphrase: string | null;

@@ -1,4 +1,4 @@
-'use client';
+ 'use client';
 
 import { useEffect, useState } from 'react';
 
@@ -21,8 +21,6 @@ interface Application {
 const input = { width: '100%', background: 'white', border: '1px solid #E2E8F0', borderRadius: 10, padding: '10px 12px', color: '#0F172A', fontSize: 13, outline: 'none', fontFamily: 'inherit' } as const;
 
 export default function AdminPage() {
-  const [authorized, setAuthorized] = useState(false);
-  const [password, setPassword] = useState('');
   const [status, setStatus] = useState('all');
   const [search, setSearch] = useState('');
   const [list, setList] = useState<Application[]>([]);
@@ -31,16 +29,13 @@ export default function AdminPage() {
   const [saving, setSaving] = useState(false);
   const [form, setForm] = useState<any>(null);
 
-  const expectedPassword = process.env.NEXT_PUBLIC_ADMIN_PASSWORD || 'admin123';
-
   useEffect(() => {
-    if (!authorized) return;
     setLoading(true);
     fetch(`/api/admin/applications?status=${encodeURIComponent(status)}&search=${encodeURIComponent(search)}`)
       .then((r) => r.json())
       .then(setList)
       .finally(() => setLoading(false));
-  }, [authorized, status, search]);
+  }, [status, search]);
 
   function open(app: Application) {
     setSelected(app);
@@ -73,18 +68,6 @@ export default function AdminPage() {
     setSaving(false);
   }
 
-  if (!authorized) {
-    return (
-      <div style={{ minHeight: '100vh', display: 'grid', placeItems: 'center', background: '#0F172A', padding: 24, fontFamily: 'DM Sans, sans-serif' }}>
-        <div style={{ width: '100%', maxWidth: 420, background: 'white', borderRadius: 18, padding: 28 }}>
-          <h1 style={{ fontFamily: 'Syne, sans-serif', fontSize: 28, marginBottom: 12 }}>Admin Access</h1>
-          <input style={input} type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Enter admin password" />
-          <button onClick={() => setAuthorized(password === expectedPassword)} style={{ marginTop: 14, width: '100%', background: '#0052FF', color: 'white', border: 'none', padding: '12px', borderRadius: 10, cursor: 'pointer', fontWeight: 700 }}>Unlock</button>
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div style={{ minHeight: '100vh', background: '#F8FAFC', padding: 24, fontFamily: 'DM Sans, sans-serif' }}>
       <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet" />
@@ -94,6 +77,7 @@ export default function AdminPage() {
           <div style={{ display: 'flex', gap: 10 }}>
             <select style={{ ...input, width: 160 }} value={status} onChange={(e) => setStatus(e.target.value)}><option value="all">All Statuses</option><option value="pending">Pending</option><option value="reviewing">Reviewing</option><option value="approved">Approved</option><option value="rejected">Rejected</option><option value="live">Live</option></select>
             <input style={{ ...input, width: 240 }} value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search applications" />
+            <button onClick={async () => { await fetch('/api/admin/logout', { method: 'POST' }); window.location.href = '/admin/login'; }} style={{ background: '#0F172A', color: 'white', border: 'none', borderRadius: 10, padding: '10px 14px', cursor: 'pointer', fontWeight: 700 }}>Logout</button>
           </div>
         </div>
 
