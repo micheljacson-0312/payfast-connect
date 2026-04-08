@@ -37,6 +37,32 @@ export async function POST(request: NextRequest) {
   const ghlTransactionId = itn.custom_str3 || null;
   const contactId        = !ghlTransactionId ? (itn.custom_str1 || null) : null;
 
+  let crmPaymentMeta: { invoiceId?: string | null; orderId?: string | null; contactId?: string | null } | null = null;
+  if (ghlTransactionId) {
+    const crmRows = await query<any[]>(
+      `SELECT contact_id, item_description
+       FROM payments
+       WHERE custom_str3 = ? AND location_id = ?
+       ORDER BY id DESC
+       LIMIT 1`,
+      [ghlTransactionId, locationId]
+    );
+
+    if (crmRows[0]) {
+      try {
+        crmPaymentMeta = crmRows[0].item_description ? JSON.parse(crmRows[0].item_description) : null;
+      } catch {
+        crmPaymentMeta = null;
+      }
+
+      if (!crmPaymentMeta) {
+        crmPaymentMeta = { contactId: crmRows[0].contact_id || null };
+      } else if (!crmPaymentMeta.contactId && crmRows[0].contact_id) {
+        crmPaymentMeta.contactId = crmRows[0].contact_id;
+      }
+    }
+  }
+
   // Upsert payment record
   await query(
     `INSERT INTO payments
@@ -67,6 +93,8 @@ export async function POST(request: NextRequest) {
           locationId, ghlTransactionId,
           chargeId:  itn.pf_payment_id,
           amount:    itn.amount_gross,
+          contactId: crmPaymentMeta?.contactId || null,
+          invoiceId: crmPaymentMeta?.invoiceId || null,
           eventType: isSubscription ? 'subscription.charged' : 'payment.captured',
         }),
       }).catch(e => console.error('[ITN→CRM Notify]', e));

@@ -1,5 +1,6 @@
 'use client';
 import { useState } from 'react';
+import { useEffect } from 'react';
 
 interface Props {
   token:string; name:string; description:string; amount:string;
@@ -20,6 +21,15 @@ export default function PaymentPageClient(p:Props) {
   const [loading, setLoading] = useState(false);
   const [error,   setError]   = useState('');
   const [pfData,  setPfData]  = useState<{actionUrl:string;fields:Record<string,string>}|null>(null);
+
+  useEffect(() => {
+    if (!pfData) return;
+    const form = document.getElementById('pfForm') as HTMLFormElement | null;
+    if (form) {
+      const timer = window.setTimeout(() => form.submit(), 200);
+      return () => window.clearTimeout(timer);
+    }
+  }, [pfData]);
 
   const baseAmount = parseFloat(amount||'0');
   const discountAmt = couponStatus?.valid ? couponStatus.discount : 0;
@@ -66,7 +76,6 @@ export default function PaymentPageClient(p:Props) {
           <form id="pfForm" action={pfData.actionUrl} method="POST">
             {Object.entries(pfData.fields).map(([k,v])=><input key={k} type="hidden" name={k} value={v}/>)}
           </form>
-          <script dangerouslySetInnerHTML={{__html:"document.getElementById('pfForm').submit()"}} />
         </div>
       </div>
     );

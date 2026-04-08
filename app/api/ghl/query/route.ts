@@ -14,6 +14,18 @@ export async function POST(request: NextRequest) {
 
   switch (type) {
 
+    case 'ContactUpdate':
+    case 'OpportunityCreate':
+    case 'OpportunityUpdate':
+    case 'OpportunityStatusUpdate':
+    case 'InvoiceCreate':
+    case 'InvoiceSent':
+    case 'InvoiceUpdate':
+    case 'ContactTagUpdate': {
+      // CRM sends these provider capability checks / lifecycle pings.
+      return NextResponse.json({ success: true, type, locationId });
+    }
+
     case 'INSTALL': {
       if (!locationId) {
         return NextResponse.json({ error: 'locationId required' }, { status: 400 });

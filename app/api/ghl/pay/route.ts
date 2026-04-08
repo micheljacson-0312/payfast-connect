@@ -48,13 +48,14 @@ export async function POST(request: NextRequest) {
   await query(
     `INSERT INTO payments
       (location_id, contact_id, payer_email, payer_first, payer_last,
-       amount, item_name, payment_type, status, custom_str1, custom_str2, custom_str3)
-     VALUES (?,?,?,?,?,?,?,?,?,?,?,?)`,
+       amount, item_name, item_description, payment_type, status, custom_str1, custom_str2, custom_str3)
+     VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)`,
     [
       locationId, contactId || null, email,
       nameFirst || '', nameLast || '.',
       parseFloat(amount),
       description || 'CRM Payment',
+      JSON.stringify({ invoiceId: invoiceId || null, orderId: orderId || null, contactId: contactId || null }),
       isRecurring ? 'subscription' : 'one-time',
       'pending',
       payToken,       // custom_str1 = our token
