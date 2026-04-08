@@ -22,7 +22,7 @@ export async function POST(request: NextRequest) {
   }
 
   const result = await query<any>(
-    `INSERT INTO products (location_id, name, description, price, type, interval, currency, is_active)
+    `INSERT INTO products (location_id, name, description, price, type, \`interval\`, currency, is_active)
      VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
     [
       session.locationId,

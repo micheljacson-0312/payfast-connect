@@ -34,7 +34,7 @@ export async function POST(request: NextRequest) {
 
     await query(
       `INSERT INTO payment_links (
-        location_id, token, name, description, product_id, amount, amount_type, currency, type, interval,
+        location_id, token, name, description, product_id, amount, amount_type, currency, type, \`interval\`,
         max_uses, expires_at, collect_phone, collect_address, allow_coupon, success_redirect, tag_on_pay, ghl_pipeline
       ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
