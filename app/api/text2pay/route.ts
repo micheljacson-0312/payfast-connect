@@ -15,28 +15,38 @@ export async function POST(request: NextRequest) {
   const session = await getSession();
   if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
-  const body = await request.json();
-  const { contact_name, phone, email, amount, description } = body;
+  try {
+    const body = await request.json();
+    const { contact_name, phone, email, amount, description } = body;
 
-  if (!phone?.trim() || !amount) {
-    return NextResponse.json({ error: 'Phone and amount required' }, { status: 400 });
+    if (!phone?.trim() || !amount) {
+      return NextResponse.json({ error: 'Phone and amount required' }, { status: 400 });
+    }
+
+    const numericAmount = parseFloat(amount);
+    if (Number.isNaN(numericAmount) || numericAmount <= 0) {
+      return NextResponse.json({ error: 'Enter a valid amount' }, { status: 400 });
+    }
+
+    const token = generateToken(16);
+    const result = await query<any>(
+      `INSERT INTO text2pay (location_id, contact_name, phone, email, amount, description, token)
+       VALUES (?, ?, ?, ?, ?, ?, ?)`,
+      [
+        session.locationId,
+        contact_name || null,
+        phone.trim(),
+        email || null,
+        numericAmount,
+        description || null,
+        token,
+      ]
+    );
+
+    const rows = await query<any[]>('SELECT * FROM text2pay WHERE id = ?', [result.insertId]);
+    return NextResponse.json(rows[0]);
+  } catch (error) {
+    console.error('[text2pay:create]', error);
+    return NextResponse.json({ error: error instanceof Error ? error.message : 'Failed to create text2pay request' }, { status: 500 });
   }
-
-  const token = generateToken(16);
-  const result = await query<any>(
-    `INSERT INTO text2pay (location_id, contact_name, phone, email, amount, description, token)
-     VALUES (?, ?, ?, ?, ?, ?, ?)`,
-    [
-      session.locationId,
-      contact_name || null,
-      phone.trim(),
-      email || null,
-      parseFloat(amount),
-      description || null,
-      token,
-    ]
-  );
-
-  const rows = await query<any[]>('SELECT * FROM text2pay WHERE id = ?', [result.insertId]);
-  return NextResponse.json(rows[0]);
 }
