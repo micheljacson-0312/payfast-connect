@@ -7,9 +7,11 @@ const secret = () => new TextEncoder().encode(process.env.SESSION_SECRET!);
 
 const PROTECTED = [
   '/dashboard',
+  '/agency',
   '/payments',
   '/payment-schedules',
   '/payment-links',
+  '/billing',
   '/products',
   '/invoices',
   '/order-forms',
@@ -42,6 +44,29 @@ export async function middleware(request: NextRequest) {
 
     try {
       await jwtVerify(token, secret());
+
+      const bypassBilling = path.startsWith('/billing') || path.startsWith('/admin') || path.startsWith('/docs') || path.startsWith('/support');
+      if (!bypassBilling) {
+        try {
+          const statusRes = await fetch(`${request.nextUrl.origin}/api/billing/status`, {
+            headers: { cookie: request.headers.get('cookie') || '' },
+            cache: 'no-store',
+          });
+
+          if (statusRes.ok) {
+            const billing = await statusRes.json();
+            if (billing?.isSuspended) {
+              return NextResponse.redirect(new URL('/billing/suspended', request.url));
+            }
+            if (billing?.needsPlanSelection) {
+              return NextResponse.redirect(new URL('/billing/plans', request.url));
+            }
+          }
+        } catch {
+          // Billing gate should fail open to avoid blocking the app on transient checks.
+        }
+      }
+
       return NextResponse.next();
     } catch {
       const response = NextResponse.redirect(getAppUrl('/install', request));
@@ -56,8 +81,10 @@ export async function middleware(request: NextRequest) {
 export const config = {
   matcher: [
     '/dashboard/:path*',
+    '/agency/:path*',
     '/admin/:path*',
     '/payments/:path*',
+    '/billing/:path*',
     '/payment-schedules/:path*',
     '/payment-links/:path*',
     '/products/:path*',

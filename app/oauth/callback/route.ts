@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { query } from '@/lib/db';
 import { applySessionCookie } from '@/lib/session';
 import { getAppUrlWithSearch } from '@/lib/app-url';
+import { startTrial } from '@/lib/billing';
 
 function pickString(...values: unknown[]) {
   for (const value of values) {
@@ -123,9 +124,11 @@ export async function GET(request: NextRequest) {
       ]
     );
 
-    // Redirect to settings (new install needs GoPayFast credentials)
+    await startTrial(locationId);
+
+    // Redirect to billing plans after install so client can choose plan during trial.
     return applySessionCookie(
-      NextResponse.redirect(getAppUrlWithSearch('/settings?installed=1', request)),
+      NextResponse.redirect(getAppUrlWithSearch('/billing/plans?installed=1', request)),
       locationId
     );
   } catch (err) {

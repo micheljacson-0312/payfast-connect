@@ -3,12 +3,23 @@ import { getSession } from '@/lib/session';
 import { query, Installation, Payment } from '@/lib/db';
 import Sidebar from '@/components/Sidebar';
 import Link from 'next/link';
+import { checkSubscription } from '@/lib/billing';
 
 export default async function DashboardPage() {
   const session = await getSession();
   if (!session) redirect('/install');
+  if (session.installMode === 'agency') redirect('/agency');
 
   const { locationId } = session;
+  const billing = await checkSubscription(locationId);
+
+  if (billing.isSuspended) {
+    redirect('/billing/suspended');
+  }
+
+  if (billing.needsPlanSelection) {
+    redirect('/billing/plans');
+  }
 
   const [inst] = await query<Installation[]>(
     'SELECT * FROM installations WHERE location_id = ?',
@@ -73,6 +84,13 @@ export default async function DashboardPage() {
             <div style={{ background: 'rgba(245,158,11,0.08)', border: '1px solid rgba(245,158,11,0.25)', borderRadius: 12, padding: '14px 20px', marginBottom: 24, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
               <span style={{ fontSize: 14, color: 'var(--warning)' }}>⚠️ GoPayFast credentials not configured — payments won&apos;t work yet.</span>
               <Link href="/settings" style={{ fontSize: 13, color: 'var(--warning)', fontWeight: 600 }}>Go to Settings →</Link>
+            </div>
+          )}
+
+          {billing.status === 'trial' && (
+            <div style={{ background: 'rgba(245,158,11,0.08)', border: '1px solid rgba(245,158,11,0.25)', borderRadius: 12, padding: '14px 20px', marginBottom: 24, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              <span style={{ fontSize: 14, color: 'var(--warning)' }}>⚠️ Trial active: {billing.trialDaysLeft} day(s) remaining. Choose a billing plan to avoid suspension.</span>
+              <Link href="/billing/plans" style={{ fontSize: 13, color: 'var(--warning)', fontWeight: 600 }}>View Billing Plans →</Link>
             </div>
           )}
 

@@ -4,8 +4,10 @@ import { NextResponse } from 'next/server';
 
 const secret = () => new TextEncoder().encode(process.env.SESSION_SECRET!);
 
-export async function createSession(locationId: string): Promise<void> {
-  const token = await signSessionToken(locationId);
+export type InstallMode = 'subaccount' | 'agency';
+
+export async function createSession(locationId: string, installMode: InstallMode = 'subaccount'): Promise<void> {
+  const token = await signSessionToken(locationId, installMode);
 
   (await cookies()).set('pf_session', token, {
     httpOnly:  true,
@@ -16,16 +18,16 @@ export async function createSession(locationId: string): Promise<void> {
   });
 }
 
-export async function signSessionToken(locationId: string): Promise<string> {
-  return new SignJWT({ locationId })
+export async function signSessionToken(locationId: string, installMode: InstallMode = 'subaccount'): Promise<string> {
+  return new SignJWT({ locationId, installMode })
     .setProtectedHeader({ alg: 'HS256' })
     .setIssuedAt()
     .setExpirationTime('7d')
     .sign(secret());
 }
 
-export async function applySessionCookie(response: NextResponse, locationId: string): Promise<NextResponse> {
-  const token = await signSessionToken(locationId);
+export async function applySessionCookie(response: NextResponse, locationId: string, installMode: InstallMode = 'subaccount'): Promise<NextResponse> {
+  const token = await signSessionToken(locationId, installMode);
 
   response.cookies.set('pf_session', token, {
     httpOnly:  true,
@@ -38,12 +40,15 @@ export async function applySessionCookie(response: NextResponse, locationId: str
   return response;
 }
 
-export async function getSession(): Promise<{ locationId: string } | null> {
+export async function getSession(): Promise<{ locationId: string; installMode: InstallMode } | null> {
   const token = (await cookies()).get('pf_session')?.value;
   if (!token) return null;
   try {
     const { payload } = await jwtVerify(token, secret());
-    return payload as { locationId: string };
+    return {
+      locationId: String(payload.locationId),
+      installMode: (payload.installMode as InstallMode) || 'subaccount',
+    };
   } catch {
     return null;
   }
