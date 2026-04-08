@@ -42,9 +42,9 @@ export default async function AgencyPage() {
 
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 16 }}>
           {[
-            ['/admin/billing', 'Agency Billing Panel', 'Open full client billing control center'],
-            ['/agency/install', 'Agency Install Flow', 'Re-open dedicated agency app install path'],
-            ['/docs', 'Docs', 'Open live project documentation'],
+            ['/admin/billing', 'Agency Billing Panel', 'Open client-level billing records and internal overrides.'],
+            ['/agency/install', 'Agency Install Flow', 'Use the dedicated marketplace install URL for the agency app.'],
+            ['/docs', 'Documentation', 'Open the current docs and reference files for this project.'],
           ].map(([href, title, desc]) => (
             <a key={href} href={href} style={{ background: 'var(--dark2)', border: '1px solid var(--border)', borderRadius: 14, padding: 22, textDecoration: 'none', color: 'white' }}>
               <div style={{ fontFamily: 'var(--font-head)', fontSize: 18, fontWeight: 700, marginBottom: 8 }}>{title}</div>
@@ -54,6 +54,10 @@ export default async function AgencyPage() {
         </div>
 
         <div style={{ marginTop: 22 }}>
+          <div style={{ marginBottom: 14 }}>
+            <div style={{ fontFamily: 'var(--font-head)', fontSize: 22, fontWeight: 700, marginBottom: 6 }}>HighLevel SaaS Controls</div>
+            <div style={{ color: 'var(--gray)', fontSize: 13 }}>Use these tools to inspect agency plans, inspect sub-account SaaS subscriptions, and send rebilling / enable / update / pause requests directly against the connected agency context.</div>
+          </div>
           <AgencyControls />
         </div>
       </div>

@@ -1,71 +1,162 @@
 'use client';
 
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
+
+const card = {
+  background: 'var(--dark2)',
+  border: '1px solid var(--border)',
+  borderRadius: 18,
+  padding: 22,
+} as const;
+
+const input = {
+  width: '100%',
+  background: 'var(--dark3)',
+  border: '1px solid var(--border)',
+  borderRadius: 10,
+  padding: '11px 12px',
+  color: 'white',
+  fontSize: 13,
+  fontFamily: 'inherit',
+  outline: 'none',
+} as const;
+
+const area = {
+  ...input,
+  minHeight: 150,
+  resize: 'vertical' as const,
+  fontFamily: 'ui-monospace, SFMono-Regular, Menlo, Consolas, monospace',
+} as const;
 
 export default function AgencyControls() {
   const [plans, setPlans] = useState<any>(null);
   const [subscription, setSubscription] = useState<any>(null);
   const [locationId, setLocationId] = useState('');
-  const [message, setMessage] = useState('');
-  const [payload, setPayload] = useState('{\n  "locationIds": [],\n  "rebillingType": "monthly",\n  "amount": 0\n}');
-  const [enablePayload, setEnablePayload] = useState('{\n  "planId": "",\n  "subscriptionId": ""\n}');
-  const [updatePayload, setUpdatePayload] = useState('{\n  "subscriptionId": "",\n  "amount": 0\n}');
+  const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+  const [loading, setLoading] = useState<string | null>(null);
+  const [rebillingPayload, setRebillingPayload] = useState(`{
+  "locationIds": [],
+  "rebillingType": "monthly",
+  "amount": 0
+}`);
+  const [enablePayload, setEnablePayload] = useState(`{
+  "planId": "",
+  "subscriptionId": ""
+}`);
+  const [updatePayload, setUpdatePayload] = useState(`{
+  "subscriptionId": "",
+  "amount": 0
+}`);
 
-  async function run(url: string, options?: RequestInit) {
-    setMessage('');
-    const res = await fetch(url, options);
-    const data = await res.json().catch(() => ({}));
-    if (!res.ok) {
-      setMessage(data.error || data.message || 'Request failed');
+  const formattedPlans = useMemo(() => (plans ? JSON.stringify(plans, null, 2) : ''), [plans]);
+  const formattedSubscription = useMemo(() => (subscription ? JSON.stringify(subscription, null, 2) : ''), [subscription]);
+
+  async function run(key: string, url: string, options?: RequestInit) {
+    setLoading(key);
+    setMessage(null);
+    try {
+      const res = await fetch(url, options);
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        setMessage({ type: 'error', text: data.error || data.message || 'Request failed' });
+        return null;
+      }
+      setMessage({ type: 'success', text: 'Request completed successfully.' });
+      return data;
+    } catch (error) {
+      setMessage({ type: 'error', text: error instanceof Error ? error.message : 'Request failed' });
       return null;
+    } finally {
+      setLoading(null);
     }
-    setMessage('Request completed successfully');
-    return data;
   }
 
-  return (
-    <div style={{ display: 'grid', gap: 18 }}>
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 18 }}>
-        <div style={{ background: 'var(--dark2)', border: '1px solid var(--border)', borderRadius: 14, padding: 22 }}>
-          <div style={{ fontFamily: 'var(--font-head)', fontSize: 18, fontWeight: 700, marginBottom: 10 }}>Agency SaaS Plans</div>
-          <button onClick={async () => setPlans(await run('/api/agency/saas/agency-plans'))} style={{ background: 'var(--blue)', color: 'white', border: 'none', padding: '10px 14px', borderRadius: 10, cursor: 'pointer', marginBottom: 14 }}>Load Agency Plans</button>
-          <pre style={{ whiteSpace: 'pre-wrap', color: '#9FB0D5', fontSize: 12 }}>{plans ? JSON.stringify(plans, null, 2) : 'Agency SaaS plans will appear here.'}</pre>
-        </div>
+  function parseJson(value: string) {
+    return JSON.parse(value);
+  }
 
-        <div style={{ background: 'var(--dark2)', border: '1px solid var(--border)', borderRadius: 14, padding: 22 }}>
-          <div style={{ fontFamily: 'var(--font-head)', fontSize: 18, fontWeight: 700, marginBottom: 10 }}>Location Subscription</div>
-          <input value={locationId} onChange={(e) => setLocationId(e.target.value)} placeholder="Location ID" style={{ width: '100%', background: 'var(--dark3)', border: '1px solid var(--border)', borderRadius: 10, padding: '10px 12px', color: 'white', marginBottom: 10 }} />
-          <button onClick={async () => setSubscription(await run(`/api/agency/saas/location-subscription?locationId=${encodeURIComponent(locationId)}`))} style={{ background: 'var(--blue)', color: 'white', border: 'none', padding: '10px 14px', borderRadius: 10, cursor: 'pointer', marginBottom: 14 }}>Fetch Subscription</button>
-          <pre style={{ whiteSpace: 'pre-wrap', color: '#9FB0D5', fontSize: 12 }}>{subscription ? JSON.stringify(subscription, null, 2) : 'Subscription details will appear here.'}</pre>
-        </div>
+  const infoCards = [
+    {
+      title: 'Agency SaaS Plans',
+      desc: 'Load the plans configured in HighLevel for the connected agency.',
+      action: () => run('plans', '/api/agency/saas/agency-plans').then((data) => data && setPlans(data)),
+      cta: loading === 'plans' ? 'Loading…' : 'Load Plans',
+      content: formattedPlans || 'Agency SaaS plan payload will appear here once loaded.',
+    },
+    {
+      title: 'Location Subscription Lookup',
+      desc: 'Fetch the live SaaS subscription metadata for a specific sub-account.',
+      action: () => run('subscription', `/api/agency/saas/location-subscription?locationId=${encodeURIComponent(locationId)}`).then((data) => data && setSubscription(data)),
+      cta: loading === 'subscription' ? 'Checking…' : 'Fetch Subscription',
+      content: formattedSubscription || 'Subscription details will appear here after lookup.',
+    },
+  ];
+
+  return (
+    <div style={{ display: 'grid', gap: 20 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 18 }}>
+        {infoCards.map((section) => (
+          <section key={section.title} style={card}>
+            <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 12, marginBottom: 14 }}>
+              <div>
+                <div style={{ fontFamily: 'var(--font-head)', fontSize: 18, fontWeight: 700, marginBottom: 6 }}>{section.title}</div>
+                <div style={{ color: 'var(--gray)', fontSize: 13, lineHeight: 1.6 }}>{section.desc}</div>
+              </div>
+            </div>
+
+            <div style={{ display: 'flex', gap: 10, marginBottom: 12 }}>
+              <input value={locationId} onChange={(e) => setLocationId(e.target.value)} placeholder="Location ID (only needed for subscription lookup)" style={input} />
+              <button onClick={section.action} style={{ background: 'var(--blue)', color: 'white', border: 'none', borderRadius: 10, padding: '0 16px', cursor: 'pointer', fontWeight: 700, whiteSpace: 'nowrap' }}>{section.cta}</button>
+            </div>
+
+            <div style={{ background: '#0A1229', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 12, padding: 14 }}>
+              <pre style={{ margin: 0, whiteSpace: 'pre-wrap', color: '#9FB0D5', fontSize: 12 }}>{section.content}</pre>
+            </div>
+          </section>
+        ))}
       </div>
 
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 18 }}>
-        <div style={{ background: 'var(--dark2)', border: '1px solid var(--border)', borderRadius: 14, padding: 22 }}>
-          <div style={{ fontFamily: 'var(--font-head)', fontSize: 18, fontWeight: 700, marginBottom: 10 }}>Update Rebilling</div>
-          <textarea value={payload} onChange={(e) => setPayload(e.target.value)} style={{ width: '100%', minHeight: 170, background: 'var(--dark3)', border: '1px solid var(--border)', borderRadius: 10, padding: '10px 12px', color: 'white', fontFamily: 'monospace' }} />
-          <button onClick={() => run('/api/agency/saas/rebilling', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: payload })} style={{ marginTop: 12, background: 'var(--blue)', color: 'white', border: 'none', padding: '10px 14px', borderRadius: 10, cursor: 'pointer' }}>Send Rebilling Request</button>
-        </div>
+        <section style={card}>
+          <div style={{ fontFamily: 'var(--font-head)', fontSize: 18, fontWeight: 700, marginBottom: 8 }}>Update Rebilling</div>
+          <div style={{ color: 'var(--gray)', fontSize: 13, lineHeight: 1.6, marginBottom: 12 }}>Send a manual rebilling payload to the agency company context. Use this to align reseller billing with your HighLevel SaaS model.</div>
+          <textarea value={rebillingPayload} onChange={(e) => setRebillingPayload(e.target.value)} style={area} />
+          <button onClick={() => run('rebilling', '/api/agency/saas/rebilling', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: rebillingPayload })} style={{ marginTop: 12, width: '100%', background: 'var(--blue)', color: 'white', border: 'none', borderRadius: 12, padding: '12px 16px', cursor: 'pointer', fontWeight: 700 }}>
+            {loading === 'rebilling' ? 'Sending…' : 'Send Rebilling Request'}
+          </button>
+        </section>
 
-        <div style={{ background: 'var(--dark2)', border: '1px solid var(--border)', borderRadius: 14, padding: 22 }}>
-          <div style={{ fontFamily: 'var(--font-head)', fontSize: 18, fontWeight: 700, marginBottom: 10 }}>Enable SaaS Location</div>
-          <input value={locationId} onChange={(e) => setLocationId(e.target.value)} placeholder="Location ID" style={{ width: '100%', background: 'var(--dark3)', border: '1px solid var(--border)', borderRadius: 10, padding: '10px 12px', color: 'white', marginBottom: 10 }} />
-          <textarea value={enablePayload} onChange={(e) => setEnablePayload(e.target.value)} style={{ width: '100%', minHeight: 120, background: 'var(--dark3)', border: '1px solid var(--border)', borderRadius: 10, padding: '10px 12px', color: 'white', fontFamily: 'monospace' }} />
-          <button onClick={() => run('/api/agency/saas/enable-location', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ locationId, payload: JSON.parse(enablePayload) }) })} style={{ marginTop: 12, background: 'var(--blue)', color: 'white', border: 'none', padding: '10px 14px', borderRadius: 10, cursor: 'pointer' }}>Enable SaaS</button>
-        </div>
+        <section style={card}>
+          <div style={{ fontFamily: 'var(--font-head)', fontSize: 18, fontWeight: 700, marginBottom: 8 }}>Enable SaaS for Location</div>
+          <div style={{ color: 'var(--gray)', fontSize: 13, lineHeight: 1.6, marginBottom: 12 }}>Enable SaaS against a sub-account after you decide which reseller setup or plan should apply.</div>
+          <input value={locationId} onChange={(e) => setLocationId(e.target.value)} placeholder="Location ID" style={{ ...input, marginBottom: 10 }} />
+          <textarea value={enablePayload} onChange={(e) => setEnablePayload(e.target.value)} style={{ ...area, minHeight: 120 }} />
+          <button onClick={() => run('enable', '/api/agency/saas/enable-location', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ locationId, payload: parseJson(enablePayload) }) })} style={{ marginTop: 12, width: '100%', background: 'var(--blue)', color: 'white', border: 'none', borderRadius: 12, padding: '12px 16px', cursor: 'pointer', fontWeight: 700 }}>
+            {loading === 'enable' ? 'Enabling…' : 'Enable SaaS'}
+          </button>
+        </section>
 
-        <div style={{ background: 'var(--dark2)', border: '1px solid var(--border)', borderRadius: 14, padding: 22 }}>
-          <div style={{ fontFamily: 'var(--font-head)', fontSize: 18, fontWeight: 700, marginBottom: 10 }}>Update / Pause SaaS</div>
-          <input value={locationId} onChange={(e) => setLocationId(e.target.value)} placeholder="Location ID" style={{ width: '100%', background: 'var(--dark3)', border: '1px solid var(--border)', borderRadius: 10, padding: '10px 12px', color: 'white', marginBottom: 10 }} />
-          <textarea value={updatePayload} onChange={(e) => setUpdatePayload(e.target.value)} style={{ width: '100%', minHeight: 120, background: 'var(--dark3)', border: '1px solid var(--border)', borderRadius: 10, padding: '10px 12px', color: 'white', fontFamily: 'monospace' }} />
-          <div style={{ display: 'flex', gap: 10, marginTop: 12 }}>
-            <button onClick={() => run('/api/agency/saas/update-subscription', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ locationId, payload: JSON.parse(updatePayload) }) })} style={{ flex: 1, background: 'var(--blue)', color: 'white', border: 'none', padding: '10px 14px', borderRadius: 10, cursor: 'pointer' }}>Update Subscription</button>
-            <button onClick={() => run('/api/agency/saas/pause-location', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ locationId, payload: {} }) })} style={{ flex: 1, background: 'transparent', border: '1px solid var(--border)', color: 'white', padding: '10px 14px', borderRadius: 10, cursor: 'pointer' }}>Pause</button>
+        <section style={card}>
+          <div style={{ fontFamily: 'var(--font-head)', fontSize: 18, fontWeight: 700, marginBottom: 8 }}>Update or Pause Subscription</div>
+          <div style={{ color: 'var(--gray)', fontSize: 13, lineHeight: 1.6, marginBottom: 12 }}>Use this when a monthly amount changes, a subscription needs updating, or a location must be paused for failed billing.</div>
+          <input value={locationId} onChange={(e) => setLocationId(e.target.value)} placeholder="Location ID" style={{ ...input, marginBottom: 10 }} />
+          <textarea value={updatePayload} onChange={(e) => setUpdatePayload(e.target.value)} style={{ ...area, minHeight: 120 }} />
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginTop: 12 }}>
+            <button onClick={() => run('update', '/api/agency/saas/update-subscription', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ locationId, payload: parseJson(updatePayload) }) })} style={{ background: 'var(--blue)', color: 'white', border: 'none', borderRadius: 12, padding: '12px 14px', cursor: 'pointer', fontWeight: 700 }}>
+              {loading === 'update' ? 'Updating…' : 'Update'}
+            </button>
+            <button onClick={() => run('pause', '/api/agency/saas/pause-location', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ locationId, payload: {} }) })} style={{ background: 'transparent', color: 'white', border: '1px solid var(--border)', borderRadius: 12, padding: '12px 14px', cursor: 'pointer', fontWeight: 700 }}>
+              {loading === 'pause' ? 'Pausing…' : 'Pause'}
+            </button>
           </div>
-        </div>
+        </section>
       </div>
 
-      {message && <div style={{ background: 'rgba(0,82,255,0.08)', border: '1px solid rgba(0,82,255,0.2)', borderRadius: 10, padding: '12px 16px', color: '#3D7FFF' }}>{message}</div>}
+      {message && (
+        <div style={{ background: message.type === 'success' ? 'rgba(0,82,255,0.08)' : 'rgba(239,68,68,0.08)', border: `1px solid ${message.type === 'success' ? 'rgba(0,82,255,0.2)' : 'rgba(239,68,68,0.2)'}`, borderRadius: 12, padding: '12px 16px', color: message.type === 'success' ? '#3D7FFF' : '#EF4444' }}>
+          {message.text}
+        </div>
+      )}
     </div>
   );
 }

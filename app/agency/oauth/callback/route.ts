@@ -24,8 +24,14 @@ export async function GET(request: NextRequest) {
   const locationIdFromQuery = searchParams.get('locationId') || searchParams.get('location_id');
   const companyIdFromQuery = searchParams.get('companyId') || searchParams.get('company_id');
 
+  // If a stale sub-account session exists, drop it before completing agency auth.
+  const clearExistingSession = (response: NextResponse) => {
+    response.cookies.delete('pf_session');
+    return response;
+  };
+
   if (error || !code) {
-    return NextResponse.redirect(getAppUrlWithSearch(`/agency/install?error=${error || 'access_denied'}`, request));
+    return clearExistingSession(NextResponse.redirect(getAppUrlWithSearch(`/agency/install?error=${error || 'access_denied'}`, request)));
   }
 
   try {
@@ -66,9 +72,9 @@ export async function GET(request: NextRequest) {
       [locationId, companyId, accessToken, refreshToken, new Date(Date.now() + expiresIn * 1000)]
     );
 
-    return applySessionCookie(NextResponse.redirect(getAppUrlWithSearch('/agency?installed=1', request)), locationId, 'agency');
+    return applySessionCookie(clearExistingSession(NextResponse.redirect(getAppUrlWithSearch('/agency?installed=1', request))), locationId, 'agency');
   } catch (err) {
     console.error('Agency OAuth callback error:', err);
-    return NextResponse.redirect(getAppUrlWithSearch('/agency/install?error=server_error', request));
+    return clearExistingSession(NextResponse.redirect(getAppUrlWithSearch('/agency/install?error=server_error', request)));
   }
 }

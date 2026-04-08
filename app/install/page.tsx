@@ -1,9 +1,19 @@
 import Link from 'next/link';
+import { getSession } from '@/lib/session';
+import { redirect } from 'next/navigation';
 
-export default function InstallPage() {
+export default async function InstallPage() {
+  const session = await getSession();
+  if (session?.installMode === 'agency') {
+    redirect('/agency');
+  }
+  if (session?.installMode === 'subaccount') {
+    redirect('/dashboard');
+  }
+
   const appUrl    = process.env.NEXT_PUBLIC_APP_URL!;
   const clientId  = process.env.GHL_CLIENT_ID!;
-  const redirect  = `${appUrl}/oauth/callback`;
+  const redirectUrl  = `${appUrl}/oauth/callback`;
 
   const scopes = [
     'contacts.readonly',
@@ -17,7 +27,7 @@ export default function InstallPage() {
     `https://marketplace.gohighlevel.com/oauth/chooselocation` +
     `?response_type=code` +
     `&client_id=${clientId}` +
-    `&redirect_uri=${encodeURIComponent(redirect)}` +
+    `&redirect_uri=${encodeURIComponent(redirectUrl)}` +
     `&scope=${encodeURIComponent(scopes)}`;
 
   return (

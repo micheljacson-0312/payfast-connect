@@ -43,7 +43,15 @@ export async function middleware(request: NextRequest) {
     }
 
     try {
-      await jwtVerify(token, secret());
+      const { payload } = await jwtVerify(token, secret());
+
+      const installMode = (payload.installMode as string) || 'subaccount';
+      if (path.startsWith('/agency') && installMode !== 'agency') {
+        return NextResponse.redirect(new URL('/dashboard', request.url));
+      }
+      if (!path.startsWith('/agency') && installMode === 'agency' && path === '/install') {
+        return NextResponse.redirect(new URL('/agency', request.url));
+      }
 
       return NextResponse.next();
     } catch {
