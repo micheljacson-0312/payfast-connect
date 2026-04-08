@@ -126,9 +126,9 @@ export async function GET(request: NextRequest) {
 
     await startTrial(locationId);
 
-    // Redirect to billing plans after install so client can choose plan during trial.
+    // Keep the sub-account install flow on the regular app setup path.
     return applySessionCookie(
-      NextResponse.redirect(getAppUrlWithSearch('/billing/plans?installed=1', request)),
+      NextResponse.redirect(getAppUrlWithSearch('/settings?installed=1', request)),
       locationId
     );
   } catch (err) {

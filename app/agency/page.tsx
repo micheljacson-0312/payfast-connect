@@ -1,6 +1,7 @@
 import { getSession } from '@/lib/session';
 import { redirect } from 'next/navigation';
 import { query } from '@/lib/db';
+import AgencyControls from './AgencyControls';
 
 export default async function AgencyPage() {
   const session = await getSession();
@@ -50,6 +51,10 @@ export default async function AgencyPage() {
               <div style={{ color: 'var(--gray)', fontSize: 13 }}>{desc}</div>
             </a>
           ))}
+        </div>
+
+        <div style={{ marginTop: 22 }}>
+          <AgencyControls />
         </div>
       </div>
     </div>

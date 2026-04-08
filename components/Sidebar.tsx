@@ -20,7 +20,6 @@ const SECTIONS = [
     { label: 'Coupons',       href: '/coupons',       icon: '🏷️' },
   ]},
   { label: 'Config', items: [
-    { label: 'Billing',       href: '/billing',       icon: '🧾' },
     { label: 'Settings',      href: '/settings',      icon: '⚙️' },
   ]},
   { label: 'Help', items: [
