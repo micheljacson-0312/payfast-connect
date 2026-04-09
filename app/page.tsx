@@ -1,11 +1,126 @@
-import { redirect } from 'next/navigation';
+import Link from 'next/link';
 import { getSession } from '@/lib/session';
+
+const card = {
+  background: 'rgba(12, 22, 48, 0.88)',
+  border: '1px solid rgba(255,255,255,0.08)',
+  borderRadius: 20,
+  padding: 24,
+} as const;
 
 export default async function RootPage() {
   const session = await getSession();
-  if (session) {
-    if (session.installMode === 'agency') redirect('/agency');
-    redirect('/dashboard');
-  }
-  else redirect('/install');
+
+  return (
+    <div style={{ minHeight: '100vh', background: '#050A1A', color: 'white', fontFamily: 'DM Sans, sans-serif' }}>
+      <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet" />
+      <div style={{ position: 'fixed', inset: 0, pointerEvents: 'none', background: 'radial-gradient(circle at 15% 15%, rgba(0,82,255,0.16), transparent 25%), radial-gradient(circle at 85% 10%, rgba(255,107,44,0.12), transparent 22%)' }} />
+
+      <nav style={{ position: 'relative', zIndex: 2, display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '22px 42px', borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
+        <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: 12, color: 'white', textDecoration: 'none' }}>
+          <div style={{ width: 38, height: 38, background: '#0052FF', borderRadius: 10, display: 'grid', placeItems: 'center' }}>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="white"><path d="M13 2L4.5 13H11L10 22L19.5 11H13L13 2Z" /></svg>
+          </div>
+          <div>
+            <div style={{ fontFamily: 'Syne, sans-serif', fontSize: 17, fontWeight: 800 }}>GoPayFast Connect</div>
+            <div style={{ fontSize: 11, color: '#8AA0C8' }}>Aggregator Portal by 10x Digital Ventures</div>
+          </div>
+        </Link>
+
+        <div style={{ display: 'flex', gap: 12 }}>
+          <Link href="/apply" style={{ color: '#DCE7FF', textDecoration: 'none', fontSize: 14 }}>Apply</Link>
+          <Link href="/docs" style={{ color: '#DCE7FF', textDecoration: 'none', fontSize: 14 }}>Docs</Link>
+          <Link href="/support" style={{ color: '#DCE7FF', textDecoration: 'none', fontSize: 14 }}>Support</Link>
+          {session && (
+            <Link href={session.installMode === 'agency' ? '/agency' : '/dashboard'} style={{ background: '#0052FF', color: 'white', textDecoration: 'none', padding: '10px 14px', borderRadius: 10, fontSize: 13, fontWeight: 700 }}>
+              Open {session.installMode === 'agency' ? 'Agency' : 'Dashboard'}
+            </Link>
+          )}
+        </div>
+      </nav>
+
+      <main style={{ position: 'relative', zIndex: 1, maxWidth: 1180, margin: '0 auto', padding: '56px 24px 72px' }}>
+        <section style={{ display: 'grid', gridTemplateColumns: '1.15fr 0.85fr', gap: 24, alignItems: 'stretch', marginBottom: 28 }}>
+          <div style={{ ...card, padding: 34 }}>
+            <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: 'rgba(0,82,255,0.12)', color: '#7FB0FF', border: '1px solid rgba(0,82,255,0.2)', borderRadius: 999, padding: '8px 12px', fontSize: 12, fontWeight: 700, marginBottom: 18 }}>
+              GoPayFast Aggregator Platform
+            </div>
+            <h1 style={{ fontFamily: 'Syne, sans-serif', fontSize: 48, lineHeight: 1.05, fontWeight: 800, marginBottom: 16 }}>Onboard merchants, connect CRM accounts, and manage agency billing from one place.</h1>
+            <p style={{ color: '#8AA0C8', fontSize: 16, lineHeight: 1.8, maxWidth: 720, marginBottom: 24 }}>
+              This portal is built for payment aggregation. Merchants can apply for accounts, sub-accounts can connect their CRM install, and agencies can manage billing controls from a separate app flow.
+            </p>
+            <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
+              <Link href="/apply" style={{ background: '#0052FF', color: 'white', textDecoration: 'none', padding: '13px 18px', borderRadius: 12, fontWeight: 700 }}>Merchant Application Form</Link>
+              <Link href="/install" style={{ background: 'transparent', border: '1px solid rgba(255,255,255,0.12)', color: 'white', textDecoration: 'none', padding: '13px 18px', borderRadius: 12, fontWeight: 700 }}>Sub-Account Connect</Link>
+              <Link href="/agency/install" style={{ background: 'transparent', border: '1px solid rgba(255,255,255,0.12)', color: 'white', textDecoration: 'none', padding: '13px 18px', borderRadius: 12, fontWeight: 700 }}>Agency App Connect</Link>
+            </div>
+          </div>
+
+          <div style={{ ...card, padding: 26, display: 'grid', gap: 14 }}>
+            {[
+              ['Merchant Applications', 'Use the application form to collect onboarding, business, and banking details.'],
+              ['Sub-Account CRM App', 'Keep the client-facing dashboard and payment tools separate from agency controls.'],
+              ['Agency SaaS Controls', 'Use the agency app to manage SaaS enablement, rebilling, and subscription checks.'],
+            ].map(([title, desc]) => (
+              <div key={title} style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 14, padding: 16 }}>
+                <div style={{ fontFamily: 'Syne, sans-serif', fontSize: 18, fontWeight: 700, marginBottom: 6 }}>{title}</div>
+                <div style={{ color: '#8AA0C8', fontSize: 13, lineHeight: 1.7 }}>{desc}</div>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        <section style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 18, marginBottom: 28 }}>
+          {[
+            ['/apply', 'Merchant Application', 'Public form for merchant onboarding and document collection.'],
+            ['/install', 'CRM Sub-Account Install', 'Install the sub-account app and access the user dashboard.'],
+            ['/agency/install', 'Agency Install', 'Install the agency app and open the separate agency panel.'],
+            ['/support', 'Support', 'Get onboarding help, deployment help, or payment support.'],
+          ].map(([href, title, desc]) => (
+            <Link key={href} href={href} style={{ ...card, textDecoration: 'none', color: 'white' }}>
+              <div style={{ fontFamily: 'Syne, sans-serif', fontSize: 22, fontWeight: 800, marginBottom: 10 }}>{title}</div>
+              <div style={{ color: '#8AA0C8', fontSize: 13, lineHeight: 1.7 }}>{desc}</div>
+            </Link>
+          ))}
+        </section>
+
+        <section style={{ marginBottom: 56 }}>
+          <h2 style={{ fontFamily: 'Syne, sans-serif', fontSize: 32, fontWeight: 800, marginBottom: 32, textAlign: 'center' }}>Advanced Payment Features</h2>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 24 }}>
+            {[
+              ['Secure Card Saving', 'Save customer payment instruments securely and enable one-click checkouts and subscriptions.', '💳'],
+              ['Wallet Management', 'Maintain and track wallet balances for sub-accounts with real-time top-ups and deductions.', '💰'],
+              ['Automated Rebilling', 'Set and forget. Our system monitors subscriptions and handles recurring billing automatically.', '🔄'],
+            ].map(([title, desc, icon]) => (
+              <div key={title} style={{ ...card, textAlign: 'center' }}>
+                <div style={{ fontSize: 40, marginBottom: 16 }}>{icon}</div>
+                <div style={{ fontFamily: 'Syne, sans-serif', fontSize: 20, fontWeight: 700, marginBottom: 12 }}>{title}</div>
+                <div style={{ color: '#8AA0C8', fontSize: 14, lineHeight: 1.6 }}>{desc}</div>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        <section style={{ background: 'rgba(0,82,255,0.05)', border: '1px solid rgba(0,82,255,0.1)', borderRadius: 32, padding: 48, textAlign: 'center' }}>
+          <h2 style={{ fontFamily: 'Syne, sans-serif', fontSize: 32, fontWeight: 800, marginBottom: 48 }}>How It Works</h2>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 48, position: 'relative' }}>
+            {[
+              ['Onboard', 'Merchants apply via the portal and undergo KYC verification.', '01'],
+              ['Connect', 'Sub-accounts connect their GHL instance to enable payment tools.', '02'],
+              ['Scale', 'Agencies manage billing and subscriptions through the SaaS panel.', '03'],
+            ].map(([title, desc, step]) => (
+              <div key={title} style={{ position: 'relative' }}>
+                <div style={{ fontFamily: 'Syne, sans-serif', fontSize: 64, fontWeight: 800, color: 'rgba(0,82,255,0.1)', position: 'absolute', top: -40, left: '50%', transform: 'translateX(-50%)', zIndex: 0 }}>{step}</div>
+                <div style={{ position: 'relative', zIndex: 1 }}>
+                  <div style={{ fontFamily: 'Syne, sans-serif', fontSize: 22, fontWeight: 700, marginBottom: 12 }}>{title}</div>
+                  <div style={{ color: '#8AA0C8', fontSize: 15, lineHeight: 1.6 }}>{desc}</div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+
+      </main>
+    </div>
+  );
 }

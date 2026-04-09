@@ -111,6 +111,57 @@ export async function buildPaymentForm(params: PaymentParams): Promise<{
   };
 }
 
-export async function buildSubscriptionForm(params: SubscriptionParams) {
-  return buildPaymentForm(params);
+export async function getTemporaryToken(params: any) {
+  const query = new URLSearchParams({
+    merchant_user_id: params.merchantUserId,
+    user_mobile_number: params.userMobileNumber,
+    basket_id: params.basketId,
+    txnamt: params.amount,
+    account_type: params.accountType || '4',
+    bank_code: params.bankCode,
+    cnic_number: params.cnicNumber,
+    account_number: params.accountNumber,
+    account_title: params.accountTitle,
+  });
+
+  const response = await fetch(`https://ipg1.apps.net.pk/Ecommerce/api/Transaction/token?${query.toString()}`, {
+    headers: { 'Authorization': `Bearer ${params.token}` }
+  });
+  return await response.json();
 }
+
+export async function performTokenizedTransaction(params: any) {
+  const query = new URLSearchParams({
+    instrument_token: params.instrumentToken,
+    transaction_id: params.transactionId,
+    merchant_user_id: params.merchantUserId,
+    user_mobile_number: params.userMobileNumber,
+    basket_id: params.basketId,
+    order_date: params.orderDate,
+    txndesc: params.description,
+    txnamt: params.amount,
+    otp: params.otp,
+  });
+
+  const response = await fetch(`https://ipg1.apps.net.pk/Ecommerce/api/Transaction/tokenized?${query.toString()}`, {
+    headers: { 'Authorization': `Bearer ${params.token}` }
+  });
+  return await response.json();
+}
+
+export async function addPermanentInstrument(params: any) {
+  const query = new URLSearchParams({
+    // Parameters for adding permanent instrument as per docs
+    instrument_token: params.instrumentToken,
+    merchant_user_id: params.merchantUserId,
+    user_mobile_number: params.userMobileNumber,
+    // ... other required fields
+  });
+
+  const response = await fetch(`https://ipg1.apps.net.pk/Ecommerce/api/Transaction/add-permanent-payment-instrument?${query.toString()}`, {
+    headers: { 'Authorization': `Bearer ${params.token}` }
+  });
+  return await response.json();
+}
+
+

@@ -19,8 +19,6 @@ const PROTECTED = [
   '/subscriptions',
   '/text2pay',
   '/settings',
-  '/docs',
-  '/support',
 ];
 
 export async function middleware(request: NextRequest) {
