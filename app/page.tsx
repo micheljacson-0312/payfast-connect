@@ -33,7 +33,7 @@ export default async function RootPage() {
           <Link href="/support" style={{ color: '#DCE7FF', textDecoration: 'none', fontSize: 14 }}>Support</Link>
           {session && (
             <Link href={session.installMode === 'agency' ? '/agency' : '/dashboard'} style={{ background: '#0052FF', color: 'white', textDecoration: 'none', padding: '10px 14px', borderRadius: 10, fontSize: 13, fontWeight: 700 }}>
-              Open {session.installMode === 'agency' ? 'Agency' : 'Dashboard'}
+              Open {session.installMode === 'agency' ? 'Agency Dashboard' : 'CRM Dashboard'}
             </Link>
           )}
         </div>
@@ -52,7 +52,9 @@ export default async function RootPage() {
             <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
               <Link href="/apply" style={{ background: '#0052FF', color: 'white', textDecoration: 'none', padding: '13px 18px', borderRadius: 12, fontWeight: 700 }}>Merchant Application Form</Link>
               <Link href="/install" style={{ background: 'transparent', border: '1px solid rgba(255,255,255,0.12)', color: 'white', textDecoration: 'none', padding: '13px 18px', borderRadius: 12, fontWeight: 700 }}>Sub-Account Connect</Link>
-              <Link href="/agency/install" style={{ background: 'transparent', border: '1px solid rgba(255,255,255,0.12)', color: 'white', textDecoration: 'none', padding: '13px 18px', borderRadius: 12, fontWeight: 700 }}>Agency App Connect</Link>
+              <Link href={session?.installMode === 'agency' ? '/agency' : '/agency/install'} style={{ background: 'transparent', border: '1px solid rgba(255,255,255,0.12)', color: 'white', textDecoration: 'none', padding: '13px 18px', borderRadius: 12, fontWeight: 700 }}>
+                {session?.installMode === 'agency' ? 'Open Agency Dashboard' : 'Agency App Connect'}
+              </Link>
             </div>
           </div>
 
@@ -71,12 +73,12 @@ export default async function RootPage() {
         </section>
 
         <section style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 18, marginBottom: 28 }}>
-          {[
-            ['/apply', 'Merchant Application', 'Public form for merchant onboarding and document collection.'],
-            ['/install', 'CRM Sub-Account Install', 'Install the sub-account app and access the user dashboard.'],
-            ['/agency/install', 'Agency Install', 'Install the agency app and open the separate agency panel.'],
-            ['/support', 'Support', 'Get onboarding help, deployment help, or payment support.'],
-          ].map(([href, title, desc]) => (
+            {[
+              ['/apply', 'Merchant Application', 'Public form for merchant onboarding and document collection.'],
+              ['/install', 'CRM Sub-Account Install', 'Install the sub-account app and access the user dashboard.'],
+              [session?.installMode === 'agency' ? '/agency' : '/agency/install', 'Agency Dashboard / Install', 'Open the agency dashboard after install, or start the dedicated agency install flow.'],
+              ['/support', 'Support', 'Get onboarding help, deployment help, or payment support.'],
+            ].map(([href, title, desc]) => (
             <Link key={href} href={href} style={{ ...card, textDecoration: 'none', color: 'white' }}>
               <div style={{ fontFamily: 'Syne, sans-serif', fontSize: 22, fontWeight: 800, marginBottom: 10 }}>{title}</div>
               <div style={{ color: '#8AA0C8', fontSize: 13, lineHeight: 1.7 }}>{desc}</div>
