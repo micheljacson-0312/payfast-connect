@@ -28,11 +28,11 @@ const area = {
   fontFamily: 'ui-monospace, SFMono-Regular, Menlo, Consolas, monospace',
 } as const;
 
-export default function AgencyControls() {
+export default function AgencyControls({ initialLocationId = '' }: { initialLocationId?: string }) {
   const [plans, setPlans] = useState<any>(null);
   const [subscription, setSubscription] = useState<any>(null);
   const [rebillingResult, setRebillingResult] = useState<any>(null);
-  const [locationId, setLocationId] = useState('');
+  const [locationId, setLocationId] = useState(initialLocationId);
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
   const [loading, setLoading] = useState<string | null>(null);
   const [rebillingPayload, setRebillingPayload] = useState(`{
@@ -114,7 +114,7 @@ export default function AgencyControls() {
             </div>
 
             <div style={{ display: 'flex', gap: 10, marginBottom: 12 }}>
-              <input value={locationId} onChange={(e) => setLocationId(e.target.value)} placeholder="Location ID (only needed for subscription lookup)" style={input} />
+              <input value={locationId} onChange={(e) => setLocationId(e.target.value)} placeholder="Sub-account location ID" style={input} />
               <button onClick={section.action} style={{ background: 'var(--blue)', color: 'white', border: 'none', borderRadius: 10, padding: '0 16px', cursor: 'pointer', fontWeight: 700, whiteSpace: 'nowrap' }}>{section.cta}</button>
             </div>
 
@@ -138,7 +138,7 @@ export default function AgencyControls() {
         <section style={card}>
           <div style={{ fontFamily: 'var(--font-head)', fontSize: 18, fontWeight: 700, marginBottom: 8 }}>Enable SaaS for Location</div>
           <div style={{ color: 'var(--gray)', fontSize: 13, lineHeight: 1.6, marginBottom: 12 }}>Enable SaaS against a sub-account after you decide which reseller setup or plan should apply.</div>
-          <input value={locationId} onChange={(e) => setLocationId(e.target.value)} placeholder="Location ID" style={{ ...input, marginBottom: 10 }} />
+          <input value={locationId} onChange={(e) => setLocationId(e.target.value)} placeholder="Sub-account location ID" style={{ ...input, marginBottom: 10 }} />
           <textarea value={enablePayload} onChange={(e) => setEnablePayload(e.target.value)} style={{ ...area, minHeight: 120 }} />
           <button onClick={() => run('enable', '/api/agency/saas/enable-location', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ locationId, payload: parseJson(enablePayload) }) })} style={{ marginTop: 12, width: '100%', background: 'var(--blue)', color: 'white', border: 'none', borderRadius: 12, padding: '12px 16px', cursor: 'pointer', fontWeight: 700 }}>
             {loading === 'enable' ? 'Enabling…' : 'Enable SaaS'}
@@ -148,7 +148,7 @@ export default function AgencyControls() {
         <section style={card}>
           <div style={{ fontFamily: 'var(--font-head)', fontSize: 18, fontWeight: 700, marginBottom: 8 }}>Update or Pause Subscription</div>
           <div style={{ color: 'var(--gray)', fontSize: 13, lineHeight: 1.6, marginBottom: 12 }}>Use this when a monthly amount changes, a subscription needs updating, or a location must be paused for failed billing.</div>
-          <input value={locationId} onChange={(e) => setLocationId(e.target.value)} placeholder="Location ID" style={{ ...input, marginBottom: 10 }} />
+          <input value={locationId} onChange={(e) => setLocationId(e.target.value)} placeholder="Sub-account location ID" style={{ ...input, marginBottom: 10 }} />
           <textarea value={updatePayload} onChange={(e) => setUpdatePayload(e.target.value)} style={{ ...area, minHeight: 120 }} />
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginTop: 12 }}>
             <button onClick={() => run('update', '/api/agency/saas/update-subscription', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ locationId, payload: parseJson(updatePayload) }) })} style={{ background: 'var(--blue)', color: 'white', border: 'none', borderRadius: 12, padding: '12px 14px', cursor: 'pointer', fontWeight: 700 }}>

@@ -58,7 +58,7 @@ export default async function AgencyPage() {
             <div style={{ fontFamily: 'var(--font-head)', fontSize: 22, fontWeight: 700, marginBottom: 6 }}>HighLevel SaaS Controls</div>
             <div style={{ color: 'var(--gray)', fontSize: 13 }}>Use these tools to inspect agency plans, inspect sub-account SaaS subscriptions, and send rebilling / enable / update / pause requests directly against the connected agency context.</div>
           </div>
-          <AgencyControls />
+          <AgencyControls initialLocationId={session.locationId} />
         </div>
       </div>
     </div>
