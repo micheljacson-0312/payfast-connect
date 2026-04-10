@@ -55,8 +55,15 @@ export default function AdminBillingPage() {
         <div style={{ background: 'white', border: '1px solid #E2E8F0', borderRadius: 16, padding: 20 }}>
           <div style={{ fontFamily: 'Syne, sans-serif', fontSize: 20, marginBottom: 14 }}>Agency Billing Settings</div>
           {settings && <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
-            {['merchant_name','merchant_id','merchant_key','store_id','passphrase','notify_email'].map((key) => (
-              <input key={key} value={settings[key] || ''} onChange={(e) => setSettings((s: any) => ({ ...s, [key]: e.target.value }))} placeholder={key} style={{ background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: 10, padding: '10px 12px' }} />
+            {[
+              ['merchant_name', 'merchant name', 'text'],
+              ['merchant_id', 'merchant id', 'text'],
+              ['merchant_key', 'merchant key', 'password'],
+              ['store_id', 'store id', 'text'],
+              ['passphrase', 'passphrase', 'password'],
+              ['notify_email', 'notify email', 'text'],
+            ].map(([key, placeholder, type]) => (
+              <input key={key} type={type as string} value={settings[key] || ''} onChange={(e) => setSettings((s: any) => ({ ...s, [key]: e.target.value }))} placeholder={placeholder as string} style={{ background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: 10, padding: '10px 12px' }} />
             ))}
             <input value={settings.trial_days || 14} onChange={(e) => setSettings((s: any) => ({ ...s, trial_days: e.target.value }))} placeholder="trial_days" style={{ background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: 10, padding: '10px 12px' }} />
             <input value={settings.grace_period_days || 3} onChange={(e) => setSettings((s: any) => ({ ...s, grace_period_days: e.target.value }))} placeholder="grace_period_days" style={{ background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: 10, padding: '10px 12px' }} />
@@ -71,7 +78,10 @@ export default function AdminBillingPage() {
           </div>
           {data?.rows?.map((row) => (
             <div key={row.location_id} style={{ display: 'grid', gridTemplateColumns: '1.2fr 1fr 1fr 1fr 160px', gap: 12, padding: '16px 18px', borderTop: '1px solid #F1F5F9', alignItems: 'center' }}>
-              <div>{row.location_id}</div>
+              <div>
+                <div style={{ fontWeight: 700 }}>{row.merchant_name || 'Unnamed location'}</div>
+                <div style={{ fontSize: 12, color: '#64748B', marginTop: 4 }}>{row.location_id}</div>
+              </div>
               <div>{row.plan_name || 'Trial'}</div>
               <div style={{ textTransform: 'capitalize' }}>{row.status}</div>
               <div>{row.last_invoice_status || '—'}</div>
