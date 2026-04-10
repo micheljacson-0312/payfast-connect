@@ -45,9 +45,9 @@ export default function AgencyDashboardClient({
 
   const tabButton = (active: boolean) => ({
     border: 'none',
-    background: active ? 'rgba(21,94,238,0.16)' : 'transparent',
+    background: active ? 'var(--blue)' : 'transparent',
     color: active ? 'white' : 'var(--gray)',
-    borderBottom: active ? '2px solid #155EEF' : '2px solid transparent',
+    borderBottom: active ? '2px solid var(--blue)' : '2px solid transparent',
     padding: '12px 4px',
     fontSize: 14,
     fontWeight: 600,
@@ -55,25 +55,25 @@ export default function AgencyDashboardClient({
   } as const);
 
   return (
-    <div style={{ minHeight: '100vh', background: 'linear-gradient(180deg, #07101f 0%, #050A1A 100%)', color: 'white', padding: '28px 24px 40px', fontFamily: 'DM Sans, sans-serif' }}>
+    <div style={{ minHeight: '100vh', background: 'var(--dark)', color: 'white', padding: '28px 24px 40px', fontFamily: 'DM Sans, sans-serif' }}>
       <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet" />
       <div style={{ maxWidth: 1280, margin: '0 auto' }}>
         <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 18, marginBottom: 18 }}>
           <div style={{ maxWidth: 720 }}>
-            <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: 'rgba(21,94,238,0.12)', border: '1px solid rgba(21,94,238,0.22)', borderRadius: 999, padding: '7px 12px', color: '#7FB0FF', fontSize: 12, fontWeight: 700, marginBottom: 14 }}>
+            <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: 'rgba(0,82,255,0.12)', border: '1px solid rgba(0,82,255,0.22)', borderRadius: 999, padding: '7px 12px', color: '#7FB0FF', fontSize: 12, fontWeight: 700, marginBottom: 14 }}>
               Agency Control Center
             </div>
             <h1 style={{ fontFamily: 'Syne, sans-serif', fontSize: 34, lineHeight: 1.05, fontWeight: 800, marginBottom: 10 }}>Billing Dashboard</h1>
-            <p style={{ color: '#8AA0C8', fontSize: 15, lineHeight: 1.75 }}>
+            <p style={{ color: 'var(--gray)', fontSize: 15, lineHeight: 1.75 }}>
               Manage subscriptions, payment settings, and agency-level PayFast billing from a cleaner, more focused control surface.
             </p>
           </div>
 
           <div style={{ display: 'grid', gap: 10, minWidth: 260 }}>
-            <div style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 16, padding: '14px 16px' }}>
+            <div style={{ background: 'var(--dark2)', border: '1px solid var(--border)', borderRadius: 16, padding: '14px 16px' }}>
               <div style={{ fontSize: 12, color: 'var(--gray)', marginBottom: 8 }}>Session</div>
               <div style={{ fontSize: 14, fontWeight: 700 }}>{sessionLocationId}</div>
-              <div style={{ fontSize: 12, color: '#8AA0C8', marginTop: 4 }}>Agency install is active</div>
+              <div style={{ fontSize: 12, color: 'var(--gray)', marginTop: 4 }}>Agency install is active</div>
             </div>
             <div style={{ background: payfastReady ? 'rgba(34,197,94,0.08)' : 'rgba(239,68,68,0.08)', border: `1px solid ${payfastReady ? 'rgba(34,197,94,0.18)' : 'rgba(239,68,68,0.18)'}`, borderRadius: 16, padding: '14px 16px' }}>
               <div style={{ fontSize: 12, color: 'var(--gray)', marginBottom: 8 }}>PayFast</div>
@@ -83,21 +83,21 @@ export default function AgencyDashboardClient({
         </div>
 
         {(installed || restored) && (
-          <div style={{ background: 'rgba(21,94,238,0.10)', border: '1px solid rgba(21,94,238,0.22)', borderRadius: 14, padding: '14px 18px', marginBottom: 18, color: '#9BC2FF', fontSize: 14, lineHeight: 1.7 }}>
+          <div style={{ background: 'rgba(0,82,255,0.10)', border: '1px solid rgba(0,82,255,0.22)', borderRadius: 14, padding: '14px 18px', marginBottom: 18, color: '#9BC2FF', fontSize: 14, lineHeight: 1.7 }}>
             {installed ? 'Agency app connected successfully.' : 'Existing agency session restored successfully.'}
           </div>
         )}
 
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 14, marginBottom: 18 }}>
           {overviewCards.map((card) => (
-            <div key={card.label} style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 18, padding: 18 }}>
-              <div style={{ fontSize: 12, color: '#8AA0C8', marginBottom: 10 }}>{card.label}</div>
+            <div key={card.label} style={{ background: 'var(--dark2)', border: '1px solid var(--border)', borderRadius: 18, padding: 18 }}>
+              <div style={{ fontSize: 12, color: 'var(--gray)', marginBottom: 10 }}>{card.label}</div>
               <div style={{ fontFamily: 'Syne, sans-serif', fontSize: 30, fontWeight: 800, color: card.tone === 'green' ? '#22C55E' : card.tone === 'amber' ? '#FBBF24' : card.tone === 'red' ? '#F87171' : '#7FB0FF' }}>{card.value}</div>
             </div>
           ))}
         </div>
 
-        <div style={{ display: 'flex', gap: 28, borderBottom: '1px solid rgba(255,255,255,0.08)', marginBottom: 20 }}>
+        <div style={{ display: 'flex', gap: 28, borderBottom: '1px solid var(--border)', marginBottom: 20 }}>
           {tabs.map((item) => (
             <button key={item.id} onClick={() => setTab(item.id)} style={tabButton(tab === item.id)}>
               {item.label}
@@ -107,9 +107,9 @@ export default function AgencyDashboardClient({
 
         {tab === 'overview' && (
           <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 0.8fr', gap: 18 }}>
-            <div style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 20, padding: 22 }}>
+            <div style={{ background: 'var(--dark2)', border: '1px solid var(--border)', borderRadius: 20, padding: 22 }}>
               <div style={{ fontFamily: 'Syne, sans-serif', fontSize: 20, fontWeight: 700, marginBottom: 8 }}>Agency Snapshot</div>
-              <p style={{ color: '#8AA0C8', fontSize: 13, lineHeight: 1.8, marginBottom: 18 }}>
+              <p style={{ color: 'var(--gray)', fontSize: 13, lineHeight: 1.8, marginBottom: 18 }}>
                 Keep billing, subscription health, and integration readiness in one place. This view is designed to feel closer to a modern SaaS billing console.
               </p>
               <div style={{ display: 'grid', gap: 12 }}>
@@ -118,8 +118,8 @@ export default function AgencyDashboardClient({
                   ['Install mode', 'Agency'],
                   ['Client operations', 'SaaS enable, update, pause, and rebilling'],
                 ].map(([label, value]) => (
-                  <div key={label} style={{ display: 'flex', justifyContent: 'space-between', gap: 12, padding: '14px 16px', background: 'rgba(255,255,255,0.03)', borderRadius: 14 }}>
-                    <span style={{ color: '#8AA0C8', fontSize: 13 }}>{label}</span>
+                  <div key={label} style={{ display: 'flex', justifyContent: 'space-between', gap: 12, padding: '14px 16px', background: 'var(--dark3)', borderRadius: 14 }}>
+                    <span style={{ color: 'var(--gray)', fontSize: 13 }}>{label}</span>
                     <span style={{ fontWeight: 700, fontSize: 13, textAlign: 'right' }}>{value}</span>
                   </div>
                 ))}
@@ -127,13 +127,13 @@ export default function AgencyDashboardClient({
             </div>
 
             <div style={{ display: 'grid', gap: 14 }}>
-              <a href="/agency/install" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 18, padding: 20, textDecoration: 'none', color: 'white' }}>
+              <a href="/agency/install" style={{ background: 'var(--dark2)', border: '1px solid var(--border)', borderRadius: 18, padding: 20, textDecoration: 'none', color: 'white' }}>
                 <div style={{ fontFamily: 'Syne, sans-serif', fontSize: 18, fontWeight: 700, marginBottom: 8 }}>Install Flow</div>
-                <div style={{ color: '#8AA0C8', fontSize: 13, lineHeight: 1.7 }}>Open the agency install page if you need to reconnect or review OAuth setup.</div>
+                <div style={{ color: 'var(--gray)', fontSize: 13, lineHeight: 1.7 }}>Open the agency install page if you need to reconnect or review OAuth setup.</div>
               </a>
-              <a href="/docs" style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 18, padding: 20, textDecoration: 'none', color: 'white' }}>
+              <a href="/docs" style={{ background: 'var(--dark2)', border: '1px solid var(--border)', borderRadius: 18, padding: 20, textDecoration: 'none', color: 'white' }}>
                 <div style={{ fontFamily: 'Syne, sans-serif', fontSize: 18, fontWeight: 700, marginBottom: 8 }}>Docs</div>
-                <div style={{ color: '#8AA0C8', fontSize: 13, lineHeight: 1.7 }}>Review the implementation notes and operational references.</div>
+                <div style={{ color: 'var(--gray)', fontSize: 13, lineHeight: 1.7 }}>Review the implementation notes and operational references.</div>
               </a>
             </div>
           </div>
@@ -141,20 +141,20 @@ export default function AgencyDashboardClient({
 
         {tab === 'billing' && (
           <div style={{ display: 'grid', gap: 18 }}>
-            <div style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 20, padding: 22 }}>
+            <div style={{ background: 'var(--dark2)', border: '1px solid var(--border)', borderRadius: 20, padding: 22 }}>
               <div style={{ fontFamily: 'Syne, sans-serif', fontSize: 20, fontWeight: 700, marginBottom: 8 }}>Agency PayFast Setup</div>
-              <p style={{ color: '#8AA0C8', fontSize: 13, lineHeight: 1.8, marginBottom: 18 }}>Connect your own PayFast credentials before creating agency invoices or collecting agency-level payments.</p>
+              <p style={{ color: 'var(--gray)', fontSize: 13, lineHeight: 1.8, marginBottom: 18 }}>Connect your own PayFast credentials before creating agency invoices or collecting agency-level payments.</p>
               <AgencyPayfastSettings />
             </div>
           </div>
         )}
 
         {tab === 'controls' && (
-          <div style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 20, padding: 22 }}>
+          <div style={{ background: 'var(--dark2)', border: '1px solid var(--border)', borderRadius: 20, padding: 22 }}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, marginBottom: 12 }}>
               <div>
                 <div style={{ fontFamily: 'Syne, sans-serif', fontSize: 20, fontWeight: 700, marginBottom: 6 }}>HighLevel SaaS Controls</div>
-                <div style={{ color: '#8AA0C8', fontSize: 13, lineHeight: 1.7 }}>Inspect plans, pull sub-account subscription details, and run rebilling or pause actions.</div>
+                <div style={{ color: 'var(--gray)', fontSize: 13, lineHeight: 1.7 }}>Inspect plans, pull sub-account subscription details, and run rebilling or pause actions.</div>
               </div>
             </div>
             <AgencyControls initialLocationId={sessionLocationId} />
@@ -168,9 +168,9 @@ export default function AgencyDashboardClient({
               ['Agency Install', 'Use the OAuth install path for agency-level access.'],
               ['Ops Note', 'Keep agency control separate from admin-only pages.'],
             ].map(([title, desc]) => (
-              <div key={title} style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 18, padding: 20 }}>
+              <div key={title} style={{ background: 'var(--dark2)', border: '1px solid var(--border)', borderRadius: 18, padding: 20 }}>
                 <div style={{ fontFamily: 'Syne, sans-serif', fontSize: 18, fontWeight: 700, marginBottom: 8 }}>{title}</div>
-                <div style={{ color: '#8AA0C8', fontSize: 13, lineHeight: 1.7 }}>{desc}</div>
+                <div style={{ color: 'var(--gray)', fontSize: 13, lineHeight: 1.7 }}>{desc}</div>
               </div>
             ))}
           </div>

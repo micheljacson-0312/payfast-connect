@@ -49,9 +49,8 @@ export default async function AgencyInstallPage({ searchParams }: { searchParams
     `&scope=${encodeURIComponent(scopes)}`;
 
   return (
-    <div style={{ minHeight: '100vh', background: 'linear-gradient(180deg, #07101f 0%, #050A1A 100%)', display: 'flex', flexDirection: 'column' }}>
-      <div style={{ position: 'fixed', inset: 0, pointerEvents: 'none', background: 'radial-gradient(circle at 20% 20%, rgba(21,94,238,0.14), transparent 24%), radial-gradient(circle at 80% 10%, rgba(255,107,44,0.12), transparent 22%)' }} />
-      <nav style={{ position: 'relative', zIndex: 1, display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '20px 60px', borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
+    <div style={{ minHeight: '100vh', background: 'var(--dark)', display: 'flex', flexDirection: 'column' }}>
+      <nav style={{ position: 'relative', zIndex: 1, display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '20px 60px', borderBottom: '1px solid var(--border)' }}>
         <Link href="/agency" style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
           <div style={{ width: 36, height: 36, background: 'var(--blue)', borderRadius: 9, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             <svg width="18" height="18" viewBox="0 0 24 24" fill="white"><path d="M13 2L4.5 13H11L10 22L19.5 11H13L13 2Z"/></svg>
@@ -65,12 +64,12 @@ export default async function AgencyInstallPage({ searchParams }: { searchParams
 
       <main style={{ position: 'relative', zIndex: 1, flex: 1, display: 'grid', placeItems: 'center', padding: '40px 20px' }}>
         <div style={{ display: 'grid', gridTemplateColumns: '1.1fr 0.9fr', gap: 18, width: '100%', maxWidth: 1120 }}>
-          <div style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 24, padding: 40 }}>
-            <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: 'rgba(21,94,238,0.12)', border: '1px solid rgba(21,94,238,0.22)', borderRadius: 999, padding: '7px 12px', color: '#7FB0FF', fontSize: 12, fontWeight: 700, marginBottom: 18 }}>
+          <div style={{ background: 'var(--dark2)', border: '1px solid var(--border)', borderRadius: 24, padding: 40 }}>
+            <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: 'rgba(0,82,255,0.12)', border: '1px solid rgba(0,82,255,0.22)', borderRadius: 999, padding: '7px 12px', color: '#7FB0FF', fontSize: 12, fontWeight: 700, marginBottom: 18 }}>
               Agency Install
             </div>
             <div style={{ fontFamily: 'Syne, sans-serif', fontSize: 34, fontWeight: 800, lineHeight: 1.05, marginBottom: 12 }}>Connect GoPayFast Agency App</div>
-            <p style={{ color: '#8AA0C8', fontSize: 15, lineHeight: 1.8, maxWidth: 640 }}>
+            <p style={{ color: 'var(--gray)', fontSize: 15, lineHeight: 1.8, maxWidth: 640 }}>
               This install path is for the agency-facing marketplace app. Use it for billing control, revenue operations, and managing the agency-side PayFast connection before subscriptions go live.
             </p>
 
@@ -88,11 +87,11 @@ export default async function AgencyInstallPage({ searchParams }: { searchParams
 
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 24 }}>
               {['Agency billing dashboard', 'Client subscription oversight', 'Agency credential management', 'Revenue and suspension controls'].map((text) => (
-                <div key={text} style={{ padding: 16, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 14, fontSize: 13, lineHeight: 1.6 }}>{text}</div>
+                <div key={text} style={{ padding: 16, background: 'var(--dark3)', border: '1px solid var(--border)', borderRadius: 14, fontSize: 13, lineHeight: 1.6 }}>{text}</div>
               ))}
             </div>
 
-            <div style={{ color: '#8AA0C8', fontSize: 12, lineHeight: 1.7, marginBottom: 20 }}>
+            <div style={{ color: 'var(--gray)', fontSize: 12, lineHeight: 1.7, marginBottom: 20 }}>
               This flow must use the agency GHL OAuth app credentials only. If `GHL_CLIENT_ID` or `GHL_CLIENT_SECRET` are being reused here, GHL will reject the token exchange with `Invalid client credentials`.
             </div>
 
@@ -101,9 +100,9 @@ export default async function AgencyInstallPage({ searchParams }: { searchParams
             </a>
           </div>
 
-          <div style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 24, padding: 28, width: '100%', maxWidth: 360 }}>
+          <div style={{ background: 'var(--dark2)', border: '1px solid var(--border)', borderRadius: 24, padding: 28, width: '100%', maxWidth: 360 }}>
             <div style={{ fontFamily: 'Syne, sans-serif', fontSize: 18, fontWeight: 700, marginBottom: 12 }}>Before you connect</div>
-            <div style={{ display: 'grid', gap: 12, color: '#8AA0C8', fontSize: 13, lineHeight: 1.7 }}>
+            <div style={{ display: 'grid', gap: 12, color: 'var(--gray)', fontSize: 13, lineHeight: 1.7 }}>
               <div>1. Confirm the agency PayFast credentials are ready.</div>
               <div>2. Keep admin access separate at `/admin`.</div>
               <div>3. Use this app only for agency-side billing operations.</div>
