@@ -10,6 +10,15 @@ function pickString(...values: unknown[]) {
   return null;
 }
 
+function withTimeout<T>(promise: Promise<T>, ms: number, label: string) {
+  return Promise.race<T>([
+    promise,
+    new Promise<T>((_, reject) => {
+      setTimeout(() => reject(new Error(`${label} timed out after ${ms}ms`)), ms);
+    }),
+  ]);
+}
+
 async function resolveLocationIdFallback() {
   const rows = await query<any[]>(
     `SELECT location_id FROM installations ORDER BY created_at DESC, id DESC LIMIT 1`
@@ -42,9 +51,11 @@ export async function GET(request: NextRequest) {
     }
 
     const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 15000);
+    const timeout = setTimeout(() => controller.abort(), 7000);
 
-    const tokenRes = await fetch('https://services.leadconnectorhq.com/oauth/token', {
+    const redirectUri = process.env.AGENCY_OAUTH_REDIRECT_URI || `${process.env.NEXT_PUBLIC_APP_URL || request.nextUrl.origin}/agency/oauth/callback`;
+
+    const tokenRes = await withTimeout(fetch('https://services.leadconnectorhq.com/oauth/token', {
       method: 'POST',
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
       body: new URLSearchParams({
@@ -52,10 +63,10 @@ export async function GET(request: NextRequest) {
         client_secret: clientSecret,
         grant_type: 'authorization_code',
         code,
-        redirect_uri: `${process.env.NEXT_PUBLIC_APP_URL || request.nextUrl.origin}/agency/oauth/callback`,
+        redirect_uri: redirectUri,
       }),
       signal: controller.signal,
-    });
+    }), 7000, 'Agency token exchange');
 
     clearTimeout(timeout);
 
@@ -76,19 +87,19 @@ export async function GET(request: NextRequest) {
     const expiresIn = Number(tokens.expires_in ?? tokens.expiresIn ?? tokens.data?.expires_in ?? 3600);
 
     if (!locationId) {
-      locationId = await resolveLocationIdFallback();
+      locationId = await withTimeout(resolveLocationIdFallback(), 3000, 'Agency location lookup');
     }
 
     if (!accessToken || !refreshToken || !locationId) {
       throw new Error('Agency OAuth missing required fields');
     }
 
-    await query(
+    await withTimeout(query(
       `INSERT INTO installations (location_id, company_id, access_token, refresh_token, expires_at)
        VALUES (?, ?, ?, ?, ?)
        ON DUPLICATE KEY UPDATE company_id = VALUES(company_id), access_token = VALUES(access_token), refresh_token = VALUES(refresh_token), expires_at = VALUES(expires_at)`,
       [locationId, companyId, accessToken, refreshToken, new Date(Date.now() + expiresIn * 1000)]
-    );
+    ), 3000, 'Agency installation save');
 
     return applySessionCookie(clearExistingSession(NextResponse.redirect(getAppUrlWithSearch('/agency?installed=1', request))), locationId, 'agency');
   } catch (err) {
