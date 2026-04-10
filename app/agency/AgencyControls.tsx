@@ -31,6 +31,7 @@ const area = {
 export default function AgencyControls() {
   const [plans, setPlans] = useState<any>(null);
   const [subscription, setSubscription] = useState<any>(null);
+  const [rebillingResult, setRebillingResult] = useState<any>(null);
   const [locationId, setLocationId] = useState('');
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
   const [loading, setLoading] = useState<string | null>(null);
@@ -50,6 +51,7 @@ export default function AgencyControls() {
 
   const formattedPlans = useMemo(() => (plans ? JSON.stringify(plans, null, 2) : ''), [plans]);
   const formattedSubscription = useMemo(() => (subscription ? JSON.stringify(subscription, null, 2) : ''), [subscription]);
+  const formattedRebilling = useMemo(() => (rebillingResult ? JSON.stringify(rebillingResult, null, 2) : ''), [rebillingResult]);
 
   async function run(key: string, url: string, options?: RequestInit) {
     setLoading(key);
@@ -89,6 +91,13 @@ export default function AgencyControls() {
       action: () => run('subscription', `/api/agency/saas/location-subscription?locationId=${encodeURIComponent(locationId)}`).then((data) => data && setSubscription(data)),
       cta: loading === 'subscription' ? 'Checking…' : 'Fetch Subscription',
       content: formattedSubscription || 'Subscription details will appear here after lookup.',
+    },
+    {
+      title: 'Rebilling Cron',
+      desc: 'Run the tokenized rebilling job manually or point your scheduler at the live endpoint.',
+      action: () => run('rebilling-run', '/api/rebilling/run', { method: 'POST' }).then((data) => data && setRebillingResult(data)),
+      cta: loading === 'rebilling-run' ? 'Running…' : 'Run Rebilling',
+      content: formattedRebilling || 'POST /api/rebilling/run\nHeader: x-rebilling-secret: set REBILLING_SECRET on the server\n\nUse this endpoint from cron, GitHub Actions, or a server scheduler.',
     },
   ];
 
