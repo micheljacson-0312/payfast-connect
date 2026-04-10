@@ -19,7 +19,7 @@ export default async function AgencyInstallPage({ searchParams }: { searchParams
   const proto = headerStore.get('x-forwarded-proto') || 'https';
   const host = headerStore.get('x-forwarded-host') || headerStore.get('host') || 'localhost:3000';
   const appUrl = process.env.NEXT_PUBLIC_APP_URL || `${proto}://${host}`;
-  const clientId = process.env.AGENCY_GHL_CLIENT_ID || process.env.GHL_CLIENT_ID || '';
+  const clientId = process.env.AGENCY_GHL_CLIENT_ID || '';
   const redirectUrl = `${appUrl}/agency/oauth/callback`;
 
   const scopes = [
@@ -70,7 +70,7 @@ export default async function AgencyInstallPage({ searchParams }: { searchParams
 
           {!clientId && (
             <div style={{ background: 'rgba(245,158,11,0.08)', border: '1px solid rgba(245,158,11,0.2)', borderRadius: 12, padding: 16, marginBottom: 20, color: '#FBBF24', fontSize: 13, lineHeight: 1.6 }}>
-              Missing agency OAuth client id. Set `AGENCY_GHL_CLIENT_ID` or `GHL_CLIENT_ID` on the server.
+              Missing agency OAuth client id. Set `AGENCY_GHL_CLIENT_ID` on the server.
             </div>
           )}
 
@@ -78,6 +78,10 @@ export default async function AgencyInstallPage({ searchParams }: { searchParams
             {['Agency billing dashboard', 'Client subscription oversight', 'Agency credential management', 'Revenue and suspension controls'].map((text) => (
               <div key={text} style={{ padding: '7px 0', fontSize: 13 }}>{text}</div>
             ))}
+          </div>
+
+          <div style={{ color: 'var(--gray)', fontSize: 12, lineHeight: 1.6, marginBottom: 18 }}>
+            This flow must use the agency GHL OAuth app credentials only. If `GHL_CLIENT_ID` or `GHL_CLIENT_SECRET` are being reused here, GHL will reject the token exchange with `Invalid client credentials`.
           </div>
 
           <a href={oauthUrl} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, width: '100%', background: 'var(--blue)', color: 'white', padding: '15px', borderRadius: 10, fontSize: 15, fontWeight: 500 }}>
