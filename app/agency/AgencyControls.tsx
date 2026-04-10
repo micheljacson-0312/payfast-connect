@@ -142,7 +142,7 @@ export default function AgencyControls({ initialLocationId = '' }: { initialLoca
             <div style={{ color: 'var(--gray)', fontSize: 13, lineHeight: 1.6 }}>These are the installed locations saved in the portal, shown as name plus location ID.</div>
           </div>
         </div>
-        <div style={{ display: 'grid', gap: 8 }}>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
           {locations.length ? locations.map((loc) => (
             <button
               key={loc.locationId}
