@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getSession } from '@/lib/session';
 import { query } from '@/lib/db';
 import { generateToken } from '@/lib/tokens';
+import { getAgencySettings } from '@/lib/billing';
 import { buildAgencyBillingForm } from '@/lib/agency-payfast';
 
 export async function POST(request: NextRequest) {
@@ -15,6 +16,11 @@ export async function POST(request: NextRequest) {
   const nameLast = String(body.nameLast || '.').trim() || '.';
 
   if (!email) return NextResponse.json({ error: 'Email is required' }, { status: 400 });
+
+  const agencySettings = await getAgencySettings();
+  if (!agencySettings?.merchant_id || !agencySettings?.merchant_key) {
+    return NextResponse.json({ error: 'PayFast credentials are not configured yet' }, { status: 400 });
+  }
 
   const invoiceToken = generateToken(16);
 

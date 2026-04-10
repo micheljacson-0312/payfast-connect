@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getSession } from '@/lib/session';
 import { query } from '@/lib/db';
 import { generateToken } from '@/lib/tokens';
+import { getAgencySettings } from '@/lib/billing';
 import { buildAgencyBillingForm } from '@/lib/agency-payfast';
 
 export async function POST(request: NextRequest) {
@@ -15,6 +16,11 @@ export async function POST(request: NextRequest) {
   const plans = await query<any[]>('SELECT * FROM agency_plans WHERE id = ? AND is_active = 1 LIMIT 1', [planId]);
   if (!plans.length) return NextResponse.json({ error: 'Plan not found' }, { status: 404 });
   const plan = plans[0];
+
+  const agencySettings = await getAgencySettings();
+  if (!agencySettings?.merchant_id || !agencySettings?.merchant_key) {
+    return NextResponse.json({ error: 'PayFast credentials are not configured yet' }, { status: 400 });
+  }
 
   const installations = await query<any[]>('SELECT company_id FROM installations WHERE location_id = ? LIMIT 1', [session.locationId]);
   const invoiceToken = generateToken(16);

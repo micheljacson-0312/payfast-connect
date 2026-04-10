@@ -1,6 +1,6 @@
 import { redirect } from 'next/navigation';
 import { getSession } from '@/lib/session';
-import { getLocationSubscription, checkSubscription } from '@/lib/billing';
+import { getLocationSubscription, checkSubscription, getAgencySettings } from '@/lib/billing';
 import { query } from '@/lib/db';
 import Sidebar from '@/components/Sidebar';
 import BillingWalletCards from '@/components/BillingWalletCards';
@@ -13,6 +13,8 @@ export default async function BillingPage() {
 
   const status = await checkSubscription(session.locationId);
   const subscription = await getLocationSubscription(session.locationId);
+  const agencySettings = await getAgencySettings();
+  const payfastReady = Boolean(agencySettings?.merchant_id && agencySettings?.merchant_key);
   const invoices = await query<any[]>(
     `SELECT bi.*, ap.name AS plan_name FROM billing_invoices bi LEFT JOIN agency_plans ap ON ap.id = bi.plan_id WHERE bi.location_id = ? ORDER BY bi.created_at DESC`,
     [session.locationId]
@@ -51,6 +53,11 @@ export default async function BillingPage() {
             </div>
           </div>
         </div>
+        {!payfastReady && (
+          <div style={{ margin: '0 32px 20px', background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.22)', borderRadius: 12, padding: '14px 18px', color: '#F87171', fontSize: 13, lineHeight: 1.7 }}>
+            PayFast credentials are not connected yet. Card saving and agency payment collection stay locked until agency PayFast setup is completed.
+          </div>
+        )}
         <div style={{ padding: '0 32px 32px' }}>
           <div style={{ background: 'var(--dark2)', border: '1px solid var(--border)', borderRadius: 16, padding: 24 }}>
             <div style={{ fontFamily: 'var(--font-head)', fontSize: 18, fontWeight: 700, marginBottom: 16 }}>Billing History</div>
@@ -66,7 +73,7 @@ export default async function BillingPage() {
             </div>
           </div>
         </div>
-        <BillingWalletCards wallet={wallet} instruments={instruments} />
+        <BillingWalletCards wallet={wallet} instruments={instruments} payfastReady={payfastReady} />
       </div>
     </div>
   );

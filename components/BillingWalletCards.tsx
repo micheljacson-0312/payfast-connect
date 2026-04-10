@@ -8,9 +8,10 @@ import type { WalletBalance } from '@/lib/wallet';
 interface Props {
   wallet: WalletBalance;
   instruments: PaymentInstrument[];
+  payfastReady: boolean;
 }
 
-export default function BillingWalletCards({ wallet, instruments }: Props) {
+export default function BillingWalletCards({ wallet, instruments, payfastReady }: Props) {
   const router = useRouter();
   const [amount, setAmount] = useState('1000');
   const [saveCardForm, setSaveCardForm] = useState({ nameFirst: '', nameLast: '', email: '', phone: '' });
@@ -40,6 +41,11 @@ export default function BillingWalletCards({ wallet, instruments }: Props) {
   }
 
   async function startSaveCard() {
+    if (!payfastReady) {
+      setError('Connect agency PayFast credentials before saving cards.');
+      return;
+    }
+
     setBusy('save-card');
     setError('');
 
@@ -152,8 +158,8 @@ export default function BillingWalletCards({ wallet, instruments }: Props) {
               <input value={saveCardForm.email} onChange={(e) => setSaveCardForm((s) => ({ ...s, email: e.target.value }))} placeholder="Email" style={{ background: 'var(--dark2)', border: '1px solid var(--border)', borderRadius: 10, padding: '10px 12px', color: 'white', fontSize: 13, outline: 'none' }} />
               <input value={saveCardForm.phone} onChange={(e) => setSaveCardForm((s) => ({ ...s, phone: e.target.value }))} placeholder="Mobile" style={{ background: 'var(--dark2)', border: '1px solid var(--border)', borderRadius: 10, padding: '10px 12px', color: 'white', fontSize: 13, outline: 'none' }} />
             </div>
-            <button onClick={startSaveCard} disabled={busy === 'save-card'} style={{ background: 'var(--blue)', color: 'white', border: 'none', padding: '10px 14px', borderRadius: 10, fontSize: 13, fontWeight: 600, cursor: 'pointer', opacity: busy === 'save-card' ? 0.7 : 1 }}>
-              {busy === 'save-card' ? 'Preparing...' : 'Save Card With PayFast'}
+            <button onClick={startSaveCard} disabled={busy === 'save-card' || !payfastReady} style={{ background: 'var(--blue)', color: 'white', border: 'none', padding: '10px 14px', borderRadius: 10, fontSize: 13, fontWeight: 600, cursor: 'pointer', opacity: busy === 'save-card' || !payfastReady ? 0.7 : 1 }}>
+              {busy === 'save-card' ? 'Preparing...' : !payfastReady ? 'PayFast Not Connected' : 'Save Card With PayFast'}
             </button>
             <div style={{ fontSize: 11, color: 'var(--gray)', marginTop: 8, lineHeight: 1.6 }}>
               This starts a small verification charge so PayFast can return a reusable token for rebilling.
