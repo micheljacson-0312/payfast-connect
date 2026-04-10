@@ -2,11 +2,16 @@ import { getSession } from '@/lib/session';
 import { redirect } from 'next/navigation';
 import { query } from '@/lib/db';
 import AgencyControls from './AgencyControls';
+import AgencyPayfastSettings from './AgencyPayfastSettings';
 
-export default async function AgencyPage() {
+export default async function AgencyPage({ searchParams }: { searchParams?: Promise<Record<string, string | string[] | undefined>> }) {
   const session = await getSession();
   if (!session) redirect('/agency/install');
   if (session.installMode !== 'agency') redirect('/dashboard');
+
+  const sp = searchParams ? await searchParams : {};
+  const installed = sp.installed === '1';
+  const restored = sp.restored === '1';
 
   const stats = await query<any[]>(
     `SELECT
@@ -26,6 +31,12 @@ export default async function AgencyPage() {
           <p style={{ color: 'var(--gray)', marginTop: 8 }}>Separate view for the agency marketplace app. Manage revenue, billing settings, and client subscription health from here.</p>
         </div>
 
+        {(installed || restored) && (
+          <div style={{ background: 'rgba(0,82,255,0.08)', border: '1px solid rgba(0,82,255,0.2)', borderRadius: 12, padding: '14px 20px', marginBottom: 22, color: '#7FB0FF', fontSize: 14 }}>
+            {installed ? 'Agency app connected successfully.' : 'Existing agency session restored successfully.'}
+          </div>
+        )}
+
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 16, marginBottom: 22 }}>
           {[
             ['MRR', `PKR ${Number(stats[0]?.mrr || 0).toLocaleString()}`],
@@ -42,7 +53,6 @@ export default async function AgencyPage() {
 
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 16 }}>
           {[
-            ['/admin/billing', 'Agency Billing Panel', 'Open client-level billing records and internal overrides.'],
             ['/agency/install', 'Agency Install Flow', 'Use the dedicated marketplace install URL for the agency app.'],
             ['/docs', 'Documentation', 'Open the current docs and reference files for this project.'],
           ].map(([href, title, desc]) => (
@@ -51,6 +61,14 @@ export default async function AgencyPage() {
               <div style={{ color: 'var(--gray)', fontSize: 13 }}>{desc}</div>
             </a>
           ))}
+        </div>
+
+        <div style={{ marginTop: 22 }}>
+          <div style={{ marginBottom: 14 }}>
+            <div style={{ fontFamily: 'var(--font-head)', fontSize: 22, fontWeight: 700, marginBottom: 6 }}>Agency PayFast Setup</div>
+            <div style={{ color: 'var(--gray)', fontSize: 13 }}>Connect your own PayFast credentials before creating agency invoices or collecting agency-level payments.</div>
+          </div>
+          <AgencyPayfastSettings />
         </div>
 
         <div style={{ marginTop: 22 }}>

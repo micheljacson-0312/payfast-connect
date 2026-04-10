@@ -2,13 +2,24 @@ import Link from 'next/link';
 import { getSession } from '@/lib/session';
 import { redirect } from 'next/navigation';
 
-export default async function InstallPage() {
+export default async function InstallPage({ searchParams }: { searchParams?: Promise<Record<string, string | string[] | undefined>> }) {
   const session = await getSession();
   if (session?.installMode === 'agency') {
     redirect('/agency');
   }
   if (session?.installMode === 'subaccount') {
     redirect('/dashboard');
+  }
+
+  const sp = searchParams ? await searchParams : {};
+  const locationId = typeof sp.locationId === 'string' ? sp.locationId : (typeof sp.location_id === 'string' ? sp.location_id : '');
+  const companyId = typeof sp.companyId === 'string' ? sp.companyId : (typeof sp.company_id === 'string' ? sp.company_id : '');
+
+  if (locationId || companyId) {
+    const params = new URLSearchParams({ mode: 'subaccount' });
+    if (locationId) params.set('locationId', locationId);
+    if (companyId) params.set('companyId', companyId);
+    redirect(`/auth/launch?${params.toString()}`);
   }
 
   const appUrl    = process.env.NEXT_PUBLIC_APP_URL!;

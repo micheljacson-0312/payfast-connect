@@ -14,6 +14,15 @@ export default async function AgencyInstallPage({ searchParams }: { searchParams
 
   const sp = searchParams ? await searchParams : {};
   const error = sp.error ? decodeURIComponent(sp.error) : '';
+  const locationId = 'locationId' in sp && typeof sp.locationId === 'string' ? sp.locationId : ('location_id' in sp && typeof sp.location_id === 'string' ? sp.location_id : '');
+  const companyId = 'companyId' in sp && typeof sp.companyId === 'string' ? sp.companyId : ('company_id' in sp && typeof sp.company_id === 'string' ? sp.company_id : '');
+
+  if (locationId || companyId) {
+    const params = new URLSearchParams({ mode: 'agency' });
+    if (locationId) params.set('locationId', locationId);
+    if (companyId) params.set('companyId', companyId);
+    redirect(`/auth/launch?${params.toString()}`);
+  }
 
   const headerStore = await headers();
   const proto = headerStore.get('x-forwarded-proto') || 'https';

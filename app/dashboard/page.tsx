@@ -4,10 +4,13 @@ import { query, Installation, Payment } from '@/lib/db';
 import Sidebar from '@/components/Sidebar';
 import Link from 'next/link';
 
-export default async function DashboardPage() {
+export default async function DashboardPage({ searchParams }: { searchParams?: Promise<Record<string, string | string[] | undefined>> }) {
   const session = await getSession();
   if (!session) redirect('/install');
   if (session.installMode === 'agency') redirect('/agency');
+
+  const sp = searchParams ? await searchParams : {};
+  const restored = sp.restored === '1';
 
   const { locationId } = session;
 
@@ -68,6 +71,12 @@ export default async function DashboardPage() {
         </div>
 
         <div style={{ padding: '28px 32px' }}>
+
+          {restored && (
+            <div style={{ background: 'rgba(0,82,255,0.08)', border: '1px solid rgba(0,82,255,0.2)', borderRadius: 12, padding: '14px 20px', marginBottom: 24, color: '#7FB0FF', fontSize: 14 }}>
+              Existing sub-account session restored successfully.
+            </div>
+          )}
 
           {/* Credentials warning */}
           {credsMissing && (

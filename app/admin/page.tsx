@@ -6,19 +6,45 @@ interface Application {
   id: number;
   status: string;
   full_name: string;
+  username: string | null;
+  id_number: string | null;
   email: string;
   phone: string;
   business_name: string;
+  business_type: string | null;
+  registration_number: string | null;
+  vat_number: string | null;
+  website: string | null;
+  business_category: string | null;
+  monthly_turnover: string | null;
+  business_description: string | null;
+  address_line1: string | null;
+  address_line2: string | null;
+  city: string | null;
+  province: string | null;
+  postal_code: string | null;
+  country: string | null;
+  bank_name: string | null;
+  account_holder: string | null;
+  account_number: string | null;
+  account_type: string | null;
+  branch_code: string | null;
   ghl_location_id: string | null;
+  integration_platform: string | null;
   pf_merchant_id: string | null;
   pf_merchant_key: string | null;
   pf_passphrase: string | null;
   admin_notes: string | null;
   rejection_reason: string | null;
+  reviewed_by: string | null;
+  reviewed_at: string | null;
   created_at: string;
 }
 
 const input = { width: '100%', background: 'white', border: '1px solid #E2E8F0', borderRadius: 10, padding: '10px 12px', color: '#0F172A', fontSize: 13, outline: 'none', fontFamily: 'inherit' } as const;
+const label = { display: 'block', fontSize: 12, fontWeight: 700, color: '#475569', marginBottom: 6 } as const;
+const section = { background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: 16, padding: 16 } as const;
+const readValue = { fontSize: 14, color: '#0F172A', lineHeight: 1.6, wordBreak: 'break-word' as const };
 
 export default function AdminPage() {
   const [status, setStatus] = useState('all');
@@ -68,6 +94,10 @@ export default function AdminPage() {
     setSaving(false);
   }
 
+  function show(value?: string | null) {
+    return value && String(value).trim() ? value : '—';
+  }
+
   return (
     <div style={{ minHeight: '100vh', background: '#F8FAFC', padding: 24, fontFamily: 'DM Sans, sans-serif' }}>
       <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet" />
@@ -90,6 +120,7 @@ export default function AdminPage() {
               <div>#{app.id}</div><div><div style={{ fontWeight: 700 }}>{app.full_name}</div><div style={{ color: '#64748B', fontSize: 12 }}>{app.email}</div></div><div>{app.business_name}</div><div>{app.phone}</div><div>{app.ghl_location_id || '—'}</div><div style={{ fontWeight: 700, textTransform: 'capitalize' }}>{app.status}</div>
             </button>
           ))}
+          {!loading && list.length === 0 && <div style={{ padding: 28, color: '#64748B' }}>No applications found for the current filters.</div>}
         </div>
       </div>
 
@@ -97,14 +128,78 @@ export default function AdminPage() {
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(15,23,42,0.55)', display: 'grid', placeItems: 'center', padding: 20 }}>
           <div style={{ width: '100%', maxWidth: 760, background: 'white', borderRadius: 20, padding: 24, maxHeight: '90vh', overflow: 'auto' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 18 }}><h2 style={{ fontFamily: 'Syne, sans-serif', fontSize: 24 }}>Application #{selected.id}</h2><button onClick={() => setSelected(null)} style={{ background: 'transparent', border: 'none', fontSize: 22, cursor: 'pointer' }}>×</button></div>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12, marginBottom: 18 }}>
+              {[
+                ['Applicant', selected.full_name],
+                ['Business', selected.business_name],
+                ['Platform', show(selected.integration_platform)],
+                ['CRM Location', show(selected.ghl_location_id)],
+              ].map(([title, value]) => (
+                <div key={title} style={{ background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: 14, padding: 14 }}>
+                  <div style={{ fontSize: 11, fontWeight: 700, color: '#64748B', textTransform: 'uppercase', marginBottom: 6 }}>{title}</div>
+                  <div style={{ fontSize: 14, fontWeight: 700, color: '#0F172A' }}>{value}</div>
+                </div>
+              ))}
+            </div>
+
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
-              <div><label>Status</label><select style={input} value={form.status} onChange={(e) => setForm((f: any) => ({ ...f, status: e.target.value }))}><option value="pending">Pending</option><option value="reviewing">Reviewing</option><option value="approved">Approved</option><option value="rejected">Rejected</option><option value="live">Live</option></select></div>
-              <div><label>Reviewed By</label><input style={input} value={form.reviewed_by} onChange={(e) => setForm((f: any) => ({ ...f, reviewed_by: e.target.value }))} /></div>
-              <div><label>Store ID</label><input style={input} value={form.pf_merchant_id} onChange={(e) => setForm((f: any) => ({ ...f, pf_merchant_id: e.target.value }))} /></div>
-              <div><label>Store Password</label><input style={input} value={form.pf_merchant_key} onChange={(e) => setForm((f: any) => ({ ...f, pf_merchant_key: e.target.value }))} /></div>
-              <div style={{ gridColumn: '1 / -1' }}><label>Passphrase</label><input style={input} value={form.pf_passphrase} onChange={(e) => setForm((f: any) => ({ ...f, pf_passphrase: e.target.value }))} /></div>
-              <div style={{ gridColumn: '1 / -1' }}><label>Admin Notes</label><textarea style={{ ...input, minHeight: 90, resize: 'vertical' }} value={form.admin_notes} onChange={(e) => setForm((f: any) => ({ ...f, admin_notes: e.target.value }))} /></div>
-              <div style={{ gridColumn: '1 / -1' }}><label>Rejection Reason</label><textarea style={{ ...input, minHeight: 70, resize: 'vertical' }} value={form.rejection_reason} onChange={(e) => setForm((f: any) => ({ ...f, rejection_reason: e.target.value }))} /></div>
+              <div style={section}>
+                <div style={{ fontFamily: 'Syne, sans-serif', fontSize: 18, marginBottom: 14 }}>Applicant Details</div>
+                <div style={{ display: 'grid', gap: 12 }}>
+                  <div><div style={label}>Full Name</div><div style={readValue}>{show(selected.full_name)}</div></div>
+                  <div><div style={label}>Username</div><div style={readValue}>{show(selected.username)}</div></div>
+                  <div><div style={label}>ID Number</div><div style={readValue}>{show(selected.id_number)}</div></div>
+                  <div><div style={label}>Email</div><div style={readValue}>{show(selected.email)}</div></div>
+                  <div><div style={label}>Phone</div><div style={readValue}>{show(selected.phone)}</div></div>
+                  <div><div style={label}>Submitted</div><div style={readValue}>{new Date(selected.created_at).toLocaleString()}</div></div>
+                </div>
+              </div>
+
+              <div style={section}>
+                <div style={{ fontFamily: 'Syne, sans-serif', fontSize: 18, marginBottom: 14 }}>Business & Agency Signup</div>
+                <div style={{ display: 'grid', gap: 12 }}>
+                  <div><div style={label}>Business Name</div><div style={readValue}>{show(selected.business_name)}</div></div>
+                  <div><div style={label}>Business Type</div><div style={readValue}>{show(selected.business_type)}</div></div>
+                  <div><div style={label}>Registration Number</div><div style={readValue}>{show(selected.registration_number)}</div></div>
+                  <div><div style={label}>VAT Number</div><div style={readValue}>{show(selected.vat_number)}</div></div>
+                  <div><div style={label}>Website</div><div style={readValue}>{show(selected.website)}</div></div>
+                  <div><div style={label}>Business Category</div><div style={readValue}>{show(selected.business_category)}</div></div>
+                  <div><div style={label}>Monthly Turnover</div><div style={readValue}>{show(selected.monthly_turnover)}</div></div>
+                  <div><div style={label}>Integration Platform</div><div style={readValue}>{show(selected.integration_platform)}</div></div>
+                  <div><div style={label}>CRM Location ID</div><div style={readValue}>{show(selected.ghl_location_id)}</div></div>
+                  <div><div style={label}>Business Description</div><div style={readValue}>{show(selected.business_description)}</div></div>
+                </div>
+              </div>
+
+              <div style={section}>
+                <div style={{ fontFamily: 'Syne, sans-serif', fontSize: 18, marginBottom: 14 }}>Address & Banking</div>
+                <div style={{ display: 'grid', gap: 12 }}>
+                  <div><div style={label}>Address Line 1</div><div style={readValue}>{show(selected.address_line1)}</div></div>
+                  <div><div style={label}>Address Line 2</div><div style={readValue}>{show(selected.address_line2)}</div></div>
+                  <div><div style={label}>City / Province</div><div style={readValue}>{[selected.city, selected.province].filter(Boolean).join(', ') || '—'}</div></div>
+                  <div><div style={label}>Postal Code</div><div style={readValue}>{show(selected.postal_code)}</div></div>
+                  <div><div style={label}>Country</div><div style={readValue}>{show(selected.country)}</div></div>
+                  <div><div style={label}>Bank Name</div><div style={readValue}>{show(selected.bank_name)}</div></div>
+                  <div><div style={label}>Account Holder</div><div style={readValue}>{show(selected.account_holder)}</div></div>
+                  <div><div style={label}>Account Number</div><div style={readValue}>{show(selected.account_number)}</div></div>
+                  <div><div style={label}>Account Type</div><div style={readValue}>{show(selected.account_type)}</div></div>
+                  <div><div style={label}>Branch Code</div><div style={readValue}>{show(selected.branch_code)}</div></div>
+                </div>
+              </div>
+
+              <div style={section}>
+                <div style={{ fontFamily: 'Syne, sans-serif', fontSize: 18, marginBottom: 14 }}>Admin Review</div>
+                <div style={{ display: 'grid', gap: 12 }}>
+                  <div><label style={label}>Status</label><select style={input} value={form.status} onChange={(e) => setForm((f: any) => ({ ...f, status: e.target.value }))}><option value="pending">Pending</option><option value="reviewing">Reviewing</option><option value="approved">Approved</option><option value="rejected">Rejected</option><option value="live">Live</option></select></div>
+                  <div><label style={label}>Reviewed By</label><input style={input} value={form.reviewed_by} onChange={(e) => setForm((f: any) => ({ ...f, reviewed_by: e.target.value }))} /></div>
+                  <div><label style={label}>Store ID</label><input style={input} value={form.pf_merchant_id} onChange={(e) => setForm((f: any) => ({ ...f, pf_merchant_id: e.target.value }))} /></div>
+                  <div><label style={label}>Store Password</label><input style={input} value={form.pf_merchant_key} onChange={(e) => setForm((f: any) => ({ ...f, pf_merchant_key: e.target.value }))} /></div>
+                  <div><label style={label}>Passphrase</label><input style={input} value={form.pf_passphrase} onChange={(e) => setForm((f: any) => ({ ...f, pf_passphrase: e.target.value }))} /></div>
+                  <div><div style={label}>Last Reviewed</div><div style={readValue}>{selected.reviewed_at ? new Date(selected.reviewed_at).toLocaleString() : '—'}</div></div>
+                  <div style={{ gridColumn: '1 / -1' }}><label style={label}>Admin Notes</label><textarea style={{ ...input, minHeight: 90, resize: 'vertical' }} value={form.admin_notes} onChange={(e) => setForm((f: any) => ({ ...f, admin_notes: e.target.value }))} /></div>
+                  <div style={{ gridColumn: '1 / -1' }}><label style={label}>Rejection Reason</label><textarea style={{ ...input, minHeight: 70, resize: 'vertical' }} value={form.rejection_reason} onChange={(e) => setForm((f: any) => ({ ...f, rejection_reason: e.target.value }))} /></div>
+                </div>
+              </div>
             </div>
             <div style={{ marginTop: 18, display: 'flex', justifyContent: 'flex-end', gap: 10 }}>
               <button onClick={() => setSelected(null)} style={{ background: '#E2E8F0', color: '#0F172A', border: 'none', padding: '12px 16px', borderRadius: 10, cursor: 'pointer' }}>Close</button>

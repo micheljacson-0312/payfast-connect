@@ -58,7 +58,10 @@ export default function ApplyPage() {
     phone: '',
     username: '',
     full_name: '',
+    id_number: '',
     business_type: 'other',
+    registration_number: '',
+    vat_number: '',
     website: '',
     business_category: '',
     monthly_turnover: '',
@@ -165,6 +168,10 @@ export default function ApplyPage() {
               <label style={label}>Primary Contact Name</label>
               <input style={input} value={form.full_name} onChange={(e) => set('full_name', e.target.value)} placeholder="Owner / account manager" />
             </div>
+            <div>
+              <label style={label}>CNIC / ID Number</label>
+              <input style={input} value={form.id_number} onChange={(e) => set('id_number', e.target.value)} placeholder="35202-1234567-8" />
+            </div>
           </div>
         </section>
 
@@ -184,6 +191,16 @@ export default function ApplyPage() {
             <div style={{ marginBottom: 14 }}>
               <label style={label}>Website</label>
               <input style={input} value={form.website} onChange={(e) => set('website', e.target.value)} placeholder="https://example.com" />
+            </div>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 14 }}>
+              <div>
+                <label style={label}>Registration Number</label>
+                <input style={input} value={form.registration_number} onChange={(e) => set('registration_number', e.target.value)} placeholder="SECP / NTN / company reg no" />
+              </div>
+              <div>
+                <label style={label}>VAT / Tax Number</label>
+                <input style={input} value={form.vat_number} onChange={(e) => set('vat_number', e.target.value)} placeholder="If available" />
+              </div>
             </div>
             <div style={{ marginBottom: 14 }}>
               <label style={label}>Business Category</label>
