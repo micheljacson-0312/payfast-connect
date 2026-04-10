@@ -35,17 +35,29 @@ export async function GET(request: NextRequest) {
   }
 
   try {
+    const clientId = process.env.AGENCY_GHL_CLIENT_ID || process.env.GHL_CLIENT_ID;
+    const clientSecret = process.env.AGENCY_GHL_CLIENT_SECRET || process.env.GHL_CLIENT_SECRET;
+    if (!clientId || !clientSecret) {
+      throw new Error('Missing agency OAuth credentials');
+    }
+
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 15000);
+
     const tokenRes = await fetch('https://services.leadconnectorhq.com/oauth/token', {
       method: 'POST',
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
       body: new URLSearchParams({
-        client_id: process.env.AGENCY_GHL_CLIENT_ID || process.env.GHL_CLIENT_ID!,
-        client_secret: process.env.AGENCY_GHL_CLIENT_SECRET || process.env.GHL_CLIENT_SECRET!,
+        client_id: clientId,
+        client_secret: clientSecret,
         grant_type: 'authorization_code',
         code,
         redirect_uri: `${process.env.NEXT_PUBLIC_APP_URL || request.nextUrl.origin}/agency/oauth/callback`,
       }),
+      signal: controller.signal,
     });
+
+    clearTimeout(timeout);
 
     const raw = await tokenRes.text();
     let tokens: any;

@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { getSession } from '@/lib/session';
 import { redirect } from 'next/navigation';
+import { headers } from 'next/headers';
 
 export default async function AgencyInstallPage({ searchParams }: { searchParams?: Promise<{ error?: string }> }) {
   const session = await getSession();
@@ -14,8 +15,11 @@ export default async function AgencyInstallPage({ searchParams }: { searchParams
   const sp = searchParams ? await searchParams : {};
   const error = sp.error ? decodeURIComponent(sp.error) : '';
 
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL!;
-  const clientId = process.env.AGENCY_GHL_CLIENT_ID || process.env.GHL_CLIENT_ID!;
+  const headerStore = await headers();
+  const proto = headerStore.get('x-forwarded-proto') || 'https';
+  const host = headerStore.get('x-forwarded-host') || headerStore.get('host') || 'localhost:3000';
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL || `${proto}://${host}`;
+  const clientId = process.env.AGENCY_GHL_CLIENT_ID || process.env.GHL_CLIENT_ID || '';
   const redirectUrl = `${appUrl}/agency/oauth/callback`;
 
   const scopes = [
@@ -61,6 +65,12 @@ export default async function AgencyInstallPage({ searchParams }: { searchParams
           {error && (
             <div style={{ background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.2)', borderRadius: 12, padding: 16, marginBottom: 20, color: '#F87171', fontSize: 13, lineHeight: 1.6 }}>
               Agency install failed: {error}
+            </div>
+          )}
+
+          {!clientId && (
+            <div style={{ background: 'rgba(245,158,11,0.08)', border: '1px solid rgba(245,158,11,0.2)', borderRadius: 12, padding: 16, marginBottom: 20, color: '#FBBF24', fontSize: 13, lineHeight: 1.6 }}>
+              Missing agency OAuth client id. Set `AGENCY_GHL_CLIENT_ID` or `GHL_CLIENT_ID` on the server.
             </div>
           )}
 
