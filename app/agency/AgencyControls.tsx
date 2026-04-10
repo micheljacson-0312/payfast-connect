@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 
 const card = {
   background: 'var(--dark2)',
@@ -32,6 +32,7 @@ export default function AgencyControls({ initialLocationId = '' }: { initialLoca
   const [plans, setPlans] = useState<any>(null);
   const [subscription, setSubscription] = useState<any>(null);
   const [rebillingResult, setRebillingResult] = useState<any>(null);
+  const [locations, setLocations] = useState<Array<{ locationId: string; name: string }>>([]);
   const [locationId, setLocationId] = useState(initialLocationId);
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
   const [loading, setLoading] = useState<string | null>(null);
@@ -52,6 +53,15 @@ export default function AgencyControls({ initialLocationId = '' }: { initialLoca
   const formattedPlans = useMemo(() => (plans ? JSON.stringify(plans, null, 2) : ''), [plans]);
   const formattedSubscription = useMemo(() => (subscription ? JSON.stringify(subscription, null, 2) : ''), [subscription]);
   const formattedRebilling = useMemo(() => (rebillingResult ? JSON.stringify(rebillingResult, null, 2) : ''), [rebillingResult]);
+
+  useEffect(() => {
+    fetch('/api/agency/locations')
+      .then((r) => r.json())
+      .then((data) => {
+        if (Array.isArray(data)) setLocations(data);
+      })
+      .catch(() => setLocations([]));
+  }, []);
 
   async function run(key: string, url: string, options?: RequestInit) {
     setLoading(key);
@@ -124,6 +134,37 @@ export default function AgencyControls({ initialLocationId = '' }: { initialLoca
           </section>
         ))}
       </div>
+
+      <section style={card}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, marginBottom: 10 }}>
+          <div>
+            <div style={{ fontFamily: 'var(--font-head)', fontSize: 18, fontWeight: 700, marginBottom: 6 }}>Known Locations</div>
+            <div style={{ color: 'var(--gray)', fontSize: 13, lineHeight: 1.6 }}>These are the installed locations saved in the portal, shown as name plus location ID.</div>
+          </div>
+        </div>
+        <div style={{ display: 'grid', gap: 8 }}>
+          {locations.length ? locations.map((loc) => (
+            <button
+              key={loc.locationId}
+              onClick={() => setLocationId(loc.locationId)}
+              style={{
+                textAlign: 'left',
+                background: locationId === loc.locationId ? 'rgba(0,82,255,0.18)' : 'var(--dark3)',
+                border: '1px solid var(--border)',
+                borderRadius: 12,
+                padding: '12px 14px',
+                color: 'white',
+                cursor: 'pointer',
+              }}
+            >
+              <div style={{ fontWeight: 700 }}>{loc.name}</div>
+              <div style={{ fontSize: 12, color: 'var(--gray)', marginTop: 4 }}>{loc.locationId}</div>
+            </button>
+          )) : (
+            <div style={{ color: 'var(--gray)', fontSize: 13 }}>No saved locations found yet.</div>
+          )}
+        </div>
+      </section>
 
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 18 }}>
         <section style={card}>
