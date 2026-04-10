@@ -1,7 +1,13 @@
 import { query } from './db';
-import { performTokenizedTransaction } from './payfast';
+import { getAgencySettings } from './billing';
+import { getMerchantAccessToken, performTokenizedTransaction } from './payfast';
 
 export async function processRebilling() {
+  const settings = await getAgencySettings();
+  if (!settings?.merchant_id || !settings?.merchant_key) {
+    throw new Error('Agency billing credentials are not configured');
+  }
+
   const now = new Date();
   
   // Find active subscriptions that are due for payment
@@ -23,18 +29,26 @@ export async function processRebilling() {
 
   for (const sub of dueSubscriptions) {
     try {
+      const basketId = `REBILL-${sub.location_id}-${Date.now()}`;
+      const accessToken = await getMerchantAccessToken({
+        merchantId: settings.merchant_id,
+        merchantKey: settings.merchant_key,
+        amount: Number(sub.amount || sub.price_monthly || 0).toFixed(2),
+        basketId,
+      });
+
       // Use stored recurring_token to charge the customer
       const response = await performTokenizedTransaction({
-        token: 'SYSTEM_TOKEN', // In reality, we'd use a system-level access token
+        token: accessToken,
         instrumentToken: sub.recurring_token,
-        transactionId: `REBILL-${sub.location_id}-${Date.now()}`,
-        merchantUserId: sub.location_id,
-        userMobileNumber: 'SYSTEM', // As per API requirements
-        basketId: `BASKET-${sub.location_id}-${Date.now()}`,
+        transactionId: basketId,
+        merchantUserId: settings.merchant_id,
+        userMobileNumber: sub.payer_email || '00000000000',
+        basketId,
         orderDate: now.toISOString().slice(0, 19).replace('T', ' '),
         description: `Monthly subscription for ${sub.location_id}`,
-        amount: sub.price_monthly,
-        otp: 'RECURRING', // Recurring transactions don't need OTP
+        amount: Number(sub.amount || sub.price_monthly || 0).toFixed(2),
+        otp: 'RECURRING',
       });
 
       if (response.status_code === '00' || response.code === '00') {
@@ -43,8 +57,8 @@ export async function processRebilling() {
         nextPeriodEnd.setMonth(nextPeriodEnd.getMonth() + 1);
 
         await query(
-          'UPDATE location_subscriptions SET current_period_end = ? WHERE location_id = ?',
-          [nextPeriodEnd, sub.location_id]
+          'UPDATE location_subscriptions SET current_period_end = ?, current_period_start = ? WHERE location_id = ?',
+          [nextPeriodEnd, now, sub.location_id]
         );
         
         results.processed++;

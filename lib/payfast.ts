@@ -39,6 +39,13 @@ export interface SubscriptionParams extends PaymentParams {
   cycles?: string;
 }
 
+export interface CapturedInstrumentDetails {
+  instrumentToken: string | null;
+  alias: string | null;
+  cardLastFour: string | null;
+  expiryDate: string | null;
+}
+
 function sha256(value: string) {
   return crypto.createHash('sha256').update(value).digest('hex');
 }
@@ -60,6 +67,25 @@ async function getAccessToken(params: PaymentParams, basketId: string) {
   }
 
   return data.ACCESS_TOKEN as string;
+}
+
+export async function getMerchantAccessToken(params: {
+  merchantId: string;
+  merchantKey: string;
+  amount: string;
+  basketId: string;
+  currencyCode?: string;
+}) {
+  return getAccessToken({
+    merchantId: params.merchantId,
+    merchantKey: params.merchantKey,
+    amount: params.amount,
+    itemName: 'Recurring Charge',
+    returnUrl: 'https://example.com/success',
+    cancelUrl: 'https://example.com/cancel',
+    notifyUrl: 'https://example.com/notify',
+    currencyCode: params.currencyCode,
+  }, params.basketId);
 }
 
 function buildSignature(params: PaymentParams, basketId: string) {
@@ -164,4 +190,44 @@ export async function addPermanentInstrument(params: any) {
   return await response.json();
 }
 
+export async function buildSubscriptionForm(params: SubscriptionParams) {
+  return buildPaymentForm(params);
+}
 
+export function extractCapturedInstrument(data: Record<string, string>): CapturedInstrumentDetails {
+  const read = (...keys: string[]) => {
+    for (const key of keys) {
+      const value = data[key];
+      if (value != null && value !== '') return value;
+    }
+    return '';
+  };
+
+  const instrumentToken = read(
+    'instrument_token',
+    'INSTRUMENT_TOKEN',
+    'permanent_instrument_token',
+    'PERMANENT_INSTRUMENT_TOKEN',
+    'recurring_token',
+    'RECURRING_TOKEN',
+    'customer_token',
+    'CUSTOMER_TOKEN',
+    'payment_token',
+    'PAYMENT_TOKEN'
+  ) || null;
+
+  const rawPan = read('card_number', 'CARD_NUMBER', 'masked_pan', 'MASKED_PAN', 'account_number', 'ACCOUNT_NUMBER');
+  const digits = rawPan.replace(/\D/g, '');
+  const cardLastFour = digits.length >= 4 ? digits.slice(-4) : null;
+
+  const expiryMonth = read('expiry_month', 'EXPIRY_MONTH');
+  const expiryYear = read('expiry_year', 'EXPIRY_YEAR');
+  const expiryDate = expiryMonth && expiryYear ? `${expiryMonth}/${expiryYear}` : null;
+
+  return {
+    instrumentToken,
+    alias: read('PaymentName', 'PAYMENT_NAME', 'instrument_alias', 'INSTRUMENT_ALIAS') || null,
+    cardLastFour,
+    expiryDate,
+  };
+}

@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { query, Installation } from '@/lib/db';
-import { verifySignature, PAYFAST_VALID_IPS } from '@/lib/payfast';
+import { extractCapturedInstrument, verifySignature, PAYFAST_VALID_IPS } from '@/lib/payfast';
 import { handlePaymentSync } from '@/lib/ghl';
 import { parsePublicPayMeta } from '@/lib/public-pay';
+import { savePaymentInstrument } from '@/lib/payment-instruments';
 
 function getValue(record: Record<string, string>, ...keys: string[]) {
   for (const key of keys) {
@@ -20,6 +21,7 @@ async function processAppsCallback(request: NextRequest, payload: Record<string,
   const statusMessage = getValue(payload, 'err_msg', 'ERR_MSG');
   const paymentMethod = getValue(payload, 'PaymentName', 'PAYMENT_NAME');
   const redirectMode = getValue(payload, 'redirect') || request.nextUrl.searchParams.get('redirect') || '';
+  const capturedInstrument = extractCapturedInstrument(payload);
 
   if (!locationId || !basketId) {
     return new NextResponse('Missing callback context', { status: 400 });
@@ -58,6 +60,16 @@ async function processAppsCallback(request: NextRequest, payload: Record<string,
   );
 
   if (success) {
+    if (capturedInstrument.instrumentToken) {
+      await savePaymentInstrument(locationId, {
+        instrumentToken: capturedInstrument.instrumentToken,
+        instrumentAlias: capturedInstrument.alias || paymentMethod || null,
+        cardLastFour: capturedInstrument.cardLastFour,
+        expiryDate: capturedInstrument.expiryDate,
+        isDefault: payment.payment_type === 'subscription',
+      });
+    }
+
     if (payment.custom_str3) {
       fetch(`${process.env.NEXT_PUBLIC_APP_URL}/api/ghl/notify`, {
         method: 'POST',
@@ -107,6 +119,18 @@ async function processAppsCallback(request: NextRequest, payload: Record<string,
       }
       if (sourceMeta?.couponCode) {
         await query('UPDATE coupons SET uses_count = uses_count + 1 WHERE location_id = ? AND code = ?', [locationId, sourceMeta.couponCode]);
+      }
+
+      if (payment.payment_type === 'subscription' && capturedInstrument.instrumentToken) {
+        await query(
+          `INSERT INTO subscriptions (location_id, contact_id, pf_token, payer_email, amount, frequency, status, next_billing)
+           VALUES (?, ?, ?, ?, ?, 'monthly', 'active', DATE_ADD(CURDATE(), INTERVAL 1 MONTH))
+           ON DUPLICATE KEY UPDATE
+             payer_email = VALUES(payer_email),
+             amount = VALUES(amount),
+             status = 'active'`,
+          [locationId, payment.contact_id || null, capturedInstrument.instrumentToken, payment.payer_email, payment.amount]
+        );
       }
     }
   }

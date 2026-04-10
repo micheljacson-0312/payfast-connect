@@ -3,6 +3,9 @@ import { getSession } from '@/lib/session';
 import { getLocationSubscription, checkSubscription } from '@/lib/billing';
 import { query } from '@/lib/db';
 import Sidebar from '@/components/Sidebar';
+import BillingWalletCards from '@/components/BillingWalletCards';
+import { getBalance } from '@/lib/wallet';
+import { getPaymentInstruments } from '@/lib/payment-instruments';
 
 export default async function BillingPage() {
   const session = await getSession();
@@ -14,6 +17,8 @@ export default async function BillingPage() {
     `SELECT bi.*, ap.name AS plan_name FROM billing_invoices bi LEFT JOIN agency_plans ap ON ap.id = bi.plan_id WHERE bi.location_id = ? ORDER BY bi.created_at DESC`,
     [session.locationId]
   );
+  const wallet = await getBalance(session.locationId);
+  const instruments = await getPaymentInstruments(session.locationId);
 
   return (
     <div className="app-shell">
@@ -61,6 +66,7 @@ export default async function BillingPage() {
             </div>
           </div>
         </div>
+        <BillingWalletCards wallet={wallet} instruments={instruments} />
       </div>
     </div>
   );

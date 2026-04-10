@@ -1,11 +1,19 @@
 import { query } from './db';
 
-export async function getBalance(locationId: string) {
+export interface WalletBalance {
+  balance: number;
+  currency: string;
+}
+
+export async function getBalance(locationId: string): Promise<WalletBalance> {
   const rows = await query<any[]>(
     'SELECT balance, currency FROM wallets WHERE location_id = ?',
     [locationId]
   );
-  return rows[0] || { balance: 0, currency: 'PKR' };
+
+  return rows[0]
+    ? { balance: Number(rows[0].balance || 0), currency: rows[0].currency || 'PKR' }
+    : { balance: 0, currency: 'PKR' };
 }
 
 export async function addBalance(locationId: string, amount: number) {

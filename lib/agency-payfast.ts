@@ -11,6 +11,8 @@ export async function buildAgencyBillingForm(params: {
   nameLast?: string;
   locationId: string;
   invoiceToken: string;
+  successRedirect?: string;
+  callbackParams?: Record<string, string>;
 }) {
   const settings = await getAgencySettings();
   if (!settings?.merchant_id || !settings?.merchant_key) {
@@ -18,6 +20,11 @@ export async function buildAgencyBillingForm(params: {
   }
 
   const appUrl = process.env.NEXT_PUBLIC_APP_URL!;
+  const callbackQuery = new URLSearchParams({
+    location_id: params.locationId,
+    invoice_token: params.invoiceToken,
+    ...Object.fromEntries(Object.entries(params.callbackParams || {}).filter(([, value]) => value != null)),
+  }).toString();
 
   return buildPaymentForm({
     merchantId: settings.merchant_id,
@@ -33,9 +40,9 @@ export async function buildAgencyBillingForm(params: {
     phone: params.phone || '',
     nameFirst: params.nameFirst || '',
     nameLast: params.nameLast || '.',
-    returnUrl: `${appUrl}/api/billing/itn?location_id=${encodeURIComponent(params.locationId)}&invoice_token=${encodeURIComponent(params.invoiceToken)}&redirect=Y`,
-    cancelUrl: `${appUrl}/billing/plans?cancelled=1`,
-    notifyUrl: `${appUrl}/api/billing/itn?location_id=${encodeURIComponent(params.locationId)}&invoice_token=${encodeURIComponent(params.invoiceToken)}`,
+    returnUrl: `${appUrl}/api/billing/itn?${callbackQuery}&redirect=Y`,
+    cancelUrl: params.successRedirect || `${appUrl}/billing/plans?cancelled=1`,
+    notifyUrl: `${appUrl}/api/billing/itn?${callbackQuery}`,
     mPaymentId: `BILL-${params.invoiceToken}`,
   });
 }

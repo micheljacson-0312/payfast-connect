@@ -80,6 +80,7 @@ CREATE TABLE IF NOT EXISTS merchant_applications (
   status              ENUM('pending','reviewing','approved','rejected','live') DEFAULT 'pending',
   -- Personal Details
   full_name           VARCHAR(200) NOT NULL,
+  username            VARCHAR(100),
   id_number           VARCHAR(50),
   email               VARCHAR(255) NOT NULL,
   phone               VARCHAR(50) NOT NULL,
@@ -107,6 +108,7 @@ CREATE TABLE IF NOT EXISTS merchant_applications (
   branch_code         VARCHAR(20),
   -- CRM info (optional — link to their CRM sub-account)
   ghl_location_id     VARCHAR(100),
+  integration_platform VARCHAR(100),
   -- GoPayFast credentials (filled by admin after account creation)
   pf_merchant_id      VARCHAR(50),
   pf_merchant_key     VARCHAR(100),
