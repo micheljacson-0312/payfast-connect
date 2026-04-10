@@ -7,7 +7,6 @@ const secret = () => new TextEncoder().encode(process.env.SESSION_SECRET!);
 
 const PROTECTED = [
   '/dashboard',
-  '/agency',
   '/payments',
   '/payment-schedules',
   '/payment-links',
