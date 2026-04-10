@@ -19,13 +19,6 @@ function withTimeout<T>(promise: Promise<T>, ms: number, label: string) {
   ]);
 }
 
-async function resolveLocationIdFallback() {
-  const rows = await query<any[]>(
-    `SELECT location_id FROM installations ORDER BY created_at DESC, id DESC LIMIT 1`
-  );
-  return rows[0]?.location_id || null;
-}
-
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
   const code = searchParams.get('code');
@@ -82,13 +75,16 @@ export async function GET(request: NextRequest) {
 
     const accessToken = pickString(tokens.access_token, tokens.accessToken, tokens.data?.access_token, tokens.data?.accessToken);
     const refreshToken = pickString(tokens.refresh_token, tokens.refreshToken, tokens.data?.refresh_token, tokens.data?.refreshToken);
-    let locationId = pickString(tokens.locationId, tokens.location_id, tokens.data?.locationId, tokens.data?.location_id, locationIdFromQuery);
+    let locationId = pickString(
+      tokens.locationId,
+      tokens.location_id,
+      tokens.data?.locationId,
+      tokens.data?.location_id,
+      locationIdFromQuery,
+      companyIdFromQuery
+    );
     const companyId = pickString(tokens.companyId, tokens.company_id, tokens.data?.companyId, tokens.data?.company_id, companyIdFromQuery);
     const expiresIn = Number(tokens.expires_in ?? tokens.expiresIn ?? tokens.data?.expires_in ?? 3600);
-
-    if (!locationId) {
-      locationId = await withTimeout(resolveLocationIdFallback(), 3000, 'Agency location lookup');
-    }
 
     if (!accessToken || !refreshToken || !locationId) {
       throw new Error('Agency OAuth missing required fields');
