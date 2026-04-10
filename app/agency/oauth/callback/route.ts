@@ -43,13 +43,19 @@ export async function GET(request: NextRequest) {
         client_secret: process.env.AGENCY_GHL_CLIENT_SECRET || process.env.GHL_CLIENT_SECRET!,
         grant_type: 'authorization_code',
         code,
-        redirect_uri: `${process.env.NEXT_PUBLIC_APP_URL}/agency/oauth/callback`,
+        redirect_uri: `${process.env.NEXT_PUBLIC_APP_URL || request.nextUrl.origin}/agency/oauth/callback`,
       }),
     });
 
     const raw = await tokenRes.text();
-    const tokens = JSON.parse(raw);
-    if (!tokenRes.ok) throw new Error(`Agency token exchange failed: ${tokenRes.status} ${raw.slice(0, 200)}`);
+    let tokens: any;
+    try {
+      tokens = JSON.parse(raw);
+    } catch {
+      throw new Error(`Agency token exchange returned non-JSON response: ${raw.slice(0, 300)}`);
+    }
+
+    if (!tokenRes.ok) throw new Error(`Agency token exchange failed: ${tokenRes.status} ${raw.slice(0, 300)}`);
 
     const accessToken = pickString(tokens.access_token, tokens.accessToken, tokens.data?.access_token, tokens.data?.accessToken);
     const refreshToken = pickString(tokens.refresh_token, tokens.refreshToken, tokens.data?.refresh_token, tokens.data?.refreshToken);
@@ -75,6 +81,7 @@ export async function GET(request: NextRequest) {
     return applySessionCookie(clearExistingSession(NextResponse.redirect(getAppUrlWithSearch('/agency?installed=1', request))), locationId, 'agency');
   } catch (err) {
     console.error('Agency OAuth callback error:', err);
-    return clearExistingSession(NextResponse.redirect(getAppUrlWithSearch('/agency/install?error=server_error', request)));
+    const message = err instanceof Error ? err.message : 'server_error';
+    return clearExistingSession(NextResponse.redirect(getAppUrlWithSearch(`/agency/install?error=${encodeURIComponent(message)}`, request)));
   }
 }

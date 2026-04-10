@@ -47,11 +47,11 @@ export default async function RootPage() {
             </div>
             <h1 style={{ fontFamily: 'Syne, sans-serif', fontSize: 48, lineHeight: 1.05, fontWeight: 800, marginBottom: 16 }}>Onboard merchants, connect CRM accounts, and manage agency billing from one place.</h1>
             <p style={{ color: '#8AA0C8', fontSize: 16, lineHeight: 1.8, maxWidth: 720, marginBottom: 24 }}>
-              This portal is built for payment aggregation. Merchants can apply for accounts, sub-accounts can connect their CRM install, and agencies can manage billing controls from a separate app flow.
+              This portal is built for payment aggregation. Merchant applications go through the onboarding form, CRM sub-accounts use the install flow, and agencies use the agency install or dashboard depending on whether they are already connected.
             </p>
             <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
               <Link href="/apply" style={{ background: '#0052FF', color: 'white', textDecoration: 'none', padding: '13px 18px', borderRadius: 12, fontWeight: 700 }}>Merchant Application Form</Link>
-              <Link href="/install" style={{ background: 'transparent', border: '1px solid rgba(255,255,255,0.12)', color: 'white', textDecoration: 'none', padding: '13px 18px', borderRadius: 12, fontWeight: 700 }}>Sub-Account Connect</Link>
+              <Link href="/install" style={{ background: 'transparent', border: '1px solid rgba(255,255,255,0.12)', color: 'white', textDecoration: 'none', padding: '13px 18px', borderRadius: 12, fontWeight: 700 }}>CRM Sub-Account Install</Link>
               <Link href={session?.installMode === 'agency' ? '/agency' : '/agency/install'} style={{ background: 'transparent', border: '1px solid rgba(255,255,255,0.12)', color: 'white', textDecoration: 'none', padding: '13px 18px', borderRadius: 12, fontWeight: 700 }}>
                 {session?.installMode === 'agency' ? 'Open Agency Dashboard' : 'Agency App Connect'}
               </Link>
@@ -74,10 +74,10 @@ export default async function RootPage() {
 
         <section style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 18, marginBottom: 28 }}>
             {[
-              ['/apply', 'Merchant Application', 'Public form for merchant onboarding and document collection.'],
-              ['/install', 'CRM Sub-Account Install', 'Install the sub-account app and access the user dashboard.'],
-              [session?.installMode === 'agency' ? '/agency' : '/agency/install', 'Agency Dashboard / Install', 'Open the agency dashboard after install, or start the dedicated agency install flow.'],
-              ['/support', 'Support', 'Get onboarding help, deployment help, or payment support.'],
+              ['/apply', 'Merchant Application', 'For merchants that need onboarding, business, and banking details collected.'],
+              ['/install', 'CRM Sub-Account Install', 'For client CRM users who need the payment dashboard and tools.'],
+              [session?.installMode === 'agency' ? '/agency' : '/agency/install', 'Agency Dashboard / Install', 'For agency users. Installed agencies open the dashboard, new agencies start the install flow.'],
+              ['/support', 'Support', 'Need help with onboarding, deployment, or payments? Start here.'],
             ].map(([href, title, desc]) => (
             <Link key={href} href={href} style={{ ...card, textDecoration: 'none', color: 'white' }}>
               <div style={{ fontFamily: 'Syne, sans-serif', fontSize: 22, fontWeight: 800, marginBottom: 10 }}>{title}</div>

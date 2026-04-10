@@ -2,7 +2,7 @@ import Link from 'next/link';
 import { getSession } from '@/lib/session';
 import { redirect } from 'next/navigation';
 
-export default async function AgencyInstallPage() {
+export default async function AgencyInstallPage({ searchParams }: { searchParams?: Promise<{ error?: string }> }) {
   const session = await getSession();
   if (session?.installMode === 'agency') {
     redirect('/agency');
@@ -10,6 +10,9 @@ export default async function AgencyInstallPage() {
   if (session?.installMode === 'subaccount') {
     redirect('/dashboard');
   }
+
+  const sp = searchParams ? await searchParams : {};
+  const error = sp.error ? decodeURIComponent(sp.error) : '';
 
   const appUrl = process.env.NEXT_PUBLIC_APP_URL!;
   const clientId = process.env.AGENCY_GHL_CLIENT_ID || process.env.GHL_CLIENT_ID!;
@@ -54,6 +57,12 @@ export default async function AgencyInstallPage() {
               This install path is for the agency-facing marketplace app. Use it for 10x Digital Ventures level billing, revenue control, and overall client billing management.
             </p>
           </div>
+
+          {error && (
+            <div style={{ background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.2)', borderRadius: 12, padding: 16, marginBottom: 20, color: '#F87171', fontSize: 13, lineHeight: 1.6 }}>
+              Agency install failed: {error}
+            </div>
+          )}
 
           <div style={{ background: 'var(--dark3)', borderRadius: 12, padding: 20, marginBottom: 24 }}>
             {['Agency billing dashboard', 'Client subscription oversight', 'Agency credential management', 'Revenue and suspension controls'].map((text) => (
