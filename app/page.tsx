@@ -16,27 +16,27 @@ export default async function RootPage() {
       <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet" />
       <div style={{ position: 'fixed', inset: 0, pointerEvents: 'none', background: 'radial-gradient(circle at 15% 15%, rgba(0,82,255,0.16), transparent 25%), radial-gradient(circle at 85% 10%, rgba(255,107,44,0.12), transparent 22%)' }} />
 
-      <nav style={{ position: 'relative', zIndex: 2, display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '22px 42px', borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
+      <nav style={{ position: 'relative', zIndex: 2, display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '18px 36px', borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
         <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: 12, color: 'white', textDecoration: 'none' }}>
-          <div style={{ width: 38, height: 38, background: '#0052FF', borderRadius: 10, display: 'grid', placeItems: 'center' }}>
+            <div style={{ width: 34, height: 34, background: '#0052FF', borderRadius: 10, display: 'grid', placeItems: 'center' }}>
             <svg width="18" height="18" viewBox="0 0 24 24" fill="white"><path d="M13 2L4.5 13H11L10 22L19.5 11H13L13 2Z" /></svg>
           </div>
           <div>
-            <div style={{ fontFamily: 'Outfit, sans-serif', fontSize: 17, fontWeight: 800 }}>GoPayFast Connect</div>
+            <div style={{ fontFamily: 'Outfit, sans-serif', fontSize: 16, fontWeight: 800, lineHeight: 1 }}>GoPayFast Connect</div>
             <div style={{ fontSize: 11, color: '#8AA0C8' }}>Aggregator Portal by 10x Digital Ventures</div>
           </div>
         </Link>
 
-        <div style={{ display: 'flex', gap: 12 }}>
-          <Link href="/apply" style={{ color: '#DCE7FF', textDecoration: 'none', fontSize: 14 }}>Apply</Link>
-          <Link href="/docs" style={{ color: '#DCE7FF', textDecoration: 'none', fontSize: 14 }}>Docs</Link>
-          <Link href="/support" style={{ color: '#DCE7FF', textDecoration: 'none', fontSize: 14 }}>Support</Link>
-          {session && (
-            <Link href={session.installMode === 'agency' ? '/agency' : '/dashboard'} style={{ background: '#0052FF', color: 'white', textDecoration: 'none', padding: '10px 14px', borderRadius: 10, fontSize: 13, fontWeight: 700 }}>
-              Open {session.installMode === 'agency' ? 'Agency Dashboard' : 'CRM Dashboard'}
-            </Link>
-          )}
-        </div>
+            <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
+           <Link href="/apply" style={{ color: '#DCE7FF', textDecoration: 'none', fontSize: 13, fontWeight: 600 }}>Apply</Link>
+           <Link href="/docs" style={{ color: '#DCE7FF', textDecoration: 'none', fontSize: 13, fontWeight: 600 }}>Docs</Link>
+           <Link href="/support" style={{ color: '#DCE7FF', textDecoration: 'none', fontSize: 13, fontWeight: 600 }}>Support</Link>
+           {session && (
+             <Link href={session.installMode === 'agency' ? '/agency' : '/dashboard'} style={{ background: '#0052FF', color: 'white', textDecoration: 'none', padding: '9px 12px', borderRadius: 10, fontSize: 12, fontWeight: 700 }}>
+               Open {session.installMode === 'agency' ? 'Agency Dashboard' : 'CRM Dashboard'}
+             </Link>
+           )}
+         </div>
       </nav>
 
       <main style={{ position: 'relative', zIndex: 1, maxWidth: 1180, margin: '0 auto', padding: '56px 24px 72px' }}>
@@ -49,10 +49,10 @@ export default async function RootPage() {
             <p style={{ color: '#8AA0C8', fontSize: 16, lineHeight: 1.8, maxWidth: 720, marginBottom: 24 }}>
               This portal is built for payment aggregation. Merchant applications go through the onboarding form, CRM sub-accounts use the install flow, and agencies use the agency install or dashboard depending on whether they are already connected.
             </p>
-            <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
-              <Link href="/apply" style={{ background: '#0052FF', color: 'white', textDecoration: 'none', padding: '13px 18px', borderRadius: 12, fontWeight: 700 }}>Merchant Application Form</Link>
-              <Link href="/install" style={{ background: 'transparent', border: '1px solid rgba(255,255,255,0.12)', color: 'white', textDecoration: 'none', padding: '13px 18px', borderRadius: 12, fontWeight: 700 }}>CRM Sub-Account Install</Link>
-              <Link href={session?.installMode === 'agency' ? '/agency' : '/agency/install'} style={{ background: 'transparent', border: '1px solid rgba(255,255,255,0.12)', color: 'white', textDecoration: 'none', padding: '13px 18px', borderRadius: 12, fontWeight: 700 }}>
+            <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
+              <Link href="/apply" style={{ background: '#0052FF', color: 'white', textDecoration: 'none', padding: '11px 15px', borderRadius: 12, fontWeight: 700, fontSize: 13 }}>Merchant Application Form</Link>
+              <Link href="/install" style={{ background: 'transparent', border: '1px solid rgba(255,255,255,0.12)', color: 'white', textDecoration: 'none', padding: '11px 15px', borderRadius: 12, fontWeight: 700, fontSize: 13 }}>CRM Sub-Account Install</Link>
+              <Link href={session?.installMode === 'agency' ? '/agency' : '/agency/install'} style={{ background: 'transparent', border: '1px solid rgba(255,255,255,0.12)', color: 'white', textDecoration: 'none', padding: '11px 15px', borderRadius: 12, fontWeight: 700, fontSize: 13 }}>
                 {session?.installMode === 'agency' ? 'Open Agency Dashboard' : 'Agency App Connect'}
               </Link>
             </div>
