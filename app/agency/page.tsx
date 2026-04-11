@@ -2,6 +2,8 @@ import { getSession } from '@/lib/session';
 import { redirect } from 'next/navigation';
 import { query } from '@/lib/db';
 import { getAgencySettings } from '@/lib/billing';
+import { getBalance } from '@/lib/wallet';
+import { getPaymentInstruments } from '@/lib/payment-instruments';
 import AgencyDashboardClient from './AgencyDashboardClient';
 
 export default async function AgencyPage({ searchParams }: { searchParams?: Promise<Record<string, string | string[] | undefined>> }) {
@@ -14,6 +16,17 @@ export default async function AgencyPage({ searchParams }: { searchParams?: Prom
   const restored = sp.restored === '1';
   const agencySettings = await getAgencySettings();
   const payfastReady = Boolean(agencySettings?.merchant_id && agencySettings?.merchant_key);
+  const wallet = await getBalance(session.locationId);
+  const instruments = await getPaymentInstruments(session.locationId);
+  const invoices = await query<any[]>(
+    `SELECT bi.*, ap.name AS plan_name
+     FROM billing_invoices bi
+     LEFT JOIN agency_plans ap ON ap.id = bi.plan_id
+     WHERE bi.location_id = ?
+     ORDER BY bi.created_at DESC
+     LIMIT 12`,
+    [session.locationId]
+  );
 
   const stats = await query<any[]>(
     `SELECT
@@ -24,5 +37,5 @@ export default async function AgencyPage({ searchParams }: { searchParams?: Prom
      FROM location_subscriptions`
   );
 
-  return <AgencyDashboardClient stats={stats[0] || { mrr: 0, active_count: 0, trial_count: 0, suspended_count: 0 }} sessionLocationId={session.locationId} installed={installed} restored={restored} payfastReady={payfastReady} />;
+  return <AgencyDashboardClient stats={stats[0] || { mrr: 0, active_count: 0, trial_count: 0, suspended_count: 0 }} sessionLocationId={session.locationId} installed={installed} restored={restored} payfastReady={payfastReady} wallet={wallet} instruments={instruments} invoices={invoices} agencySettings={agencySettings} />;
 }
