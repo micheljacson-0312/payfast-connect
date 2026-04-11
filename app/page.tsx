@@ -22,7 +22,7 @@ export default async function RootPage() {
             <svg width="18" height="18" viewBox="0 0 24 24" fill="white"><path d="M13 2L4.5 13H11L10 22L19.5 11H13L13 2Z" /></svg>
           </div>
           <div>
-            <div style={{ fontFamily: 'Syne, sans-serif', fontSize: 17, fontWeight: 800 }}>GoPayFast Connect</div>
+            <div style={{ fontFamily: 'Outfit, sans-serif', fontSize: 17, fontWeight: 800 }}>GoPayFast Connect</div>
             <div style={{ fontSize: 11, color: '#8AA0C8' }}>Aggregator Portal by 10x Digital Ventures</div>
           </div>
         </Link>
@@ -45,7 +45,7 @@ export default async function RootPage() {
             <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: 'rgba(0,82,255,0.12)', color: '#7FB0FF', border: '1px solid rgba(0,82,255,0.2)', borderRadius: 999, padding: '8px 12px', fontSize: 12, fontWeight: 700, marginBottom: 18 }}>
               GoPayFast Aggregator Platform
             </div>
-            <h1 style={{ fontFamily: 'Syne, sans-serif', fontSize: 48, lineHeight: 1.05, fontWeight: 800, marginBottom: 16 }}>Onboard merchants, connect CRM accounts, and manage agency billing from one place.</h1>
+            <h1 style={{ fontFamily: 'Outfit, sans-serif', fontSize: 48, lineHeight: 1.05, fontWeight: 800, marginBottom: 16 }}>Onboard merchants, connect CRM accounts, and manage agency billing from one place.</h1>
             <p style={{ color: '#8AA0C8', fontSize: 16, lineHeight: 1.8, maxWidth: 720, marginBottom: 24 }}>
               This portal is built for payment aggregation. Merchant applications go through the onboarding form, CRM sub-accounts use the install flow, and agencies use the agency install or dashboard depending on whether they are already connected.
             </p>
@@ -65,7 +65,7 @@ export default async function RootPage() {
               ['Agency SaaS Controls', 'Use the agency app to manage SaaS enablement, rebilling, and subscription checks.'],
             ].map(([title, desc]) => (
               <div key={title} style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 14, padding: 16 }}>
-                <div style={{ fontFamily: 'Syne, sans-serif', fontSize: 18, fontWeight: 700, marginBottom: 6 }}>{title}</div>
+                <div style={{ fontFamily: 'Outfit, sans-serif', fontSize: 18, fontWeight: 700, marginBottom: 6 }}>{title}</div>
                 <div style={{ color: '#8AA0C8', fontSize: 13, lineHeight: 1.7 }}>{desc}</div>
               </div>
             ))}
@@ -80,14 +80,14 @@ export default async function RootPage() {
               ['/support', 'Support', 'Need help with onboarding, deployment, or payments? Start here.'],
             ].map(([href, title, desc]) => (
             <Link key={href} href={href} style={{ ...card, textDecoration: 'none', color: 'white' }}>
-              <div style={{ fontFamily: 'Syne, sans-serif', fontSize: 22, fontWeight: 800, marginBottom: 10 }}>{title}</div>
+              <div style={{ fontFamily: 'Outfit, sans-serif', fontSize: 22, fontWeight: 800, marginBottom: 10 }}>{title}</div>
               <div style={{ color: '#8AA0C8', fontSize: 13, lineHeight: 1.7 }}>{desc}</div>
             </Link>
           ))}
         </section>
 
         <section style={{ marginBottom: 56 }}>
-          <h2 style={{ fontFamily: 'Syne, sans-serif', fontSize: 32, fontWeight: 800, marginBottom: 32, textAlign: 'center' }}>Advanced Payment Features</h2>
+          <h2 style={{ fontFamily: 'Outfit, sans-serif', fontSize: 32, fontWeight: 800, marginBottom: 32, textAlign: 'center' }}>Advanced Payment Features</h2>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 24 }}>
             {[
               ['Secure Card Saving', 'Save customer payment instruments securely and enable one-click checkouts and subscriptions.', '💳'],
@@ -96,7 +96,7 @@ export default async function RootPage() {
             ].map(([title, desc, icon]) => (
               <div key={title} style={{ ...card, textAlign: 'center' }}>
                 <div style={{ fontSize: 40, marginBottom: 16 }}>{icon}</div>
-                <div style={{ fontFamily: 'Syne, sans-serif', fontSize: 20, fontWeight: 700, marginBottom: 12 }}>{title}</div>
+                <div style={{ fontFamily: 'Outfit, sans-serif', fontSize: 20, fontWeight: 700, marginBottom: 12 }}>{title}</div>
                 <div style={{ color: '#8AA0C8', fontSize: 14, lineHeight: 1.6 }}>{desc}</div>
               </div>
             ))}
@@ -104,7 +104,7 @@ export default async function RootPage() {
         </section>
 
         <section style={{ background: 'rgba(0,82,255,0.05)', border: '1px solid rgba(0,82,255,0.1)', borderRadius: 32, padding: 48, textAlign: 'center' }}>
-          <h2 style={{ fontFamily: 'Syne, sans-serif', fontSize: 32, fontWeight: 800, marginBottom: 48 }}>How It Works</h2>
+          <h2 style={{ fontFamily: 'Outfit, sans-serif', fontSize: 32, fontWeight: 800, marginBottom: 48 }}>How It Works</h2>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 48, position: 'relative' }}>
             {[
               ['Onboard', 'Merchants apply via the portal and undergo KYC verification.', '01'],
@@ -112,9 +112,9 @@ export default async function RootPage() {
               ['Scale', 'Agencies manage billing and subscriptions through the SaaS panel.', '03'],
             ].map(([title, desc, step]) => (
               <div key={title} style={{ position: 'relative' }}>
-                <div style={{ fontFamily: 'Syne, sans-serif', fontSize: 64, fontWeight: 800, color: 'rgba(0,82,255,0.1)', position: 'absolute', top: -40, left: '50%', transform: 'translateX(-50%)', zIndex: 0 }}>{step}</div>
+                <div style={{ fontFamily: 'Outfit, sans-serif', fontSize: 64, fontWeight: 800, color: 'rgba(0,82,255,0.1)', position: 'absolute', top: -40, left: '50%', transform: 'translateX(-50%)', zIndex: 0 }}>{step}</div>
                 <div style={{ position: 'relative', zIndex: 1 }}>
-                  <div style={{ fontFamily: 'Syne, sans-serif', fontSize: 22, fontWeight: 700, marginBottom: 12 }}>{title}</div>
+                  <div style={{ fontFamily: 'Outfit, sans-serif', fontSize: 22, fontWeight: 700, marginBottom: 12 }}>{title}</div>
                   <div style={{ color: '#8AA0C8', fontSize: 15, lineHeight: 1.6 }}>{desc}</div>
                 </div>
               </div>
