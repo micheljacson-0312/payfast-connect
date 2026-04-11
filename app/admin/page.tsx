@@ -103,7 +103,7 @@ export default function AdminPage() {
       <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet" />
       <div style={{ maxWidth: 1200, margin: '0 auto' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 18 }}>
-          <h1 style={{ fontFamily: 'Syne, sans-serif', fontSize: 30, color: '#0F172A' }}>Merchant Applications</h1>
+          <h1 style={{ fontFamily: 'var(--font-head)', fontSize: 30, color: '#0F172A' }}>Merchant Applications</h1>
           <div style={{ display: 'flex', gap: 10 }}>
             <select style={{ ...input, width: 160 }} value={status} onChange={(e) => setStatus(e.target.value)}><option value="all">All Statuses</option><option value="pending">Pending</option><option value="reviewing">Reviewing</option><option value="approved">Approved</option><option value="rejected">Rejected</option><option value="live">Live</option></select>
             <input style={{ ...input, width: 240 }} value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search applications" />
@@ -127,7 +127,7 @@ export default function AdminPage() {
       {selected && form && (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(15,23,42,0.55)', display: 'grid', placeItems: 'center', padding: 20 }}>
           <div style={{ width: '100%', maxWidth: 760, background: 'white', borderRadius: 20, padding: 24, maxHeight: '90vh', overflow: 'auto' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 18 }}><h2 style={{ fontFamily: 'Syne, sans-serif', fontSize: 24 }}>Application #{selected.id}</h2><button onClick={() => setSelected(null)} style={{ background: 'transparent', border: 'none', fontSize: 22, cursor: 'pointer' }}>×</button></div>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 18 }}><h2 style={{ fontFamily: 'var(--font-head)', fontSize: 24 }}>Application #{selected.id}</h2><button onClick={() => setSelected(null)} style={{ background: 'transparent', border: 'none', fontSize: 22, cursor: 'pointer' }}>×</button></div>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12, marginBottom: 18 }}>
               {[
                 ['Applicant', selected.full_name],
@@ -142,9 +142,9 @@ export default function AdminPage() {
               ))}
             </div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 16 }}>
               <div style={section}>
-                <div style={{ fontFamily: 'Syne, sans-serif', fontSize: 18, marginBottom: 14 }}>Applicant Details</div>
+                <div style={{ fontFamily: 'var(--font-head)', fontSize: 18, marginBottom: 14 }}>Applicant Details</div>
                 <div style={{ display: 'grid', gap: 12 }}>
                   <div><div style={label}>Full Name</div><div style={readValue}>{show(selected.full_name)}</div></div>
                   <div><div style={label}>Username</div><div style={readValue}>{show(selected.username)}</div></div>
@@ -156,7 +156,7 @@ export default function AdminPage() {
               </div>
 
               <div style={section}>
-                <div style={{ fontFamily: 'Syne, sans-serif', fontSize: 18, marginBottom: 14 }}>Business & Agency Signup</div>
+                <div style={{ fontFamily: 'var(--font-head)', fontSize: 18, marginBottom: 14 }}>Business & Agency Signup</div>
                 <div style={{ display: 'grid', gap: 12 }}>
                   <div><div style={label}>Business Name</div><div style={readValue}>{show(selected.business_name)}</div></div>
                   <div><div style={label}>Business Type</div><div style={readValue}>{show(selected.business_type)}</div></div>
@@ -172,7 +172,7 @@ export default function AdminPage() {
               </div>
 
               <div style={section}>
-                <div style={{ fontFamily: 'Syne, sans-serif', fontSize: 18, marginBottom: 14 }}>Address & Banking</div>
+                <div style={{ fontFamily: 'var(--font-head)', fontSize: 18, marginBottom: 14 }}>Address & Banking</div>
                 <div style={{ display: 'grid', gap: 12 }}>
                   <div><div style={label}>Address Line 1</div><div style={readValue}>{show(selected.address_line1)}</div></div>
                   <div><div style={label}>Address Line 2</div><div style={readValue}>{show(selected.address_line2)}</div></div>
@@ -188,7 +188,7 @@ export default function AdminPage() {
               </div>
 
               <div style={section}>
-                <div style={{ fontFamily: 'Syne, sans-serif', fontSize: 18, marginBottom: 14 }}>Admin Review</div>
+                <div style={{ fontFamily: 'var(--font-head)', fontSize: 18, marginBottom: 14 }}>Admin Review</div>
                 <div style={{ display: 'grid', gap: 12 }}>
                   <div><label style={label}>Status</label><select style={input} value={form.status} onChange={(e) => setForm((f: any) => ({ ...f, status: e.target.value }))}><option value="pending">Pending</option><option value="reviewing">Reviewing</option><option value="approved">Approved</option><option value="rejected">Rejected</option><option value="live">Live</option></select></div>
                   <div><label style={label}>Reviewed By</label><input style={input} value={form.reviewed_by} onChange={(e) => setForm((f: any) => ({ ...f, reviewed_by: e.target.value }))} /></div>

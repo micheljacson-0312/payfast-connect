@@ -4,7 +4,7 @@ export default function SupportPage() {
       <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet" />
       <div style={{ maxWidth: 980, margin: '0 auto' }}>
         <div style={{ marginBottom: 26 }}>
-          <div style={{ fontFamily: 'Syne, sans-serif', fontSize: 34, fontWeight: 800, marginBottom: 8 }}>Support</div>
+          <div style={{ fontFamily: 'var(--font-head)', fontSize: 34, fontWeight: 800, marginBottom: 8 }}>Support</div>
           <div style={{ color: '#8AA0C8' }}>Use the channels below for deployment, onboarding, or payment gateway support.</div>
         </div>
         <div style={{ display: 'grid', gap: 14 }}>

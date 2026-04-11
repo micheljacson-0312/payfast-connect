@@ -30,7 +30,7 @@ export default async function BillingPage() {
           <h2 style={{ fontFamily: 'var(--font-head)', fontSize: 20, fontWeight: 700 }}>Billing</h2>
           <p style={{ fontSize: 13, color: 'var(--gray)', marginTop: 2 }}>Manage your current plan, billing cycle, and invoice history.</p>
         </div>
-        <div style={{ padding: '24px 32px', display: 'grid', gridTemplateColumns: '1.2fr 1fr', gap: 20 }}>
+        <div style={{ padding: '24px 32px', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: 20 }}>
           <div style={{ background: 'var(--dark2)', border: '1px solid var(--border)', borderRadius: 16, padding: 24 }}>
             <div style={{ fontFamily: 'var(--font-head)', fontSize: 18, fontWeight: 700, marginBottom: 8 }}>Current Plan</div>
             <div style={{ display: 'flex', gap: 12, alignItems: 'center', marginBottom: 12 }}>

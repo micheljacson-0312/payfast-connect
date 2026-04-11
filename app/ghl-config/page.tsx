@@ -91,7 +91,7 @@ export default function GHLConfigPage() {
           <svg width="16" height="16" viewBox="0 0 24 24" fill="white"><path d="M13 2L4.5 13H11L10 22L19.5 11H13Z"/></svg>
         </div>
         <div>
-          <div style={{ fontFamily: 'Syne, sans-serif', fontWeight: 700, fontSize: 16, color: '#0F172A' }}>GoPayFast Configuration</div>
+          <div style={{ fontFamily: 'var(--font-head)', fontWeight: 700, fontSize: 16, color: '#0F172A' }}>GoPayFast Configuration</div>
           <div style={{ fontSize: 12, color: '#64748B' }}>by 10x Digital Ventures</div>
         </div>
       </div>

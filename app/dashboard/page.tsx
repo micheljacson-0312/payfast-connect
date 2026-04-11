@@ -70,7 +70,7 @@ export default async function DashboardPage({ searchParams }: { searchParams?: P
           </Link>
         </div>
 
-        <div style={{ padding: '28px 32px' }}>
+          <div style={{ padding: '28px 32px' }}>
 
           {restored && (
             <div style={{ background: 'rgba(0,82,255,0.08)', border: '1px solid rgba(0,82,255,0.2)', borderRadius: 12, padding: '14px 20px', marginBottom: 24, color: '#7FB0FF', fontSize: 14 }}>
@@ -87,7 +87,7 @@ export default async function DashboardPage({ searchParams }: { searchParams?: P
           )}
 
           {/* Stats */}
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 16, marginBottom: 24 }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 16, marginBottom: 24 }}>
             {[
               { label: 'Total Revenue (30d)',   value: `R ${Number(s.total).toLocaleString('en-ZA', { minimumFractionDigits: 2 })}`, color: 'var(--blue-light)' },
               { label: 'Payments (30d)',        value: String(s.count),     color: 'var(--success)' },

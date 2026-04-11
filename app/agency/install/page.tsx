@@ -63,12 +63,12 @@ export default async function AgencyInstallPage({ searchParams }: { searchParams
       </nav>
 
       <main style={{ position: 'relative', zIndex: 1, flex: 1, display: 'grid', placeItems: 'center', padding: '40px 20px' }}>
-        <div style={{ display: 'grid', gridTemplateColumns: '1.1fr 0.9fr', gap: 18, width: '100%', maxWidth: 1120 }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: 18, width: '100%', maxWidth: 1120 }}>
           <div style={{ background: 'var(--dark2)', border: '1px solid var(--border)', borderRadius: 24, padding: 40 }}>
             <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: 'rgba(0,82,255,0.12)', border: '1px solid rgba(0,82,255,0.22)', borderRadius: 999, padding: '7px 12px', color: '#7FB0FF', fontSize: 12, fontWeight: 700, marginBottom: 18 }}>
               Agency Install
             </div>
-            <div style={{ fontFamily: 'Syne, sans-serif', fontSize: 34, fontWeight: 800, lineHeight: 1.05, marginBottom: 12 }}>Connect GoPayFast Agency App</div>
+            <div style={{ fontFamily: 'var(--font-head)', fontSize: 34, fontWeight: 800, lineHeight: 1.05, marginBottom: 12 }}>Connect GoPayFast Agency App</div>
             <p style={{ color: 'var(--gray)', fontSize: 15, lineHeight: 1.8, maxWidth: 640 }}>
               This install path is for the agency-facing marketplace app. Use it for billing control, revenue operations, and managing the agency-side PayFast connection before subscriptions go live.
             </p>
@@ -85,7 +85,7 @@ export default async function AgencyInstallPage({ searchParams }: { searchParams
               </div>
             )}
 
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 24 }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: 12, marginBottom: 24 }}>
               {['Agency billing dashboard', 'Client subscription oversight', 'Agency credential management', 'Revenue and suspension controls'].map((text) => (
                 <div key={text} style={{ padding: 16, background: 'var(--dark3)', border: '1px solid var(--border)', borderRadius: 14, fontSize: 13, lineHeight: 1.6 }}>{text}</div>
               ))}
@@ -101,7 +101,7 @@ export default async function AgencyInstallPage({ searchParams }: { searchParams
           </div>
 
           <div style={{ background: 'var(--dark2)', border: '1px solid var(--border)', borderRadius: 24, padding: 28, width: '100%', maxWidth: 360 }}>
-            <div style={{ fontFamily: 'Syne, sans-serif', fontSize: 18, fontWeight: 700, marginBottom: 12 }}>Before you connect</div>
+            <div style={{ fontFamily: 'var(--font-head)', fontSize: 18, fontWeight: 700, marginBottom: 12 }}>Before you connect</div>
             <div style={{ display: 'grid', gap: 12, color: 'var(--gray)', fontSize: 13, lineHeight: 1.7 }}>
               <div>1. Confirm the agency PayFast credentials are ready.</div>
               <div>2. Keep admin access separate at `/admin`.</div>

@@ -31,7 +31,7 @@ export default function AdminBillingPage() {
       <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet" />
       <div style={{ maxWidth: 1200, margin: '0 auto', display: 'grid', gap: 20 }}>
         <div>
-          <h1 style={{ fontFamily: 'Syne, sans-serif', fontSize: 30, color: '#0F172A' }}>Agency Billing</h1>
+          <h1 style={{ fontFamily: 'var(--font-head)', fontSize: 30, color: '#0F172A' }}>Agency Billing</h1>
           <p style={{ color: '#64748B' }}>Overview of client subscriptions and agency billing settings.</p>
         </div>
 
@@ -46,15 +46,15 @@ export default function AdminBillingPage() {
             ].map(([label, value]) => (
               <div key={label} style={{ background: 'white', border: '1px solid #E2E8F0', borderRadius: 14, padding: 18 }}>
                 <div style={{ fontSize: 12, color: '#64748B', marginBottom: 6 }}>{label}</div>
-                <div style={{ fontFamily: 'Syne, sans-serif', fontSize: 24, fontWeight: 800 }}>{value}</div>
+                <div style={{ fontFamily: 'var(--font-head)', fontSize: 24, fontWeight: 800 }}>{value}</div>
               </div>
             ))}
           </div>
         )}
 
         <div style={{ background: 'white', border: '1px solid #E2E8F0', borderRadius: 16, padding: 20 }}>
-          <div style={{ fontFamily: 'Syne, sans-serif', fontSize: 20, marginBottom: 14 }}>Agency Billing Settings</div>
-          {settings && <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+          <div style={{ fontFamily: 'var(--font-head)', fontSize: 20, marginBottom: 14 }}>Agency Billing Settings</div>
+          {settings && <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 12 }}>
             {[
               ['merchant_name', 'merchant name', 'text'],
               ['merchant_id', 'merchant id', 'text'],

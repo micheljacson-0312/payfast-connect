@@ -161,7 +161,7 @@ export default function GHLCheckoutPage() {
           <div style={{ width: 28, height: 28, background: '#0052FF', borderRadius: 7, display: 'grid', placeItems: 'center' }}>
             <svg width="13" height="13" viewBox="0 0 24 24" fill="white"><path d="M13 2L4.5 13H11L10 22L19.5 11H13Z"/></svg>
           </div>
-          <span style={{ fontFamily: 'Syne, sans-serif', fontWeight: 700, fontSize: 13, color: '#0F172A' }}>Secure Checkout</span>
+          <span style={{ fontFamily: 'var(--font-head)', fontWeight: 700, fontSize: 13, color: '#0F172A' }}>Secure Checkout</span>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 5, fontSize: 11, color: '#64748B' }}>
           <span style={{ width: 6, height: 6, background: '#22C55E', borderRadius: '50%', display: 'inline-block' }} />
@@ -175,7 +175,7 @@ export default function GHLCheckoutPage() {
           <div style={{ fontSize: 12, color: '#64748B', marginBottom: 6 }}>
             {payData.description || 'Amount Due'}
           </div>
-          <div style={{ fontFamily: 'Syne, sans-serif', fontSize: 32, fontWeight: 800, color: '#0052FF' }}>
+          <div style={{ fontFamily: 'var(--font-head)', fontSize: 32, fontWeight: 800, color: '#0052FF' }}>
             {payData.currency || 'PKR'} {Number(payData.amount).toLocaleString('en-PK', { minimumFractionDigits: 2 })}
           </div>
         </div>

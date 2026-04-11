@@ -59,7 +59,7 @@ function ExpiredPage({ message }:{ message:string }) {
     <div style={{ minHeight:'100vh', background:'#050A1A', display:'grid', placeItems:'center', fontFamily:'DM Sans, sans-serif', color:'white', padding:24 }}>
       <div style={{ textAlign:'center' }}>
         <div style={{ fontSize:48, marginBottom:16 }}>⏰</div>
-        <h2 style={{ fontFamily:'Syne, sans-serif', fontSize:24, marginBottom:8 }}>Link Unavailable</h2>
+        <h2 style={{ fontFamily:'var(--font-head)', fontSize:24, marginBottom:8 }}>Link Unavailable</h2>
         <p style={{ color:'#8A9BC0' }}>{message}</p>
       </div>
     </div>

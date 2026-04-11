@@ -97,7 +97,7 @@ export default function AgencyDashboardClient({
             <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: 'rgba(0,82,255,0.12)', border: '1px solid rgba(0,82,255,0.22)', borderRadius: 999, padding: '7px 12px', color: '#7FB0FF', fontSize: 12, fontWeight: 700, marginBottom: 14 }}>
               Agency Control Center
             </div>
-            <h1 style={{ fontFamily: 'Syne, sans-serif', fontSize: 34, lineHeight: 1.05, fontWeight: 800, marginBottom: 10 }}>Billing Dashboard</h1>
+            <h1 style={{ fontFamily: 'var(--font-head)', fontSize: 34, lineHeight: 1.05, fontWeight: 800, marginBottom: 10 }}>Billing Dashboard</h1>
             <p style={{ color: 'var(--gray)', fontSize: 15, lineHeight: 1.75 }}>
               Manage subscriptions, wallet activity, and agency-level PayFast billing from a cleaner control surface.
             </p>
@@ -122,11 +122,11 @@ export default function AgencyDashboardClient({
           </div>
         )}
 
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 14, marginBottom: 18 }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 14, marginBottom: 18 }}>
           {overviewCards.map((card) => (
             <div key={card.label} style={{ background: 'var(--dark2)', border: '1px solid var(--border)', borderRadius: 18, padding: 18 }}>
               <div style={{ fontSize: 12, color: 'var(--gray)', marginBottom: 10 }}>{card.label}</div>
-              <div style={{ fontFamily: 'Syne, sans-serif', fontSize: 30, fontWeight: 800, color: card.tone === 'green' ? '#22C55E' : card.tone === 'amber' ? '#FBBF24' : card.tone === 'red' ? '#F87171' : '#7FB0FF' }}>{card.value}</div>
+               <div style={{ fontFamily: 'var(--font-head)', fontSize: 30, fontWeight: 800, color: card.tone === 'green' ? '#22C55E' : card.tone === 'amber' ? '#FBBF24' : card.tone === 'red' ? '#F87171' : '#7FB0FF' }}>{card.value}</div>
             </div>
           ))}
         </div>
@@ -141,7 +141,7 @@ export default function AgencyDashboardClient({
 
         {tab === 'summary' && (
           <div style={{ display: 'grid', gap: 18 }}>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 18 }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: 18 }}>
               <div style={{ background: 'var(--dark2)', border: '1px solid var(--border)', borderRadius: 18, padding: 20 }}>
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
                   <span style={{ fontSize: 18, fontWeight: 700 }}>Payment Method</span>
@@ -307,12 +307,12 @@ export default function AgencyDashboardClient({
         )}
 
         {tab === 'wallet' && (
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 18 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: 18 }}>
             <div style={{ background: 'var(--dark2)', border: '1px solid var(--border)', borderRadius: 18, padding: 22 }}>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
                 <div>
                   <div style={{ fontSize: 12, color: 'var(--gray)', marginBottom: 4 }}>Your wallet balance</div>
-                  <div style={{ fontFamily: 'Syne, sans-serif', fontSize: 34, fontWeight: 800 }}>{wallet.currency} {Number(wallet.balance).toLocaleString()}</div>
+                  <div style={{ fontFamily: 'var(--font-head)', fontSize: 34, fontWeight: 800 }}>{wallet.currency} {Number(wallet.balance).toLocaleString()}</div>
                 </div>
                 <button onClick={() => setTab('payments')} style={{ background: 'var(--blue)', color: 'white', border: 'none', borderRadius: 10, padding: '10px 14px', cursor: 'pointer', fontWeight: 700 }}>Details</button>
               </div>
@@ -347,7 +347,7 @@ export default function AgencyDashboardClient({
         )}
 
         {tab === 'notifications' && (
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 18 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: 18 }}>
             <div style={{ background: 'var(--dark2)', border: '1px solid var(--border)', borderRadius: 18, padding: 22 }}>
               <div style={{ fontSize: 18, fontWeight: 700, marginBottom: 8 }}>Notification Recipients</div>
               <div style={{ color: 'var(--gray)', fontSize: 13, lineHeight: 1.7, marginBottom: 16 }}>Add the people who should receive billing alerts.</div>
@@ -384,7 +384,7 @@ export default function AgencyDashboardClient({
           <div style={{ background: 'var(--dark2)', border: '1px solid var(--border)', borderRadius: 20, padding: 22 }}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, marginBottom: 12 }}>
               <div>
-                <div style={{ fontFamily: 'Syne, sans-serif', fontSize: 20, fontWeight: 700, marginBottom: 6 }}>HighLevel SaaS Controls</div>
+                <div style={{ fontFamily: 'var(--font-head)', fontSize: 20, fontWeight: 700, marginBottom: 6 }}>HighLevel SaaS Controls</div>
                 <div style={{ color: 'var(--gray)', fontSize: 13, lineHeight: 1.7 }}>Inspect plans, pull sub-account subscription details, and run rebilling or pause actions.</div>
               </div>
             </div>
@@ -394,7 +394,7 @@ export default function AgencyDashboardClient({
 
         <div style={{ marginTop: 18 }}>
           <div style={{ display: 'grid', gap: 12 }}>
-            <div style={{ fontFamily: 'Syne, sans-serif', fontSize: 18, fontWeight: 700 }}>Agency PayFast Setup</div>
+            <div style={{ fontFamily: 'var(--font-head)', fontSize: 18, fontWeight: 700 }}>Agency PayFast Setup</div>
             <div style={{ color: 'var(--gray)', fontSize: 13, lineHeight: 1.7 }}>Connect your own PayFast credentials before creating agency invoices or collecting agency-level payments.</div>
             <AgencyPayfastSettings />
           </div>

@@ -107,7 +107,7 @@ export default function BillingWalletCards({ wallet, instruments, payfastReady }
   }
 
   return (
-    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20, padding: '0 32px 32px' }}>
+    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: 20, padding: '0 32px 32px' }}>
       <div style={{ background: 'var(--dark2)', border: '1px solid var(--border)', borderRadius: 16, padding: 24 }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
           <div>
@@ -150,11 +150,11 @@ export default function BillingWalletCards({ wallet, instruments, payfastReady }
         {!payFastForm ? (
           <div style={{ background: 'var(--dark3)', border: '1px solid var(--border)', borderRadius: 12, padding: 14, marginBottom: 16 }}>
             <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 12 }}>Save a new card</div>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 10 }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: 10, marginBottom: 10 }}>
               <input value={saveCardForm.nameFirst} onChange={(e) => setSaveCardForm((s) => ({ ...s, nameFirst: e.target.value }))} placeholder="First name" style={{ background: 'var(--dark2)', border: '1px solid var(--border)', borderRadius: 10, padding: '10px 12px', color: 'white', fontSize: 13, outline: 'none' }} />
               <input value={saveCardForm.nameLast} onChange={(e) => setSaveCardForm((s) => ({ ...s, nameLast: e.target.value }))} placeholder="Last name" style={{ background: 'var(--dark2)', border: '1px solid var(--border)', borderRadius: 10, padding: '10px 12px', color: 'white', fontSize: 13, outline: 'none' }} />
             </div>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 12 }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: 10, marginBottom: 12 }}>
               <input value={saveCardForm.email} onChange={(e) => setSaveCardForm((s) => ({ ...s, email: e.target.value }))} placeholder="Email" style={{ background: 'var(--dark2)', border: '1px solid var(--border)', borderRadius: 10, padding: '10px 12px', color: 'white', fontSize: 13, outline: 'none' }} />
               <input value={saveCardForm.phone} onChange={(e) => setSaveCardForm((s) => ({ ...s, phone: e.target.value }))} placeholder="Mobile" style={{ background: 'var(--dark2)', border: '1px solid var(--border)', borderRadius: 10, padding: '10px 12px', color: 'white', fontSize: 13, outline: 'none' }} />
             </div>

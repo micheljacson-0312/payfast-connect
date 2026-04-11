@@ -72,7 +72,7 @@ export default async function RootPage() {
           </div>
         </section>
 
-        <section style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 18, marginBottom: 28 }}>
+        <section style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 18, marginBottom: 28 }}>
             {[
               ['/apply', 'Merchant Application', 'For merchants that need onboarding, business, and banking details collected.'],
               ['/install', 'CRM Sub-Account Install', 'For client CRM users who need the payment dashboard and tools.'],
@@ -88,7 +88,7 @@ export default async function RootPage() {
 
         <section style={{ marginBottom: 56 }}>
           <h2 style={{ fontFamily: 'Outfit, sans-serif', fontSize: 32, fontWeight: 800, marginBottom: 32, textAlign: 'center' }}>Advanced Payment Features</h2>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 24 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: 24 }}>
             {[
               ['Secure Card Saving', 'Save customer payment instruments securely and enable one-click checkouts and subscriptions.', '💳'],
               ['Wallet Management', 'Maintain and track wallet balances for sub-accounts with real-time top-ups and deductions.', '💰'],
@@ -105,7 +105,7 @@ export default async function RootPage() {
 
         <section style={{ background: 'rgba(0,82,255,0.05)', border: '1px solid rgba(0,82,255,0.1)', borderRadius: 32, padding: 48, textAlign: 'center' }}>
           <h2 style={{ fontFamily: 'Outfit, sans-serif', fontSize: 32, fontWeight: 800, marginBottom: 48 }}>How It Works</h2>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 48, position: 'relative' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 32, position: 'relative' }}>
             {[
               ['Onboard', 'Merchants apply via the portal and undergo KYC verification.', '01'],
               ['Connect', 'Sub-accounts connect their GHL instance to enable payment tools.', '02'],

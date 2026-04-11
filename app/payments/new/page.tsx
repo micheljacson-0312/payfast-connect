@@ -64,7 +64,7 @@ export default function NewPaymentPage() {
               </div>
 
               {/* Amount + Item */}
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 20 }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 16, marginBottom: 20 }}>
                 <div>
                   <label style={lbl}>Amount (ZAR) *</label>
                   <input required style={inp()} placeholder="e.g. 299.00" value={form.amount} onChange={e => set('amount', e.target.value)} />
@@ -84,7 +84,7 @@ export default function NewPaymentPage() {
               {type === 'subscription' && (
                 <div style={{ background: 'var(--dark3)', borderRadius: 12, padding: 20, marginBottom: 20 }}>
                   <div style={{ fontSize: 13, fontWeight: 500, marginBottom: 16 }}>Subscription Settings</div>
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 16 }}>
                     <div>
                       <label style={lbl}>Billing Frequency</label>
                       <select style={inp({ cursor: 'pointer', appearance: 'none' }) as object} value={form.frequency} onChange={e => set('frequency', e.target.value)}>
@@ -103,7 +103,7 @@ export default function NewPaymentPage() {
 
               {/* Payer info */}
               <div style={{ fontSize: 13, fontWeight: 500, marginBottom: 16, color: 'var(--gray)' }}>Payer Details (optional — pre-fills GoPayFast form)</div>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 16 }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 16, marginBottom: 16 }}>
                 <div>
                   <label style={lbl}>First Name</label>
                   <input style={inp()} value={form.firstName} onChange={e => set('firstName', e.target.value)} />

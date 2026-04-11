@@ -108,7 +108,7 @@ export default function SettingsPage() {
               <div style={{ fontSize: 13, color: 'var(--gray)', marginBottom: 24, lineHeight: 1.5 }}>
                 Enter the main GoPayFast gateway credentials here. These are the live values used by the hosted checkout flow.
               </div>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 16 }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: 16, marginBottom: 16 }}>
                 <div>
                   <label style={lbl}>Merchant Name</label>
                   <input style={inp()} value={cfg.merchant_name} onChange={e => set('merchant_name', e.target.value)} placeholder="Mentoring Hub" />
@@ -118,7 +118,7 @@ export default function SettingsPage() {
                   <input style={inp()} value={cfg.store_id} onChange={e => set('store_id', e.target.value)} placeholder="Store ID" />
                 </div>
               </div>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 16 }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: 16, marginBottom: 16 }}>
                 <div>
                   <label style={lbl}>Merchant ID *</label>
                   <input style={inp()} value={cfg.merchant_id} onChange={e => set('merchant_id', e.target.value)} placeholder="26290" />

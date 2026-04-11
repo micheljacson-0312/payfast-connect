@@ -91,7 +91,7 @@ export default function PaymentPageClient(p:Props) {
           <div style={{ width:32, height:32, background:'#0052FF', borderRadius:8, display:'grid', placeItems:'center' }}>
             <svg width="14" height="14" viewBox="0 0 24 24" fill="white"><path d="M13 2L4.5 13H11L10 22L19.5 11H13Z"/></svg>
           </div>
-          <span style={{ fontFamily:'Syne, sans-serif', fontWeight:700, fontSize:14 }}>Secure Checkout</span>
+          <span style={{ fontFamily:'var(--font-head)', fontWeight:700, fontSize:14 }}>Secure Checkout</span>
         </div>
         <div style={{ display:'flex', alignItems:'center', gap:6, fontSize:12, color:'#8A9BC0' }}>
           <span style={{ width:7, height:7, background:'#22C55E', borderRadius:'50%', display:'inline-block' }}></span>
@@ -103,7 +103,7 @@ export default function PaymentPageClient(p:Props) {
         {/* Product info */}
         <div style={{ textAlign:'center', marginBottom:32 }}>
           <div style={{ width:64, height:64, background:'rgba(0,82,255,0.1)', borderRadius:16, display:'grid', placeItems:'center', margin:'0 auto 16px', fontSize:28 }}>💳</div>
-          <h1 style={{ fontFamily:'Syne, sans-serif', fontSize:24, fontWeight:700, marginBottom:8 }}>{p.name}</h1>
+          <h1 style={{ fontFamily:'var(--font-head)', fontSize:24, fontWeight:700, marginBottom:8 }}>{p.name}</h1>
           {p.description && <p style={{ color:'#8A9BC0', fontSize:14, lineHeight:1.6 }}>{p.description}</p>}
           {p.isRecurring && <div style={{ display:'inline-flex', alignItems:'center', gap:6, background:'rgba(167,139,250,0.1)', border:'1px solid rgba(167,139,250,0.25)', color:'#A78BFA', padding:'5px 12px', borderRadius:20, fontSize:12, marginTop:10 }}>🔄 Recurring · {p.interval}</div>}
         </div>
@@ -118,7 +118,7 @@ export default function PaymentPageClient(p:Props) {
           ) : (
             <div style={{ textAlign:'center' }}>
               <div style={{ fontSize:13, color:'#8A9BC0', marginBottom:6 }}>Amount Due</div>
-              <div style={{ fontFamily:'Syne, sans-serif', fontSize:36, fontWeight:800, color:'#3D7FFF' }}>{fmt(baseAmount)}</div>
+              <div style={{ fontFamily:'var(--font-head)', fontSize:36, fontWeight:800, color:'#3D7FFF' }}>{fmt(baseAmount)}</div>
             </div>
           )}
 

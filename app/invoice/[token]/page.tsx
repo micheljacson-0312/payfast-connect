@@ -38,7 +38,7 @@ export default async function PublicInvoicePage({ params }:{ params: Promise<{ t
           <div style={{ width:32, height:32, background:'#0052FF', borderRadius:8, display:'grid', placeItems:'center' }}>
             <svg width="14" height="14" viewBox="0 0 24 24" fill="white"><path d="M13 2L4.5 13H11L10 22L19.5 11H13Z"/></svg>
           </div>
-          <span style={{ fontFamily:'Syne, sans-serif', fontWeight:700, fontSize:14, color:'#0F172A' }}>10x Digital Ventures</span>
+          <span style={{ fontFamily:'var(--font-head)', fontWeight:700, fontSize:14, color:'#0F172A' }}>10x Digital Ventures</span>
         </div>
         <span style={{ fontSize:12, color:'#64748B' }}>Invoice {inv.invoice_number}</span>
       </div>
@@ -61,7 +61,7 @@ export default async function PublicInvoicePage({ params }:{ params: Promise<{ t
           {/* Top */}
           <div style={{ padding:'32px 36px', borderBottom:'1px solid #F1F5F9', display:'flex', justifyContent:'space-between', alignItems:'flex-start' }}>
             <div>
-              <div style={{ fontFamily:'Syne, sans-serif', fontSize:24, fontWeight:800, marginBottom:4 }}>{inv.title}</div>
+              <div style={{ fontFamily:'var(--font-head)', fontSize:24, fontWeight:800, marginBottom:4 }}>{inv.title}</div>
               <div style={{ fontSize:14, color:'#64748B' }}>Invoice Number: <strong style={{ color:'#0F172A' }}>{inv.invoice_number}</strong></div>
               <div style={{ fontSize:13, color:'#64748B', marginTop:4 }}>Issue Date: {new Date(inv.issue_date).toLocaleDateString('en-PK', { day:'numeric', month:'long', year:'numeric' })}</div>
               {inv.due_date && <div style={{ fontSize:13, color:'#EF4444', marginTop:2 }}>Due: {new Date(inv.due_date).toLocaleDateString('en-PK', { day:'numeric', month:'long', year:'numeric' })}</div>}
@@ -123,8 +123,8 @@ export default async function PublicInvoicePage({ params }:{ params: Promise<{ t
                 </div>
               ))}
               <div style={{ display:'flex', justifyContent:'space-between', padding:'12px 0 0', borderTop:'2px solid #E2E8F0', marginTop:8 }}>
-                <span style={{ fontFamily:'Syne, sans-serif', fontWeight:700, fontSize:16 }}>Total Due</span>
-                <span style={{ fontFamily:'Syne, sans-serif', fontWeight:800, fontSize:20, color:'#0052FF' }}>{fmt(inv.total)}</span>
+                <span style={{ fontFamily:'var(--font-head)', fontWeight:700, fontSize:16 }}>Total Due</span>
+                <span style={{ fontFamily:'var(--font-head)', fontWeight:800, fontSize:20, color:'#0052FF' }}>{fmt(inv.total)}</span>
               </div>
             </div>
           </div>
@@ -141,7 +141,7 @@ export default async function PublicInvoicePage({ params }:{ params: Promise<{ t
         {/* Pay button */}
         {!isPaid && !isCancelled && (
           <div style={{ textAlign:'center', marginTop:28 }}>
-            <a href={payUrl} style={{ display:'inline-flex', alignItems:'center', gap:8, background:'#0052FF', color:'white', padding:'15px 40px', borderRadius:12, fontFamily:'Syne, sans-serif', fontWeight:700, fontSize:16, textDecoration:'none' }}>
+            <a href={payUrl} style={{ display:'inline-flex', alignItems:'center', gap:8, background:'#0052FF', color:'white', padding:'15px 40px', borderRadius:12, fontFamily:'var(--font-head)', fontWeight:700, fontSize:16, textDecoration:'none' }}>
               Pay {fmt(inv.total)} →
             </a>
             <div style={{ marginTop:12, fontSize:12, color:'#94A3B8' }}>🔒 Secured by GoPayFast</div>

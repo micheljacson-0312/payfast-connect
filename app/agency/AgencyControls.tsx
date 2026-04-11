@@ -113,7 +113,7 @@ export default function AgencyControls({ initialLocationId = '' }: { initialLoca
 
   return (
     <div style={{ display: 'grid', gap: 20 }}>
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 18 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: 18 }}>
         {infoCards.map((section) => (
           <section key={section.title} style={card}>
             <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 12, marginBottom: 14 }}>
@@ -142,7 +142,7 @@ export default function AgencyControls({ initialLocationId = '' }: { initialLoca
             <div style={{ color: 'var(--gray)', fontSize: 13, lineHeight: 1.6 }}>These are the installed locations saved in the portal, shown as name plus location ID.</div>
           </div>
         </div>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: 8 }}>
           {locations.length ? locations.map((loc) => (
             <button
               key={loc.locationId}
@@ -191,7 +191,7 @@ export default function AgencyControls({ initialLocationId = '' }: { initialLoca
           <div style={{ color: 'var(--gray)', fontSize: 13, lineHeight: 1.6, marginBottom: 12 }}>Use this when a monthly amount changes, a subscription needs updating, or a location must be paused for failed billing.</div>
           <input value={locationId} onChange={(e) => setLocationId(e.target.value)} placeholder="Sub-account location ID" style={{ ...input, marginBottom: 10 }} />
           <textarea value={updatePayload} onChange={(e) => setUpdatePayload(e.target.value)} style={{ ...area, minHeight: 120 }} />
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginTop: 12 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: 10, marginTop: 12 }}>
             <button onClick={() => run('update', '/api/agency/saas/update-subscription', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ locationId, payload: parseJson(updatePayload) }) })} style={{ background: 'var(--blue)', color: 'white', border: 'none', borderRadius: 12, padding: '12px 14px', cursor: 'pointer', fontWeight: 700 }}>
               {loading === 'update' ? 'Updating…' : 'Update'}
             </button>
