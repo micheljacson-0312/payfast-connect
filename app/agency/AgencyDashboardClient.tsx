@@ -91,13 +91,13 @@ export default function AgencyDashboardClient({
   return (
     <div className="page-shell-dark" style={{ padding: '28px 24px 40px' }}>
       <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet" />
-      <div style={{ maxWidth: 1280, margin: '0 auto' }}>
+      <div className="page-container" style={{ maxWidth: 1280 }}>
         <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 18, marginBottom: 18, flexWrap: 'wrap' }}>
           <div style={{ maxWidth: 720 }}>
             <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: 'rgba(0,82,255,0.12)', border: '1px solid rgba(0,82,255,0.22)', borderRadius: 999, padding: '7px 12px', color: '#7FB0FF', fontSize: 12, fontWeight: 700, marginBottom: 14 }}>
               Agency Control Center
             </div>
-            <h1 style={{ fontFamily: 'var(--font-head)', fontSize: 34, lineHeight: 1.05, fontWeight: 800, marginBottom: 10 }}>Billing Dashboard</h1>
+            <h1 className="agency-hero-title" style={{ fontFamily: 'var(--font-head)', fontSize: 34, lineHeight: 1.05, fontWeight: 800, marginBottom: 10 }}>Billing Dashboard</h1>
             <p style={{ color: 'var(--gray)', fontSize: 15, lineHeight: 1.75 }}>
               Manage subscriptions, wallet activity, and agency-level PayFast billing from a cleaner control surface.
             </p>

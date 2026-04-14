@@ -45,7 +45,7 @@ export default async function RootPage() {
             <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: 'rgba(0,82,255,0.12)', color: '#7FB0FF', border: '1px solid rgba(0,82,255,0.2)', borderRadius: 999, padding: '8px 12px', fontSize: 12, fontWeight: 700, marginBottom: 18 }}>
               GoPayFast Aggregator Platform
             </div>
-            <h1 style={{ fontFamily: 'Outfit, sans-serif', fontSize: 48, lineHeight: 1.05, fontWeight: 800, marginBottom: 16 }}>Onboard merchants, connect CRM accounts, and manage agency billing from one place.</h1>
+            <h1 className="home-hero-title" style={{ fontFamily: 'Outfit, sans-serif', fontSize: 48, lineHeight: 1.05, fontWeight: 800, marginBottom: 16 }}>Onboard merchants, connect CRM accounts, and manage agency billing from one place.</h1>
             <p style={{ color: '#8AA0C8', fontSize: 16, lineHeight: 1.8, maxWidth: 720, marginBottom: 24 }}>
               This portal is built for payment aggregation. Merchant applications go through the onboarding form, CRM sub-accounts use the install flow, and agencies use the agency install or dashboard depending on whether they are already connected.
             </p>
@@ -87,7 +87,7 @@ export default async function RootPage() {
         </section>
 
         <section style={{ marginBottom: 56 }}>
-          <h2 style={{ fontFamily: 'Outfit, sans-serif', fontSize: 32, fontWeight: 800, marginBottom: 32, textAlign: 'center' }}>Advanced Payment Features</h2>
+          <h2 className="home-section-title" style={{ fontFamily: 'Outfit, sans-serif', fontSize: 32, fontWeight: 800, marginBottom: 32, textAlign: 'center' }}>Advanced Payment Features</h2>
           <div className="resp-grid-auto">
             {[
               ['Secure Card Saving', 'Save customer payment instruments securely and enable one-click checkouts and subscriptions.', '💳'],

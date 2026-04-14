@@ -131,7 +131,7 @@ export default function AdminPage() {
       {selected && form && (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(15,23,42,0.55)', display: 'grid', placeItems: 'center', padding: 16 }}>
           <div style={{ width: '100%', maxWidth: 760, background: 'white', borderRadius: 20, padding: 20, maxHeight: '90vh', overflow: 'auto' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 18 }}><h2 style={{ fontFamily: 'var(--font-head)', fontSize: 24 }}>Application #{selected.id}</h2><button onClick={() => setSelected(null)} style={{ background: 'transparent', border: 'none', fontSize: 22, cursor: 'pointer' }}>×</button></div>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 18, gap: 12, flexWrap: 'wrap' }}><h2 style={{ fontFamily: 'var(--font-head)', fontSize: 24 }}>Application #{selected.id}</h2><button onClick={() => setSelected(null)} style={{ background: 'transparent', border: 'none', fontSize: 22, cursor: 'pointer' }}>×</button></div>
             <div className="mobile-stack-2" style={{ marginBottom: 18 }}>
               {[
                 ['Applicant', selected.full_name],
@@ -205,7 +205,7 @@ export default function AdminPage() {
                 </div>
               </div>
             </div>
-            <div style={{ marginTop: 18, display: 'flex', justifyContent: 'flex-end', gap: 10 }}>
+            <div style={{ marginTop: 18, display: 'flex', justifyContent: 'flex-end', gap: 10, flexWrap: 'wrap' }}>
               <button onClick={() => setSelected(null)} style={{ background: '#E2E8F0', color: '#0F172A', border: 'none', padding: '12px 16px', borderRadius: 10, cursor: 'pointer' }}>Close</button>
               <button onClick={save} disabled={saving} style={{ background: '#0052FF', color: 'white', border: 'none', padding: '12px 18px', borderRadius: 10, cursor: 'pointer', fontWeight: 700, opacity: saving ? 0.6 : 1 }}>{saving ? 'Saving…' : 'Save Changes'}</button>
             </div>

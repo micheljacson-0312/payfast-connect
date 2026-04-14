@@ -52,6 +52,9 @@ input, select, textarea { font-family: var(--font-main); }
 .mobile-stack-2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; }
 .mobile-stack-3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
 .mobile-table-wrap { overflow-x: auto; }
+.home-hero-title { max-width: 12ch; }
+.home-section-title { max-width: 18ch; margin-left: auto; margin-right: auto; }
+.agency-hero-title { max-width: 14ch; }
 
 @media (max-width: 768px) {
   .app-shell { flex-direction: row; } /* Keep row to allow sidebar to overlap */
@@ -66,6 +69,9 @@ input, select, textarea { font-family: var(--font-main); }
   .mobile-stack-3 { grid-template-columns: 1fr !important; }
   .page-nav { padding: 16px 20px; flex-wrap: wrap; }
   .page-container { padding-left: 0; padding-right: 0; }
+  .home-hero-title { font-size: 34px !important; max-width: none; }
+  .home-section-title { font-size: 24px !important; margin-bottom: 22px !important; }
+  .agency-hero-title { font-size: 28px !important; max-width: none; }
 
   .mobile-sidebar-toggle { display: block !important; }
   .mobile-backdrop { display: block !important; }
