@@ -36,7 +36,6 @@ export async function middleware(request: NextRequest) {
     const token = request.cookies.get('pf_session')?.value;
 
     if (!token) {
-      // Redirect to specific login based on path
       if (path.startsWith('/agency')) {
         return NextResponse.redirect(new URL('/agency/login', request.url));
       }
@@ -45,15 +44,25 @@ export async function middleware(request: NextRequest) {
 
     try {
       const { payload } = await jwtVerify(token, secret());
-
       const role = (payload.role as string) || 'user';
       const installMode = (payload.installMode as string) || 'subaccount';
 
-      if (path.startsWith('/agency') && role !== 'agency' && installMode !== 'agency') {
+      // 1. Agency users MUST go to /agency
+      if (role === 'agency' && !path.startsWith('/agency')) {
+        return NextResponse.redirect(new URL('/agency', request.url));
+      }
+
+      // 2. Regular users MUST NOT enter /agency
+      if (role === 'user' && path.startsWith('/agency')) {
         return NextResponse.redirect(new URL('/dashboard', request.url));
       }
-      if (!path.startsWith('/agency') && (role === 'agency' || installMode === 'agency') && path === '/install') {
+
+      // 3. Handle OAuth install mode for legacy sessions
+      if (installMode === 'agency' && !path.startsWith('/agency') && path === '/install') {
         return NextResponse.redirect(new URL('/agency', request.url));
+      }
+      if (installMode === 'subaccount' && path.startsWith('/agency')) {
+        return NextResponse.redirect(new URL('/dashboard', request.url));
       }
 
       return NextResponse.next();
