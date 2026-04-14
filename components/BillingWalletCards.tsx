@@ -107,7 +107,7 @@ export default function BillingWalletCards({ wallet, instruments, payfastReady }
   }
 
   return (
-    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: 20, padding: '0 32px 32px' }}>
+    <div className="resp-padding mobile-stack-2" style={{ paddingTop: 0, paddingBottom: 32 }}>
       <div style={{ background: 'var(--dark2)', border: '1px solid var(--border)', borderRadius: 16, padding: 24 }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
           <div>
@@ -169,7 +169,7 @@ export default function BillingWalletCards({ wallet, instruments, payfastReady }
           <div style={{ background: 'rgba(34,197,94,0.08)', border: '1px solid rgba(34,197,94,0.2)', borderRadius: 12, padding: 14, marginBottom: 16 }}>
             <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 8 }}>PayFast form ready</div>
             <div style={{ fontSize: 12, color: 'var(--gray)', marginBottom: 12 }}>Continue to PayFast to verify and save this card.</div>
-            <form action={payFastForm.actionUrl} method="POST" style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+            <form action={payFastForm.actionUrl} method="POST" style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
               {Object.entries(payFastForm.fields).map(([k, v]) => (
                 <input key={k} type="hidden" name={k} value={v} />
               ))}
@@ -195,7 +195,7 @@ export default function BillingWalletCards({ wallet, instruments, payfastReady }
 
               return (
                 <div key={item.id} style={{ background: 'var(--dark3)', border: '1px solid var(--border)', borderRadius: 12, padding: 14 }}>
-                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap' }}>
                     <div>
                       <div style={{ fontSize: 14, fontWeight: 600 }}>{alias}</div>
                       <div style={{ fontSize: 12, color: 'var(--gray)', marginTop: 4 }}>

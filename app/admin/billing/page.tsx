@@ -27,16 +27,16 @@ export default function AdminBillingPage() {
   }
 
   return (
-    <div style={{ minHeight: '100vh', background: '#F8FAFC', padding: 24, fontFamily: 'DM Sans, sans-serif' }}>
+    <div className="page-shell-light" style={{ padding: 24 }}>
       <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet" />
-      <div style={{ maxWidth: 1200, margin: '0 auto', display: 'grid', gap: 20 }}>
+      <div className="page-container" style={{ display: 'grid', gap: 20 }}>
         <div>
           <h1 style={{ fontFamily: 'var(--font-head)', fontSize: 30, color: '#0F172A' }}>Agency Billing</h1>
           <p style={{ color: '#64748B' }}>Overview of client subscriptions and agency billing settings.</p>
         </div>
 
         {data?.stats && (
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5,1fr)', gap: 14 }}>
+          <div className="mobile-stack-3" style={{ gridTemplateColumns: 'repeat(5,1fr)' }}>
             {[
               ['MRR', `PKR ${Number(data.stats.mrr || 0).toLocaleString()}`],
               ['Active', data.stats.active_count || 0],
@@ -54,7 +54,7 @@ export default function AdminBillingPage() {
 
         <div style={{ background: 'white', border: '1px solid #E2E8F0', borderRadius: 16, padding: 20 }}>
           <div style={{ fontFamily: 'var(--font-head)', fontSize: 20, marginBottom: 14 }}>Agency Billing Settings</div>
-          {settings && <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 12 }}>
+          {settings && <div className="mobile-stack-3" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))' }}>
             {[
               ['merchant_name', 'merchant name', 'text'],
               ['merchant_id', 'merchant id', 'text'],
@@ -73,6 +73,8 @@ export default function AdminBillingPage() {
         </div>
 
         <div style={{ background: 'white', border: '1px solid #E2E8F0', borderRadius: 16, overflow: 'hidden' }}>
+          <div style={{ overflowX: 'auto' }}>
+          <div style={{ minWidth: 900 }}>
           <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 1fr 1fr 1fr 160px', gap: 12, padding: '14px 18px', background: '#F8FAFC', fontSize: 11, color: '#64748B', textTransform: 'uppercase', fontWeight: 700 }}>
             <div>Location</div><div>Plan</div><div>Status</div><div>Last Invoice</div><div>Actions</div>
           </div>
@@ -91,6 +93,8 @@ export default function AdminBillingPage() {
               </div>
             </div>
           ))}
+          </div>
+          </div>
         </div>
       </div>
     </div>

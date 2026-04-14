@@ -30,9 +30,9 @@ export default function AdminLoginPage() {
   }
 
   return (
-    <div style={{ minHeight: '100vh', display: 'grid', placeItems: 'center', background: '#0F172A', padding: 24, fontFamily: 'DM Sans, sans-serif' }}>
+    <div className="page-shell-dark" style={{ display: 'grid', placeItems: 'center', padding: 24 }}>
       <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet" />
-      <div style={{ width: '100%', maxWidth: 420, background: 'white', borderRadius: 18, padding: 28 }}>
+      <div style={{ width: '100%', maxWidth: 420, background: 'white', borderRadius: 18, padding: 22 }}>
         <h1 style={{ fontFamily: 'var(--font-head)', fontSize: 28, marginBottom: 12 }}>Admin Access</h1>
         <p style={{ color: '#64748B', marginBottom: 14 }}>Enter the admin password to review merchant applications.</p>
         <input style={{ width: '100%', background: 'white', border: '1px solid #E2E8F0', borderRadius: 10, padding: '10px 12px', color: '#0F172A', fontSize: 13, outline: 'none', fontFamily: 'inherit' }} type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Enter admin password" />

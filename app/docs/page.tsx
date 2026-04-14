@@ -1,8 +1,8 @@
 export default function DocsPage() {
   return (
-    <div style={{ minHeight: '100vh', background: '#050A1A', color: 'white', fontFamily: 'DM Sans, sans-serif', padding: '36px 20px' }}>
+    <div className="page-shell-dark" style={{ padding: '36px 20px' }}>
       <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet" />
-      <div style={{ maxWidth: 980, margin: '0 auto' }}>
+      <div className="page-container">
         <h1 style={{ fontFamily: 'var(--font-head)', fontSize: 34, fontWeight: 800, marginBottom: 8 }}>Docs</h1>
         <p style={{ color: '#8AA0C8', marginBottom: 10 }}>
           Quick links for the current application documentation.

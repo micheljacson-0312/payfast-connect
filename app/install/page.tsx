@@ -42,12 +42,12 @@ export default async function InstallPage({ searchParams }: { searchParams?: Pro
     `&scope=${encodeURIComponent(scopes)}`;
 
   return (
-    <div style={{ minHeight: '100vh', background: 'var(--dark)', display: 'flex', flexDirection: 'column' }}>
+    <div className="page-shell-dark" style={{ display: 'flex', flexDirection: 'column' }}>
       {/* BG Glow */}
       <div style={{ position: 'fixed', top: -200, left: '50%', transform: 'translateX(-50%)', width: 1000, height: 700, background: 'radial-gradient(ellipse,rgba(0,82,255,0.15) 0%,transparent 70%)', pointerEvents: 'none', zIndex: 0 }} />
 
       {/* Nav */}
-      <nav style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '20px 60px', borderBottom: '1px solid var(--border)', position: 'relative', zIndex: 10 }}>
+      <nav className="page-nav" style={{ borderBottom: '1px solid var(--border)' }}>
         <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
           <div style={{ width: 36, height: 36, background: 'var(--blue)', borderRadius: 9, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             <svg width="18" height="18" viewBox="0 0 24 24" fill="white"><path d="M13 2L4.5 13H11L10 22L19.5 11H13L13 2Z"/></svg>
@@ -64,7 +64,7 @@ export default async function InstallPage({ searchParams }: { searchParams?: Pro
 
       {/* Card */}
       <main style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '40px 20px', position: 'relative', zIndex: 1 }}>
-        <div style={{ background: 'var(--dark2)', border: '1px solid var(--border)', borderRadius: 24, padding: 48, width: '100%', maxWidth: 520 }}>
+        <div style={{ background: 'var(--dark2)', border: '1px solid var(--border)', borderRadius: 24, padding: 24, width: '100%', maxWidth: 520 }}>
           {/* Logos */}
           <div style={{ textAlign: 'center', marginBottom: 36 }}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 20, marginBottom: 24 }}>

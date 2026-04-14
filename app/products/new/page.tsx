@@ -26,11 +26,11 @@ export default function NewProductPage() {
     <div className="app-shell">
       <Sidebar />
       <div className="main-content">
-        <div style={{ padding:'20px 32px', borderBottom:'1px solid var(--border)', display:'flex', alignItems:'center', gap:16 }}>
+        <div className="resp-padding" style={{ borderBottom:'1px solid var(--border)', display:'flex', alignItems:'center', gap:16, flexWrap:'wrap' }}>
           <Link href="/products" style={{ color:'var(--gray)', fontSize:14 }}>← Products</Link>
           <h2 style={{ fontFamily:'var(--font-head)', fontSize:20, fontWeight:700 }}>New Product</h2>
         </div>
-        <div style={{ padding:'32px', maxWidth:560 }}>
+        <div className="resp-padding" style={{ maxWidth:560 }}>
           <div style={{ background:'var(--dark2)', border:'1px solid var(--border)', borderRadius:16, padding:28 }}>
             <div style={{ marginBottom:18 }}>
               <label style={lbl}>Product / Service Name *</label>
@@ -40,7 +40,7 @@ export default function NewProductPage() {
               <label style={lbl}>Description</label>
               <textarea style={{...inp, minHeight:80, resize:'vertical'}} value={form.description} onChange={e=>set('description',e.target.value)} placeholder="What does this product include?" />
             </div>
-            <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:16, marginBottom:18 }}>
+            <div className="mobile-stack-2" style={{ marginBottom:18 }}>
               <div>
                 <label style={lbl}>Price *</label>
                 <input style={inp} type="number" value={form.price} onChange={e=>set('price',e.target.value)} placeholder="0.00" />
@@ -56,7 +56,7 @@ export default function NewProductPage() {
             </div>
             <div style={{ marginBottom:18 }}>
               <label style={lbl}>Billing Type</label>
-              <div style={{ display:'flex', gap:8 }}>
+              <div style={{ display:'flex', gap:8, flexWrap:'wrap' }}>
                 {[['one_time','One-Time'],['recurring','Recurring'],['free','Free']].map(([v,l])=>(
                   <button key={v} type="button" onClick={()=>set('type',v)} style={{ flex:1, padding:'9px', borderRadius:8, border:'1px solid', fontSize:13, cursor:'pointer', fontFamily:'inherit', background: form.type===v ? 'rgba(0,82,255,0.1)' : 'transparent', color: form.type===v ? '#3D7FFF' : 'var(--gray)', borderColor: form.type===v ? 'rgba(0,82,255,0.35)' : 'var(--border)' }}>{l}</button>
                 ))}

@@ -17,14 +17,14 @@ export default async function OrderFormsPage() {
     <div className="app-shell">
       <Sidebar />
       <div className="main-content">
-        <div style={{ padding:'20px 32px', borderBottom:'1px solid var(--border)', display:'flex', alignItems:'center', justifyContent:'space-between' }}>
+        <div className="resp-padding" style={{ borderBottom:'1px solid var(--border)', display:'flex', alignItems:'center', justifyContent:'space-between', flexWrap:'wrap', gap:16 }}>
           <div>
             <h2 style={{ fontFamily:'var(--font-head)', fontSize:20, fontWeight:700 }}>Order Forms</h2>
             <p style={{ fontSize:13, color:'var(--gray)', marginTop:2 }}>Embeddable checkout forms for your website</p>
           </div>
           <Link href="/order-forms/new" style={{ background:'var(--blue)', color:'white', padding:'9px 20px', borderRadius:8, fontSize:13, fontWeight:500 }}>+ New Form</Link>
         </div>
-        <div style={{ padding:'24px 32px' }}>
+        <div className="resp-padding">
           {forms.length === 0 ? (
             <div style={{ background:'var(--dark2)', border:'1px solid var(--border)', borderRadius:14, padding:48, textAlign:'center' }}>
               <div style={{ fontSize:32, marginBottom:12 }}>📋</div>

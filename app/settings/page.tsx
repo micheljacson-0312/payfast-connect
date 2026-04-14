@@ -67,7 +67,7 @@ export default function SettingsPage() {
     <div className="app-shell">
       <Sidebar />
       <div className="main-content">
-        <div style={{ padding: '20px 32px', borderBottom: '1px solid var(--border)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <div className="resp-padding" style={{ borderBottom: '1px solid var(--border)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 16 }}>
           <div>
             <h2 style={{ fontFamily: 'var(--font-head)', fontSize: 20, fontWeight: 700 }}>Settings</h2>
             <p style={{ fontSize: 13, color: 'var(--gray)', marginTop: 2 }}>GoPayFast credentials &amp; CRM automation config</p>
@@ -78,7 +78,7 @@ export default function SettingsPage() {
           </button>
         </div>
 
-        <div style={{ padding: '28px 32px', maxWidth: 760 }}>
+        <div className="resp-padding" style={{ maxWidth: 760 }}>
           {installed && (
             <div style={{ background: 'rgba(34,197,94,0.08)', border: '1px solid rgba(34,197,94,0.2)', borderRadius: 10, padding: '12px 16px', fontSize: 13, color: '#22C55E', marginBottom: 18 }}>
               Install successful. Save your payment gateway fields below to activate GoPayFast for this CRM location.
@@ -108,7 +108,7 @@ export default function SettingsPage() {
               <div style={{ fontSize: 13, color: 'var(--gray)', marginBottom: 24, lineHeight: 1.5 }}>
                 Enter the main GoPayFast gateway credentials here. These are the live values used by the hosted checkout flow.
               </div>
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: 16, marginBottom: 16 }}>
+              <div className="mobile-stack-2" style={{ marginBottom: 16 }}>
                 <div>
                   <label style={lbl}>Merchant Name</label>
                   <input style={inp()} value={cfg.merchant_name} onChange={e => set('merchant_name', e.target.value)} placeholder="Mentoring Hub" />
@@ -118,7 +118,7 @@ export default function SettingsPage() {
                   <input style={inp()} value={cfg.store_id} onChange={e => set('store_id', e.target.value)} placeholder="Store ID" />
                 </div>
               </div>
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: 16, marginBottom: 16 }}>
+              <div className="mobile-stack-2" style={{ marginBottom: 16 }}>
                 <div>
                   <label style={lbl}>Merchant ID *</label>
                   <input style={inp()} value={cfg.merchant_id} onChange={e => set('merchant_id', e.target.value)} placeholder="26290" />

@@ -75,11 +75,11 @@ export default function NewOrderFormPage() {
     <div className="app-shell">
       <Sidebar />
       <div className="main-content">
-        <div style={{ padding:'18px 28px', borderBottom:'1px solid var(--border)', display:'flex', alignItems:'center', gap:14 }}>
+        <div className="resp-padding" style={{ borderBottom:'1px solid var(--border)', display:'flex', alignItems:'center', gap:14, flexWrap:'wrap' }}>
           <Link href="/order-forms" style={{ color:'var(--gray)', fontSize:14 }}>← Order Forms</Link>
           <h2 style={{ fontFamily:'var(--font-head)', fontSize:18, fontWeight:700 }}>New Order Form</h2>
         </div>
-        <div style={{ padding:'28px', display:'grid', gridTemplateColumns:'1fr 1fr', gap:20, maxWidth:960, alignItems:'start' }}>
+        <div className="resp-padding mobile-stack-2" style={{ maxWidth:960, alignItems:'start' }}>
           {/* Left */}
           <div style={{ display:'flex', flexDirection:'column', gap:14 }}>
             <div style={{ background:'var(--dark2)', border:'1px solid var(--border)', borderRadius:14, padding:22 }}>
@@ -94,7 +94,7 @@ export default function NewOrderFormPage() {
                   </select>
                 </div>
               )}
-              <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:12 }}>
+              <div className="mobile-stack-2" style={{ gap: 12 }}>
                 <div><label style={lbl}>Amount (PKR)</label><input style={inp} type="number" placeholder="Leave blank for custom" value={form.amount} onChange={e=>set('amount',e.target.value)} /></div>
                 <div><label style={lbl}>Payment Type</label>
                   <select style={{...inp,cursor:'pointer'}} value={form.type} onChange={e=>set('type',e.target.value)}>
@@ -113,7 +113,7 @@ export default function NewOrderFormPage() {
                 { k:'collect_phone',   label:'Phone Number',    desc:'Optional' },
                 { k:'collect_address', label:'Billing Address', desc:'Optional' },
               ].map(o=>(
-                <div key={o.k} style={{ display:'flex', alignItems:'center', justifyContent:'space-between', padding:'10px 0', borderBottom:'1px solid var(--border)' }}>
+                <div key={o.k} style={{ display:'flex', alignItems:'center', justifyContent:'space-between', padding:'10px 0', borderBottom:'1px solid var(--border)', gap: 12, flexWrap: 'wrap' }}>
                   <div><div style={{ fontSize:13, fontWeight:500 }}>{o.label}</div><div style={{ fontSize:11, color:'var(--gray)' }}>{o.desc}</div></div>
                   <div onClick={()=>toggle(o.k)} style={{ width:38, height:20, background:form[o.k as keyof typeof form]?'var(--blue)':'var(--dark3)', borderRadius:10, position:'relative', cursor:'pointer', transition:'background .2s', flexShrink:0 }}>
                     <div style={{ position:'absolute', top:2, left:form[o.k as keyof typeof form]?18:2, width:16, height:16, background:'white', borderRadius:'50%', transition:'left .2s' }} />

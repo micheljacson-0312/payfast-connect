@@ -45,16 +45,16 @@ export default function NewPaymentPage() {
     <div className="app-shell">
       <Sidebar />
       <div className="main-content">
-        <div style={{ padding: '20px 32px', borderBottom: '1px solid var(--border)', display: 'flex', alignItems: 'center', gap: 16 }}>
+        <div className="resp-padding" style={{ borderBottom: '1px solid var(--border)', display: 'flex', alignItems: 'center', gap: 16, flexWrap: 'wrap' }}>
           <Link href="/payments" style={{ color: 'var(--gray)', fontSize: 14 }}>← Payments</Link>
           <h2 style={{ fontFamily: 'var(--font-head)', fontSize: 20, fontWeight: 700 }}>New Payment Link</h2>
         </div>
 
-        <div style={{ padding: '32px', maxWidth: 600 }}>
+        <div className="resp-padding" style={{ maxWidth: 600 }}>
           {!payFields ? (
             <form onSubmit={generate}>
               {/* Type Toggle */}
-              <div style={{ display: 'flex', gap: 4, background: 'var(--dark2)', border: '1px solid var(--border)', padding: 4, borderRadius: 10, marginBottom: 28, width: 'fit-content' }}>
+              <div style={{ display: 'flex', gap: 4, background: 'var(--dark2)', border: '1px solid var(--border)', padding: 4, borderRadius: 10, marginBottom: 28, width: 'fit-content', flexWrap: 'wrap' }}>
                 {(['one-time', 'subscription'] as PayType[]).map(t => (
                   <button key={t} type="button" onClick={() => setType(t)}
                     style={{ padding: '8px 20px', borderRadius: 7, border: 'none', fontSize: 13, fontWeight: 500, cursor: 'pointer', background: type === t ? 'var(--blue)' : 'transparent', color: type === t ? 'white' : 'var(--gray)' }}>
@@ -64,7 +64,7 @@ export default function NewPaymentPage() {
               </div>
 
               {/* Amount + Item */}
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 16, marginBottom: 20 }}>
+              <div className="mobile-stack-2" style={{ marginBottom: 20 }}>
                 <div>
                   <label style={lbl}>Amount (ZAR) *</label>
                   <input required style={inp()} placeholder="e.g. 299.00" value={form.amount} onChange={e => set('amount', e.target.value)} />
@@ -84,7 +84,7 @@ export default function NewPaymentPage() {
               {type === 'subscription' && (
                 <div style={{ background: 'var(--dark3)', borderRadius: 12, padding: 20, marginBottom: 20 }}>
                   <div style={{ fontSize: 13, fontWeight: 500, marginBottom: 16 }}>Subscription Settings</div>
-                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 16 }}>
+                  <div className="mobile-stack-2">
                     <div>
                       <label style={lbl}>Billing Frequency</label>
                       <select style={inp({ cursor: 'pointer', appearance: 'none' }) as object} value={form.frequency} onChange={e => set('frequency', e.target.value)}>
@@ -103,7 +103,7 @@ export default function NewPaymentPage() {
 
               {/* Payer info */}
               <div style={{ fontSize: 13, fontWeight: 500, marginBottom: 16, color: 'var(--gray)' }}>Payer Details (optional — pre-fills GoPayFast form)</div>
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 16, marginBottom: 16 }}>
+              <div className="mobile-stack-2" style={{ marginBottom: 16 }}>
                 <div>
                   <label style={lbl}>First Name</label>
                   <input style={inp()} value={form.firstName} onChange={e => set('firstName', e.target.value)} />

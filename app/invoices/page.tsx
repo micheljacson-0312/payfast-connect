@@ -39,7 +39,7 @@ export default async function InvoicesPage({ searchParams }:{ searchParams: Prom
     <div className="app-shell">
       <Sidebar />
       <div className="main-content">
-        <div style={{ padding:'20px 32px', borderBottom:'1px solid var(--border)', display:'flex', alignItems:'center', justifyContent:'space-between' }}>
+        <div className="resp-padding" style={{ borderBottom:'1px solid var(--border)', display:'flex', alignItems:'center', justifyContent:'space-between', flexWrap:'wrap', gap:16 }}>
           <div>
             <h2 style={{ fontFamily:'var(--font-head)', fontSize:20, fontWeight:700 }}>Invoices</h2>
             <p style={{ fontSize:13, color:'var(--gray)', marginTop:2 }}>{invoices.length} invoices</p>
@@ -47,9 +47,9 @@ export default async function InvoicesPage({ searchParams }:{ searchParams: Prom
           <Link href="/invoices/new" style={{ background:'var(--blue)', color:'white', padding:'9px 20px', borderRadius:8, fontSize:13, fontWeight:500 }}>+ New Invoice</Link>
         </div>
 
-        <div style={{ padding:'24px 32px' }}>
+        <div className="resp-padding">
           {/* Stats */}
-          <div style={{ display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:16, marginBottom:24 }}>
+          <div className="resp-grid-auto" style={{ marginBottom:24 }}>
             {[
               { label:'Total Collected', value:`PKR ${Number(totals.total_paid).toLocaleString()}`, color:'#22C55E' },
               { label:'Outstanding',     value:`PKR ${Number(totals.total_pending).toLocaleString()}`, color:'#3D7FFF' },
@@ -73,29 +73,33 @@ export default async function InvoicesPage({ searchParams }:{ searchParams: Prom
 
           {/* Table */}
           <div style={{ background:'var(--dark2)', border:'1px solid var(--border)', borderRadius:14, overflow:'hidden' }}>
-            <div style={{ display:'grid', gridTemplateColumns:'1fr 1.5fr 1fr 1fr 1fr 1.2fr', gap:12, padding:'12px 20px', background:'var(--dark3)', fontSize:11, color:'var(--gray)', textTransform:'uppercase', letterSpacing:'.5px' }}>
-              <div>Invoice #</div><div>Client</div><div>Amount</div><div>Due Date</div><div>Status</div><div>Actions</div>
-            </div>
-            {invoices.length===0 && <div style={{ padding:48, textAlign:'center', color:'var(--gray)', fontSize:14 }}>No invoices yet. <Link href="/invoices/new" style={{ color:'#3D7FFF' }}>Create your first →</Link></div>}
-            {invoices.map(inv=>{
-              const sc = STATUS_STYLE[inv.status]||STATUS_STYLE.draft;
-              return (
-                <div key={inv.id} style={{ display:'grid', gridTemplateColumns:'1fr 1.5fr 1fr 1fr 1fr 1.2fr', gap:12, padding:'14px 20px', borderBottom:'1px solid var(--border)', fontSize:13, alignItems:'center' }}>
-                  <div style={{ fontFamily:'var(--font-head)', fontSize:12, color:'#3D7FFF', fontWeight:600 }}>{inv.invoice_number}</div>
-                  <div>
-                    <div style={{ fontWeight:500 }}>{inv.client_name}</div>
-                    <div style={{ fontSize:11, color:'var(--gray)' }}>{inv.client_email}</div>
-                  </div>
-                  <div style={{ fontFamily:'var(--font-head)', fontWeight:600 }}>PKR {Number(inv.total).toLocaleString()}</div>
-                  <div style={{ fontSize:12, color:'var(--gray)' }}>{inv.due_date ? new Date(inv.due_date).toLocaleDateString('en-PK') : '—'}</div>
-                  <div><span style={{ background:sc.bg, color:sc.color, padding:'3px 8px', borderRadius:6, fontSize:11, fontWeight:500 }}>{inv.status}</span></div>
-                  <div style={{ display:'flex', gap:6 }}>
-                    <a href={`${appUrl}/invoice/${inv.token}`} target="_blank" style={{ background:'rgba(0,82,255,0.08)', border:'1px solid rgba(0,82,255,0.2)', color:'#3D7FFF', padding:'4px 10px', borderRadius:6, fontSize:11, textDecoration:'none' }}>View</a>
-                    <CopyBtn text={`${appUrl}/invoice/${inv.token}`} />
-                  </div>
+            <div style={{ overflowX: 'auto' }}>
+              <div style={{ minWidth: 800 }}>
+                <div style={{ display:'grid', gridTemplateColumns:'1fr 1.5fr 1fr 1fr 1fr 1.2fr', gap:12, padding:'12px 20px', background:'var(--dark3)', fontSize:11, color:'var(--gray)', textTransform:'uppercase', letterSpacing:'.5px' }}>
+                  <div>Invoice #</div><div>Client</div><div>Amount</div><div>Due Date</div><div>Status</div><div>Actions</div>
                 </div>
-              );
-            })}
+                {invoices.length===0 && <div style={{ padding:48, textAlign:'center', color:'var(--gray)', fontSize:14 }}>No invoices yet. <Link href="/invoices/new" style={{ color:'#3D7FFF' }}>Create your first →</Link></div>}
+                {invoices.map(inv=>{
+                  const sc = STATUS_STYLE[inv.status]||STATUS_STYLE.draft;
+                  return (
+                    <div key={inv.id} style={{ display:'grid', gridTemplateColumns:'1fr 1.5fr 1fr 1fr 1fr 1.2fr', gap:12, padding:'14px 20px', borderBottom:'1px solid var(--border)', fontSize:13, alignItems:'center' }}>
+                      <div style={{ fontFamily:'var(--font-head)', fontSize:12, color:'#3D7FFF', fontWeight:600 }}>{inv.invoice_number}</div>
+                      <div>
+                        <div style={{ fontWeight:500 }}>{inv.client_name}</div>
+                        <div style={{ fontSize:11, color:'var(--gray)' }}>{inv.client_email}</div>
+                      </div>
+                      <div style={{ fontFamily:'var(--font-head)', fontWeight:600 }}>PKR {Number(inv.total).toLocaleString()}</div>
+                      <div style={{ fontSize:12, color:'var(--gray)' }}>{inv.due_date ? new Date(inv.due_date).toLocaleDateString('en-PK') : '—'}</div>
+                      <div><span style={{ background:sc.bg, color:sc.color, padding:'3px 8px', borderRadius:6, fontSize:11, fontWeight:500 }}>{inv.status}</span></div>
+                      <div style={{ display:'flex', gap:6 }}>
+                        <a href={`${appUrl}/invoice/${inv.token}`} target="_blank" style={{ background:'rgba(0,82,255,0.08)', border:'1px solid rgba(0,82,255,0.2)', color:'#3D7FFF', padding:'4px 10px', borderRadius:6, fontSize:11, textDecoration:'none' }}>View</a>
+                        <CopyBtn text={`${appUrl}/invoice/${inv.token}`} />
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
           </div>
         </div>
       </div>

@@ -110,8 +110,8 @@ export default function ApplyPage() {
 
   if (done) {
     return (
-      <div style={{ minHeight: '100vh', background: '#F8FAFC', display: 'grid', placeItems: 'center', padding: 24, fontFamily: 'DM Sans, sans-serif' }}>
-        <div style={{ maxWidth: 560, width: '100%', background: 'white', border: '1px solid #E2E8F0', borderRadius: 20, padding: 32, textAlign: 'center' }}>
+      <div className="page-shell-light" style={{ display: 'grid', placeItems: 'center', padding: 24 }}>
+        <div style={{ maxWidth: 560, width: '100%', background: 'white', border: '1px solid #E2E8F0', borderRadius: 20, padding: 24, textAlign: 'center' }}>
           <div style={{ fontSize: 42, marginBottom: 12 }}>✅</div>
           <h1 style={{ fontFamily: 'var(--font-head)', fontSize: 28, marginBottom: 10 }}>Merchant Details Submitted</h1>
           <p style={{ color: '#64748B', lineHeight: 1.6 }}>
@@ -123,9 +123,9 @@ export default function ApplyPage() {
   }
 
   return (
-    <div style={{ minHeight: '100vh', background: '#F8FAFC', padding: '32px 20px', fontFamily: 'DM Sans, sans-serif' }}>
+    <div className="page-shell-light" style={{ padding: '32px 20px' }}>
       <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet" />
-      <div style={{ maxWidth: 1080, margin: '0 auto' }}>
+      <div className="page-container">
         <div style={{ marginBottom: 24 }}>
           <div style={{ fontFamily: 'var(--font-head)', fontSize: 32, fontWeight: 800, color: '#0F172A' }}>PayFast Merchant Create Form</div>
           <div style={{ color: '#64748B', marginTop: 8 }}>
@@ -135,7 +135,7 @@ export default function ApplyPage() {
 
         <section style={{ background: 'white', border: '1px solid #E2E8F0', borderRadius: 18, padding: 22, marginBottom: 18 }}>
           <h2 style={{ fontFamily: 'var(--font-head)', fontSize: 20, marginBottom: 16 }}>Register Merchant</h2>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: 16 }}>
+          <div className="mobile-stack-2">
             <div>
               <label style={label}>Business Name (Display) *</label>
               <input style={input} value={form.business_name} onChange={(e) => set('business_name', e.target.value)} placeholder="10x Digital Ventures" />
@@ -175,7 +175,7 @@ export default function ApplyPage() {
           </div>
         </section>
 
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 18 }}>
+        <div className="mobile-stack-2">
           <section style={{ background: 'white', border: '1px solid #E2E8F0', borderRadius: 18, padding: 22 }}>
             <h2 style={{ fontFamily: 'var(--font-head)', fontSize: 18, marginBottom: 16 }}>Business Details</h2>
             <div style={{ marginBottom: 14 }}>
@@ -192,7 +192,7 @@ export default function ApplyPage() {
               <label style={label}>Website</label>
               <input style={input} value={form.website} onChange={(e) => set('website', e.target.value)} placeholder="https://example.com" />
             </div>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: 12, marginBottom: 14 }}>
+            <div className="mobile-stack-2" style={{ marginBottom: 14 }}>
               <div>
                 <label style={label}>Registration Number</label>
                 <input style={input} value={form.registration_number} onChange={(e) => set('registration_number', e.target.value)} placeholder="SECP / NTN / company reg no" />
@@ -254,7 +254,7 @@ export default function ApplyPage() {
               <label style={label}>Address Line 2</label>
               <input style={input} value={form.address_line2} onChange={(e) => set('address_line2', e.target.value)} />
             </div>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 12 }}>
+            <div className="mobile-stack-2">
               <div>
                 <label style={label}>Province</label>
                 <input style={input} value={form.province} onChange={(e) => set('province', e.target.value)} />
@@ -276,7 +276,7 @@ export default function ApplyPage() {
               <label style={label}>Account Holder</label>
               <input style={input} value={form.account_holder} onChange={(e) => set('account_holder', e.target.value)} />
             </div>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: 12, marginBottom: 14 }}>
+            <div className="mobile-stack-2" style={{ marginBottom: 14 }}>
               <div>
                 <label style={label}>Account Number</label>
                 <input style={input} value={form.account_number} onChange={(e) => set('account_number', e.target.value)} />

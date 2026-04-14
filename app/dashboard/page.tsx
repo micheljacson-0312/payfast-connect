@@ -58,7 +58,7 @@ export default async function DashboardPage({ searchParams }: { searchParams?: P
       <Sidebar />
       <div className="main-content">
         {/* Topbar */}
-        <div style={{ padding: '20px 32px', borderBottom: '1px solid var(--border)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <div className="resp-padding" style={{ borderBottom: '1px solid var(--border)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 16 }}>
           <div>
             <h2 style={{ fontFamily: 'var(--font-head)', fontSize: 20, fontWeight: 700 }}>Dashboard</h2>
             <p style={{ fontSize: 13, color: 'var(--gray)', marginTop: 2 }}>
@@ -70,24 +70,24 @@ export default async function DashboardPage({ searchParams }: { searchParams?: P
           </Link>
         </div>
 
-          <div style={{ padding: '28px 32px' }}>
+          <div className="resp-padding">
 
           {restored && (
             <div style={{ background: 'rgba(0,82,255,0.08)', border: '1px solid rgba(0,82,255,0.2)', borderRadius: 12, padding: '14px 20px', marginBottom: 24, color: '#7FB0FF', fontSize: 14 }}>
-              Existing sub-account session restored successfully.
+               Existing sub-account session restored successfully.
             </div>
           )}
 
           {/* Credentials warning */}
           {credsMissing && (
-            <div style={{ background: 'rgba(245,158,11,0.08)', border: '1px solid rgba(245,158,11,0.25)', borderRadius: 12, padding: '14px 20px', marginBottom: 24, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-              <span style={{ fontSize: 14, color: 'var(--warning)' }}>⚠️ GoPayFast credentials not configured — payments won&apos;t work yet.</span>
-              <Link href="/settings" style={{ fontSize: 13, color: 'var(--warning)', fontWeight: 600 }}>Go to Settings →</Link>
+            <div style={{ background: 'rgba(245,158,11,0.08)', border: '1px solid rgba(245,158,11,0.25)', borderRadius: 12, padding: '14px 20px', marginBottom: 24, display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 12 }}>
+               <span style={{ fontSize: 14, color: 'var(--warning)' }}>⚠️ GoPayFast credentials not configured — payments won&apos;t work yet.</span>
+               <Link href="/settings" style={{ fontSize: 13, color: 'var(--warning)', fontWeight: 600 }}>Go to Settings →</Link>
             </div>
           )}
 
           {/* Stats */}
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 16, marginBottom: 24 }}>
+            <div className="resp-grid-auto" style={{ marginBottom: 24 }}>
             {[
               { label: 'Total Revenue (30d)',   value: `R ${Number(s.total).toLocaleString('en-ZA', { minimumFractionDigits: 2 })}`, color: 'var(--blue-light)' },
               { label: 'Payments (30d)',        value: String(s.count),     color: 'var(--success)' },
@@ -102,7 +102,7 @@ export default async function DashboardPage({ searchParams }: { searchParams?: P
           </div>
 
           {/* Chart + Recent */}
-          <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: 16, marginBottom: 24 }}>
+          <div className="resp-grid-2" style={{ marginBottom: 24 }}>
             {/* Bar chart */}
             <div style={{ background: 'var(--dark2)', border: '1px solid var(--border)', borderRadius: 14, padding: 22 }}>
               <div style={{ fontFamily: 'var(--font-head)', fontSize: 15, fontWeight: 600, marginBottom: 4 }}>Revenue — Last 14 Days</div>
@@ -137,7 +137,7 @@ export default async function DashboardPage({ searchParams }: { searchParams?: P
                       </div>
                     </div>
                   ))
-              }
+                }
               <Link href="/payments" style={{ display: 'block', textAlign: 'center', fontSize: 12, color: 'var(--blue-light)', marginTop: 16 }}>
                 View all →
               </Link>
@@ -150,8 +150,8 @@ export default async function DashboardPage({ searchParams }: { searchParams?: P
             <div style={{ fontSize: 13, color: 'var(--gray)', marginBottom: 12 }}>
               Add this URL in your GoPayFast dashboard as the payment callback / notification URL.
             </div>
-            <div style={{ background: 'var(--dark3)', borderRadius: 10, padding: '12px 16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
-              <code style={{ fontSize: 13, color: 'var(--blue-light)', fontFamily: 'monospace' }}>
+            <div style={{ background: 'var(--dark3)', borderRadius: 10, padding: '12px 16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap' }}>
+              <code style={{ fontSize: 13, color: 'var(--blue-light)', fontFamily: 'monospace', wordBreak: 'break-all' }}>
                 {process.env.NEXT_PUBLIC_APP_URL}/api/payfast/itn
               </code>
               <span style={{ fontSize: 11, background: 'rgba(34,197,94,0.1)', color: 'var(--success)', padding: '3px 10px', borderRadius: 6 }}>Active</span>
@@ -161,5 +161,6 @@ export default async function DashboardPage({ searchParams }: { searchParams?: P
         </div>
       </div>
     </div>
+
   );
 }

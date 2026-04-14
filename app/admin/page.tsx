@@ -99,12 +99,12 @@ export default function AdminPage() {
   }
 
   return (
-    <div style={{ minHeight: '100vh', background: '#F8FAFC', padding: 24, fontFamily: 'DM Sans, sans-serif' }}>
+    <div className="page-shell-light" style={{ padding: 24 }}>
       <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet" />
-      <div style={{ maxWidth: 1200, margin: '0 auto' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 18 }}>
+      <div className="page-container">
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 18, gap: 12, flexWrap: 'wrap' }}>
           <h1 style={{ fontFamily: 'var(--font-head)', fontSize: 30, color: '#0F172A' }}>Merchant Applications</h1>
-          <div style={{ display: 'flex', gap: 10 }}>
+          <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
             <select style={{ ...input, width: 160 }} value={status} onChange={(e) => setStatus(e.target.value)}><option value="all">All Statuses</option><option value="pending">Pending</option><option value="reviewing">Reviewing</option><option value="approved">Approved</option><option value="rejected">Rejected</option><option value="live">Live</option></select>
             <input style={{ ...input, width: 240 }} value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search applications" />
             <button onClick={async () => { await fetch('/api/admin/logout', { method: 'POST' }); window.location.href = '/admin/login'; }} style={{ background: '#0F172A', color: 'white', border: 'none', borderRadius: 10, padding: '10px 14px', cursor: 'pointer', fontWeight: 700 }}>Logout</button>
@@ -112,6 +112,8 @@ export default function AdminPage() {
         </div>
 
         <div style={{ background: 'white', border: '1px solid #E2E8F0', borderRadius: 18, overflow: 'hidden' }}>
+          <div style={{ overflowX: 'auto' }}>
+          <div style={{ minWidth: 900 }}>
           <div style={{ display: 'grid', gridTemplateColumns: '80px 1.4fr 1.4fr 1fr 1fr 160px', gap: 12, padding: '14px 18px', background: '#F8FAFC', fontSize: 11, color: '#64748B', textTransform: 'uppercase', fontWeight: 700 }}>
             <div>ID</div><div>Applicant</div><div>Business</div><div>Phone</div><div>CRM Location</div><div>Status</div>
           </div>
@@ -121,14 +123,16 @@ export default function AdminPage() {
             </button>
           ))}
           {!loading && list.length === 0 && <div style={{ padding: 28, color: '#64748B' }}>No applications found for the current filters.</div>}
+          </div>
+          </div>
         </div>
       </div>
 
       {selected && form && (
-        <div style={{ position: 'fixed', inset: 0, background: 'rgba(15,23,42,0.55)', display: 'grid', placeItems: 'center', padding: 20 }}>
-          <div style={{ width: '100%', maxWidth: 760, background: 'white', borderRadius: 20, padding: 24, maxHeight: '90vh', overflow: 'auto' }}>
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(15,23,42,0.55)', display: 'grid', placeItems: 'center', padding: 16 }}>
+          <div style={{ width: '100%', maxWidth: 760, background: 'white', borderRadius: 20, padding: 20, maxHeight: '90vh', overflow: 'auto' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 18 }}><h2 style={{ fontFamily: 'var(--font-head)', fontSize: 24 }}>Application #{selected.id}</h2><button onClick={() => setSelected(null)} style={{ background: 'transparent', border: 'none', fontSize: 22, cursor: 'pointer' }}>×</button></div>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12, marginBottom: 18 }}>
+            <div className="mobile-stack-2" style={{ marginBottom: 18 }}>
               {[
                 ['Applicant', selected.full_name],
                 ['Business', selected.business_name],
@@ -142,7 +146,7 @@ export default function AdminPage() {
               ))}
             </div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 16 }}>
+            <div className="mobile-stack-2">
               <div style={section}>
                 <div style={{ fontFamily: 'var(--font-head)', fontSize: 18, marginBottom: 14 }}>Applicant Details</div>
                 <div style={{ display: 'grid', gap: 12 }}>

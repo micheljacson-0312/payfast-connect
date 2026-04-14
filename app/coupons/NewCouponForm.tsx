@@ -30,13 +30,13 @@ export default function NewCouponForm() {
       <div style={{ fontFamily:'var(--font-head)', fontSize:15, fontWeight:600, marginBottom:18 }}>Create Coupon</div>
       <div style={{ marginBottom:14 }}>
         <label style={lbl}>Coupon Code *</label>
-        <div style={{ display:'flex', gap:8 }}>
+        <div style={{ display:'flex', gap:8, flexWrap:'wrap' }}>
           <input style={inp} value={form.code} onChange={e=>set('code',e.target.value.toUpperCase())} placeholder="SAVE20" />
           <button onClick={genCode} style={{ background:'var(--dark3)', border:'1px solid var(--border)', color:'var(--gray)', borderRadius:9, padding:'0 12px', cursor:'pointer', fontSize:11, whiteSpace:'nowrap' }}>Auto</button>
         </div>
       </div>
       <div style={{ marginBottom:14 }}><label style={lbl}>Name (internal)</label><input style={inp} value={form.name} onChange={e=>set('name',e.target.value)} placeholder="20% off promo" /></div>
-      <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:12, marginBottom:14 }}>
+      <div className="mobile-stack-2" style={{ marginBottom:14 }}>
         <div>
           <label style={lbl}>Discount Type</label>
           <select style={{...inp,cursor:'pointer'}} value={form.type} onChange={e=>set('type',e.target.value)}>
@@ -49,7 +49,7 @@ export default function NewCouponForm() {
           <input style={inp} type="number" placeholder={form.type==='percent'?'e.g. 20':'e.g. 500'} value={form.value} onChange={e=>set('value',e.target.value)} />
         </div>
       </div>
-      <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:12, marginBottom:14 }}>
+      <div className="mobile-stack-2" style={{ marginBottom:14 }}>
         <div><label style={lbl}>Min Order (PKR)</label><input style={inp} type="number" value={form.min_amount} onChange={e=>set('min_amount',e.target.value)} /></div>
         <div><label style={lbl}>Max Uses (0=unlimited)</label><input style={inp} type="number" value={form.max_uses} onChange={e=>set('max_uses',e.target.value)} /></div>
       </div>

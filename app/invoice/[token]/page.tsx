@@ -29,11 +29,11 @@ export default async function PublicInvoicePage({ params }:{ params: Promise<{ t
   }
 
   return (
-    <div style={{ minHeight:'100vh', background:'#F8FAFC', fontFamily:'DM Sans, sans-serif', color:'#0F172A' }}>
+    <div className="page-shell-light" style={{ fontFamily:'DM Sans, sans-serif', color:'#0F172A' }}>
       <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet" />
 
       {/* Header bar */}
-      <div style={{ background:'white', borderBottom:'1px solid #E2E8F0', padding:'14px 40px', display:'flex', alignItems:'center', justifyContent:'space-between' }}>
+      <div className="page-nav" style={{ background:'white', borderBottom:'1px solid #E2E8F0' }}>
         <div style={{ display:'flex', alignItems:'center', gap:10 }}>
           <div style={{ width:32, height:32, background:'#0052FF', borderRadius:8, display:'grid', placeItems:'center' }}>
             <svg width="14" height="14" viewBox="0 0 24 24" fill="white"><path d="M13 2L4.5 13H11L10 22L19.5 11H13Z"/></svg>
@@ -43,7 +43,7 @@ export default async function PublicInvoicePage({ params }:{ params: Promise<{ t
         <span style={{ fontSize:12, color:'#64748B' }}>Invoice {inv.invoice_number}</span>
       </div>
 
-      <div style={{ maxWidth:700, margin:'40px auto', padding:'0 24px 60px' }}>
+      <div className="page-container" style={{ maxWidth:700, padding:'40px 24px 60px' }}>
         {/* Status banner */}
         {isPaid && (
           <div style={{ background:'rgba(34,197,94,0.08)', border:'1px solid rgba(34,197,94,0.25)', borderRadius:10, padding:'12px 20px', marginBottom:24, display:'flex', alignItems:'center', gap:8, fontSize:14, color:'#22C55E', fontWeight:500 }}>
@@ -59,7 +59,7 @@ export default async function PublicInvoicePage({ params }:{ params: Promise<{ t
         {/* Invoice card */}
         <div style={{ background:'white', border:'1px solid #E2E8F0', borderRadius:16, overflow:'hidden', boxShadow:'0 1px 3px rgba(0,0,0,0.05)' }}>
           {/* Top */}
-          <div style={{ padding:'32px 36px', borderBottom:'1px solid #F1F5F9', display:'flex', justifyContent:'space-between', alignItems:'flex-start' }}>
+            <div style={{ padding:'32px 36px', borderBottom:'1px solid #F1F5F9', display:'flex', justifyContent:'space-between', alignItems:'flex-start', gap: 16, flexWrap: 'wrap' }}>
             <div>
               <div style={{ fontFamily:'var(--font-head)', fontSize:24, fontWeight:800, marginBottom:4 }}>{inv.title}</div>
               <div style={{ fontSize:14, color:'#64748B' }}>Invoice Number: <strong style={{ color:'#0F172A' }}>{inv.invoice_number}</strong></div>
@@ -78,7 +78,7 @@ export default async function PublicInvoicePage({ params }:{ params: Promise<{ t
           {/* Line Items */}
           {items.length > 0 && (
             <div style={{ padding:'0 36px' }}>
-              <table style={{ width:'100%', borderCollapse:'collapse' }}>
+              <table style={{ width:'100%', borderCollapse:'collapse', minWidth: 640 }}>
                 <thead>
                   <tr style={{ borderBottom:'1px solid #F1F5F9' }}>
                     {['Item','Qty','Unit Price','Total'].map(h=>(
@@ -131,7 +131,7 @@ export default async function PublicInvoicePage({ params }:{ params: Promise<{ t
 
           {/* Notes / Terms */}
           {(inv.notes || inv.terms) && (
-            <div style={{ padding:'20px 36px', borderTop:'1px solid #E2E8F0', display:'grid', gridTemplateColumns:'1fr 1fr', gap:20 }}>
+            <div className="mobile-stack-2" style={{ padding:'20px 36px', borderTop:'1px solid #E2E8F0' }}>
               {inv.notes && <div><div style={{ fontSize:11, color:'#94A3B8', textTransform:'uppercase', letterSpacing:1, marginBottom:6 }}>Notes</div><div style={{ fontSize:13, color:'#64748B', lineHeight:1.6 }}>{inv.notes}</div></div>}
               {inv.terms && <div><div style={{ fontSize:11, color:'#94A3B8', textTransform:'uppercase', letterSpacing:1, marginBottom:6 }}>Terms</div><div style={{ fontSize:13, color:'#64748B', lineHeight:1.6 }}>{inv.terms}</div></div>}
             </div>

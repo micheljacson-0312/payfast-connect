@@ -113,7 +113,7 @@ export default function AgencyControls({ initialLocationId = '' }: { initialLoca
 
   return (
     <div style={{ display: 'grid', gap: 20 }}>
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: 18 }}>
+      <div className="mobile-stack-2">
         {infoCards.map((section) => (
           <section key={section.title} style={card}>
             <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 12, marginBottom: 14 }}>
@@ -123,7 +123,7 @@ export default function AgencyControls({ initialLocationId = '' }: { initialLoca
               </div>
             </div>
 
-            <div style={{ display: 'flex', gap: 10, marginBottom: 12 }}>
+            <div style={{ display: 'flex', gap: 10, marginBottom: 12, flexWrap: 'wrap' }}>
               <input value={locationId} onChange={(e) => setLocationId(e.target.value)} placeholder="Sub-account location ID" style={input} />
               <button onClick={section.action} style={{ background: 'var(--blue)', color: 'white', border: 'none', borderRadius: 10, padding: '0 16px', cursor: 'pointer', fontWeight: 700, whiteSpace: 'nowrap' }}>{section.cta}</button>
             </div>
@@ -142,7 +142,7 @@ export default function AgencyControls({ initialLocationId = '' }: { initialLoca
             <div style={{ color: 'var(--gray)', fontSize: 13, lineHeight: 1.6 }}>These are the installed locations saved in the portal, shown as name plus location ID.</div>
           </div>
         </div>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: 8 }}>
+      <div className="mobile-stack-2" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: 8 }}>
           {locations.length ? locations.map((loc) => (
             <button
               key={loc.locationId}
@@ -166,7 +166,7 @@ export default function AgencyControls({ initialLocationId = '' }: { initialLoca
         </div>
       </section>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 18 }}>
+      <div className="mobile-stack-3">
         <section style={card}>
           <div style={{ fontFamily: 'var(--font-head)', fontSize: 18, fontWeight: 700, marginBottom: 8 }}>Update Rebilling</div>
           <div style={{ color: 'var(--gray)', fontSize: 13, lineHeight: 1.6, marginBottom: 12 }}>Send a manual rebilling payload to the agency company context. Use this to align reseller billing with your HighLevel SaaS model.</div>
@@ -191,7 +191,7 @@ export default function AgencyControls({ initialLocationId = '' }: { initialLoca
           <div style={{ color: 'var(--gray)', fontSize: 13, lineHeight: 1.6, marginBottom: 12 }}>Use this when a monthly amount changes, a subscription needs updating, or a location must be paused for failed billing.</div>
           <input value={locationId} onChange={(e) => setLocationId(e.target.value)} placeholder="Sub-account location ID" style={{ ...input, marginBottom: 10 }} />
           <textarea value={updatePayload} onChange={(e) => setUpdatePayload(e.target.value)} style={{ ...area, minHeight: 120 }} />
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: 10, marginTop: 12 }}>
+          <div className="mobile-stack-2" style={{ marginTop: 12 }}>
             <button onClick={() => run('update', '/api/agency/saas/update-subscription', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ locationId, payload: parseJson(updatePayload) }) })} style={{ background: 'var(--blue)', color: 'white', border: 'none', borderRadius: 12, padding: '12px 14px', cursor: 'pointer', fontWeight: 700 }}>
               {loading === 'update' ? 'Updating…' : 'Update'}
             </button>

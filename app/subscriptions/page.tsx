@@ -38,14 +38,14 @@ export default async function SubscriptionsPage() {
     <div className="app-shell">
       <Sidebar />
       <div className="main-content">
-        <div style={{ padding: '20px 32px', borderBottom: '1px solid var(--border)' }}>
+        <div className="resp-padding" style={{ borderBottom: '1px solid var(--border)' }}>
           <h2 style={{ fontFamily: 'var(--font-head)', fontSize: 20, fontWeight: 700 }}>Subscriptions</h2>
           <p style={{ fontSize: 13, color: 'var(--gray)', marginTop: 2 }}>{active} active · R {monthly.toFixed(2)} MRR</p>
         </div>
 
-        <div style={{ padding: '24px 32px' }}>
+        <div className="resp-padding">
           {/* Stats */}
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 16, marginBottom: 24 }}>
+          <div className="resp-grid-auto" style={{ marginBottom: 24 }}>
             {[
               { label: 'Active', value: active, color: 'var(--success)' },
               { label: 'Total MRR', value: `R ${monthly.toFixed(2)}`, color: 'var(--blue-light)' },
@@ -60,7 +60,7 @@ export default async function SubscriptionsPage() {
 
           {/* Table */}
           <div style={{ background: 'var(--dark2)', border: '1px solid var(--border)', borderRadius: 14, overflow: 'hidden' }}>
-            <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 1fr 1fr 1fr', gap: 16, padding: '14px 24px', background: 'var(--dark3)', fontSize: 11, color: 'var(--gray)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 1fr 1fr 1fr', gap: 16, padding: '14px 24px', background: 'var(--dark3)', fontSize: 11, color: 'var(--gray)', textTransform: 'uppercase', letterSpacing: '0.5px', minWidth: 760 }}>
               <div>Subscriber</div><div>Amount</div><div>Frequency</div><div>Status</div><div>Next Billing</div>
             </div>
 
@@ -71,7 +71,7 @@ export default async function SubscriptionsPage() {
             {subs.map(s => {
               const sc = statusColor(s.status);
               return (
-                <div key={s.id} style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 1fr 1fr 1fr', gap: 16, padding: '15px 24px', borderBottom: '1px solid var(--border)', fontSize: 13, alignItems: 'center' }}>
+                <div key={s.id} style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 1fr 1fr 1fr', gap: 16, padding: '15px 24px', borderBottom: '1px solid var(--border)', fontSize: 13, alignItems: 'center', minWidth: 760 }}>
                   <div>
                     <div style={{ fontWeight: 500 }}>{s.payer_email}</div>
                     <div style={{ fontSize: 11, color: 'var(--gray)', fontFamily: 'monospace' }}>{s.pf_token.slice(0, 16)}…</div>

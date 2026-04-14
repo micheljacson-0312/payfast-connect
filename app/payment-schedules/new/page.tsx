@@ -37,8 +37,8 @@ export default function NewPaymentSchedulePage() {
     return (
       <div className="app-shell">
         <Sidebar />
-        <div className="main-content" style={{ padding: 32 }}>
-          <div style={{ maxWidth: 780, margin:'0 auto', background:'var(--dark2)', border:'1px solid var(--border)', borderRadius:18, padding:28 }}>
+        <div className="main-content resp-padding" style={{ paddingTop: 32 }}>
+          <div style={{ maxWidth: 780, margin:'0 auto', background:'var(--dark2)', border:'1px solid var(--border)', borderRadius:18, padding:24 }}>
             <h2 style={{ fontFamily:'var(--font-head)', fontSize:22, fontWeight:700, marginBottom:8 }}>Installment Plan Created</h2>
             <p style={{ color:'var(--gray)', marginBottom:22 }}>Share each due payment link with the customer.</p>
             <div style={{ display:'grid', gap:12 }}>
@@ -73,17 +73,17 @@ export default function NewPaymentSchedulePage() {
           <Link href="/payment-schedules" style={{ color:'var(--gray)', fontSize:14 }}>← Installments</Link>
           <h2 style={{ fontFamily:'var(--font-head)', fontSize:18, fontWeight:700 }}>New Installment Plan</h2>
         </div>
-        <div style={{ padding:'28px', maxWidth:720 }}>
+        <div className="resp-padding" style={{ maxWidth:720 }}>
           <div style={{ background:'var(--dark2)', border:'1px solid var(--border)', borderRadius:16, padding:24 }}>
-            <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:16, marginBottom:16 }}>
+            <div className="mobile-stack-2" style={{ marginBottom:16 }}>
               <div><label style={label}>Client Name *</label><input style={input} value={form.client_name} onChange={(e) => set('client_name', e.target.value)} /></div>
               <div><label style={label}>Client Email *</label><input style={input} type="email" value={form.client_email} onChange={(e) => set('client_email', e.target.value)} /></div>
             </div>
-            <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:16, marginBottom:16 }}>
+            <div className="mobile-stack-2" style={{ marginBottom:16 }}>
               <div><label style={label}>CRM Contact ID</label><input style={input} value={form.contact_id} onChange={(e) => set('contact_id', e.target.value)} /></div>
               <div><label style={label}>Total Amount (PKR) *</label><input style={input} type="number" value={form.total_amount} onChange={(e) => set('total_amount', e.target.value)} /></div>
             </div>
-            <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:16, marginBottom:16 }}>
+            <div className="mobile-stack-2" style={{ marginBottom:16 }}>
               <div><label style={label}>Number of Installments *</label><input style={input} type="number" min="2" max="12" value={form.installments} onChange={(e) => set('installments', e.target.value)} /></div>
               <div><label style={label}>Description</label><input style={input} value={form.description} onChange={(e) => set('description', e.target.value)} placeholder="Website project balance" /></div>
             </div>

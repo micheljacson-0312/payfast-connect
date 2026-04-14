@@ -16,11 +16,11 @@ export default async function CouponsPage() {
     <div className="app-shell">
       <Sidebar />
       <div className="main-content">
-        <div style={{ padding:'20px 32px', borderBottom:'1px solid var(--border)' }}>
+        <div className="resp-padding" style={{ borderBottom:'1px solid var(--border)' }}>
           <h2 style={{ fontFamily:'var(--font-head)', fontSize:20, fontWeight:700 }}>Coupons & Discounts</h2>
           <p style={{ fontSize:13, color:'var(--gray)', marginTop:2 }}>Discount codes for payment links and order forms</p>
         </div>
-        <div style={{ padding:'24px 32px', display:'grid', gridTemplateColumns:'380px 1fr', gap:24, alignItems:'start' }}>
+        <div className="resp-padding coupons-layout">
           <NewCouponForm />
           <div>
             <div style={{ fontFamily:'var(--font-head)', fontSize:15, fontWeight:600, marginBottom:14 }}>Active Coupons</div>

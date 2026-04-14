@@ -75,18 +75,18 @@ export default function GHLConfigPage() {
 
   if (fetching) {
     return (
-      <div style={{ minHeight: '100vh', background: 'white', display: 'grid', placeItems: 'center', fontFamily: 'DM Sans, sans-serif', color: '#64748B', fontSize: 14 }}>
+      <div className="page-shell-light" style={{ display: 'grid', placeItems: 'center', fontFamily: 'DM Sans, sans-serif', color: '#64748B', fontSize: 14 }}>
         Loading…
       </div>
     );
   }
 
   return (
-    <div style={{ minHeight: '100vh', background: 'white', fontFamily: 'DM Sans, sans-serif', padding: '24px 20px' }}>
+    <div className="page-shell-light" style={{ padding: '24px 20px' }}>
       <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet" />
 
       {/* Header */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 24 }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 24, flexWrap: 'wrap' }}>
         <div style={{ width: 36, height: 36, background: '#0052FF', borderRadius: 9, display: 'grid', placeItems: 'center', flexShrink: 0 }}>
           <svg width="16" height="16" viewBox="0 0 24 24" fill="white"><path d="M13 2L4.5 13H11L10 22L19.5 11H13Z"/></svg>
         </div>
@@ -105,7 +105,7 @@ export default function GHLConfigPage() {
       )}
 
       {/* Form */}
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 16, maxWidth: 720 }}>
         <div>
           <label style={{ fontSize: 12, color: '#64748B', marginBottom: 6, display: 'block', fontWeight: 500 }}>
             Store ID <span style={{ color: '#EF4444' }}>*</span>

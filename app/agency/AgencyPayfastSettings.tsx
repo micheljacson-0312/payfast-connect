@@ -72,7 +72,7 @@ export default function AgencyPayfastSettings() {
 
   return (
     <div style={{ background: 'var(--dark2)', border: '1px solid var(--border)', borderRadius: 18, padding: 22 }}>
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 12, marginBottom: 12 }}>
+      <div className="mobile-stack-2" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', marginBottom: 12 }}>
         <input value={form.merchant_name} onChange={(e) => setForm((f) => ({ ...f, merchant_name: e.target.value }))} placeholder="Merchant name" style={input} />
         <input value={form.store_id} onChange={(e) => setForm((f) => ({ ...f, store_id: e.target.value }))} placeholder="Store ID" style={input} />
         <input value={form.merchant_id} onChange={(e) => setForm((f) => ({ ...f, merchant_id: e.target.value }))} placeholder="Merchant ID" style={input} />
@@ -84,7 +84,7 @@ export default function AgencyPayfastSettings() {
           <option value="sandbox">Sandbox</option>
         </select>
       </div>
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap' }}>
         <div style={{ fontSize: 13, color: 'var(--gray)', lineHeight: 1.6 }}>
           {ready ? 'Credentials ready for agency billing.' : 'Connect merchant ID and key before collecting agency payments.'}
         </div>

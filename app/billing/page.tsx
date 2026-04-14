@@ -26,11 +26,11 @@ export default async function BillingPage() {
     <div className="app-shell">
       <Sidebar />
       <div className="main-content">
-        <div style={{ padding: '20px 32px', borderBottom: '1px solid var(--border)' }}>
+        <div className="resp-padding" style={{ borderBottom: '1px solid var(--border)' }}>
           <h2 style={{ fontFamily: 'var(--font-head)', fontSize: 20, fontWeight: 700 }}>Billing</h2>
           <p style={{ fontSize: 13, color: 'var(--gray)', marginTop: 2 }}>Manage your current plan, billing cycle, and invoice history.</p>
         </div>
-        <div style={{ padding: '24px 32px', display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: 20 }}>
+        <div className="resp-padding mobile-stack-2">
           <div style={{ background: 'var(--dark2)', border: '1px solid var(--border)', borderRadius: 16, padding: 24 }}>
             <div style={{ fontFamily: 'var(--font-head)', fontSize: 18, fontWeight: 700, marginBottom: 8 }}>Current Plan</div>
             <div style={{ display: 'flex', gap: 12, alignItems: 'center', marginBottom: 12 }}>
@@ -39,7 +39,7 @@ export default async function BillingPage() {
             </div>
             {status.status === 'trial' && <div style={{ fontSize: 14, color: 'var(--warning)', marginBottom: 10 }}>Trial ends in {status.trialDaysLeft} day(s)</div>}
             {status.currentPeriodEnd && <div style={{ fontSize: 13, color: 'var(--gray)', marginBottom: 18 }}>Next billing date: {new Date(status.currentPeriodEnd).toLocaleDateString()}</div>}
-            <div style={{ display: 'flex', gap: 10 }}>
+            <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
               <a href="/billing/plans" style={{ background: 'var(--blue)', color: 'white', padding: '10px 16px', borderRadius: 10, fontSize: 13, textDecoration: 'none' }}>Upgrade / Downgrade</a>
               <form action="/api/billing/cancel" method="POST"><button type="submit" style={{ background: 'transparent', border: '1px solid var(--border)', color: 'var(--gray)', padding: '10px 16px', borderRadius: 10, fontSize: 13, cursor: 'pointer' }}>Cancel Subscription</button></form>
             </div>
@@ -61,15 +61,17 @@ export default async function BillingPage() {
         <div style={{ padding: '0 32px 32px' }}>
           <div style={{ background: 'var(--dark2)', border: '1px solid var(--border)', borderRadius: 16, padding: 24 }}>
             <div style={{ fontFamily: 'var(--font-head)', fontSize: 18, fontWeight: 700, marginBottom: 16 }}>Billing History</div>
-            <div style={{ display: 'grid', gap: 10 }}>
+            <div style={{ overflowX: 'auto' }}>
+            <div style={{ minWidth: 760, display: 'grid', gap: 10 }}>
               {invoices.length === 0 ? <div style={{ color: 'var(--gray)' }}>No billing invoices yet.</div> : invoices.map((invoice) => (
-                <div key={invoice.id} style={{ display: 'grid', gridTemplateColumns: '1.3fr 120px 140px 120px', gap: 12, padding: '12px 0', borderBottom: '1px solid var(--border)', fontSize: 13 }}>
+                <div key={invoice.id} style={{ display: 'grid', gridTemplateColumns: '1.3fr 120px 140px 120px', gap: 12, padding: '12px 0', borderBottom: '1px solid var(--border)', fontSize: 13, minWidth: 620 }}>
                   <div>{invoice.plan_name || 'Plan'}<div style={{ color: 'var(--gray)', fontSize: 12 }}>{new Date(invoice.created_at).toLocaleString()}</div></div>
                   <div>PKR {Number(invoice.amount).toLocaleString()}</div>
                   <div>{invoice.period_start ? `${new Date(invoice.period_start).toLocaleDateString()} - ${new Date(invoice.period_end).toLocaleDateString()}` : 'Pending period'}</div>
                   <div style={{ textTransform: 'capitalize' }}>{invoice.status}</div>
                 </div>
               ))}
+            </div>
             </div>
           </div>
         </div>

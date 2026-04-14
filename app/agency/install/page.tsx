@@ -49,8 +49,8 @@ export default async function AgencyInstallPage({ searchParams }: { searchParams
     `&scope=${encodeURIComponent(scopes)}`;
 
   return (
-    <div style={{ minHeight: '100vh', background: 'var(--dark)', display: 'flex', flexDirection: 'column' }}>
-      <nav style={{ position: 'relative', zIndex: 1, display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '20px 60px', borderBottom: '1px solid var(--border)' }}>
+    <div className="page-shell-dark" style={{ display: 'flex', flexDirection: 'column' }}>
+      <nav className="page-nav" style={{ borderBottom: '1px solid var(--border)' }}>
         <Link href="/agency" style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
           <div style={{ width: 36, height: 36, background: 'var(--blue)', borderRadius: 9, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             <svg width="18" height="18" viewBox="0 0 24 24" fill="white"><path d="M13 2L4.5 13H11L10 22L19.5 11H13L13 2Z"/></svg>
@@ -63,8 +63,8 @@ export default async function AgencyInstallPage({ searchParams }: { searchParams
       </nav>
 
       <main style={{ position: 'relative', zIndex: 1, flex: 1, display: 'grid', placeItems: 'center', padding: '40px 20px' }}>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: 18, width: '100%', maxWidth: 1120 }}>
-          <div style={{ background: 'var(--dark2)', border: '1px solid var(--border)', borderRadius: 24, padding: 40 }}>
+        <div className="mobile-stack-2" style={{ width: '100%', maxWidth: 1120 }}>
+          <div style={{ background: 'var(--dark2)', border: '1px solid var(--border)', borderRadius: 24, padding: 24 }}>
             <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: 'rgba(0,82,255,0.12)', border: '1px solid rgba(0,82,255,0.22)', borderRadius: 999, padding: '7px 12px', color: '#7FB0FF', fontSize: 12, fontWeight: 700, marginBottom: 18 }}>
               Agency Install
             </div>
@@ -85,7 +85,7 @@ export default async function AgencyInstallPage({ searchParams }: { searchParams
               </div>
             )}
 
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: 12, marginBottom: 24 }}>
+            <div className="mobile-stack-2" style={{ marginBottom: 24 }}>
               {['Agency billing dashboard', 'Client subscription oversight', 'Agency credential management', 'Revenue and suspension controls'].map((text) => (
                 <div key={text} style={{ padding: 16, background: 'var(--dark3)', border: '1px solid var(--border)', borderRadius: 14, fontSize: 13, lineHeight: 1.6 }}>{text}</div>
               ))}
@@ -100,7 +100,7 @@ export default async function AgencyInstallPage({ searchParams }: { searchParams
             </a>
           </div>
 
-          <div style={{ background: 'var(--dark2)', border: '1px solid var(--border)', borderRadius: 24, padding: 28, width: '100%', maxWidth: 360 }}>
+          <div style={{ background: 'var(--dark2)', border: '1px solid var(--border)', borderRadius: 24, padding: 24, width: '100%', maxWidth: 360 }}>
             <div style={{ fontFamily: 'var(--font-head)', fontSize: 18, fontWeight: 700, marginBottom: 12 }}>Before you connect</div>
             <div style={{ display: 'grid', gap: 12, color: 'var(--gray)', fontSize: 13, lineHeight: 1.7 }}>
               <div>1. Confirm the agency PayFast credentials are ready.</div>

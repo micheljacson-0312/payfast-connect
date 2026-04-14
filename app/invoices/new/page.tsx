@@ -76,12 +76,12 @@ export default function NewInvoicePage() {
     <div className="app-shell">
       <Sidebar />
       <div className="main-content">
-        <div style={{ padding:'18px 28px', borderBottom:'1px solid var(--border)', display:'flex', alignItems:'center', justifyContent:'space-between' }}>
-          <div style={{ display:'flex', alignItems:'center', gap:14 }}>
+        <div className="resp-padding" style={{ borderBottom:'1px solid var(--border)', display:'flex', alignItems:'center', justifyContent:'space-between', flexWrap:'wrap', gap: 12 }}>
+          <div style={{ display:'flex', alignItems:'center', gap:14, flexWrap:'wrap' }}>
             <Link href="/invoices" style={{ color:'var(--gray)', fontSize:14 }}>← Invoices</Link>
             <h2 style={{ fontFamily:'var(--font-head)', fontSize:18, fontWeight:700 }}>New Invoice</h2>
           </div>
-          <div style={{ display:'flex', gap:8 }}>
+          <div style={{ display:'flex', gap:8, flexWrap:'wrap' }}>
             <button onClick={()=>save(false)} disabled={loading} style={{ background:'var(--dark3)', border:'1px solid var(--border)', color:'white', padding:'8px 20px', borderRadius:8, fontSize:13, cursor:'pointer', fontFamily:'inherit' }}>Save Draft</button>
             <button onClick={()=>save(true)}  disabled={loading} style={{ background:'var(--blue)', color:'white', border:'none', padding:'8px 20px', borderRadius:8, fontSize:13, fontWeight:500, cursor:'pointer', fontFamily:'inherit' }}>
               {loading?'Saving…':'Save & Send Link'}
@@ -89,13 +89,13 @@ export default function NewInvoicePage() {
           </div>
         </div>
 
-        <div style={{ padding:'24px 28px', display:'grid', gridTemplateColumns:'1fr 340px', gap:20, alignItems:'start' }}>
+        <div className="resp-padding mobile-stack-2" style={{ alignItems:'start' }}>
           {/* Left */}
           <div style={{ display:'flex', flexDirection:'column', gap:16 }}>
 
             {/* Mode toggle */}
             <div style={{ background:'var(--dark2)', border:'1px solid var(--border)', borderRadius:14, padding:20 }}>
-              <div style={{ display:'flex', gap:4, background:'var(--dark3)', padding:4, borderRadius:9, width:'fit-content', marginBottom:20 }}>
+              <div style={{ display:'flex', gap:4, background:'var(--dark3)', padding:4, borderRadius:9, width:'fit-content', marginBottom:20, flexWrap:'wrap' }}>
                 {(['line_items','simple'] as const).map(m=>(
                   <button key={m} onClick={()=>setMode(m)} style={{ padding:'7px 18px', borderRadius:7, border:'none', fontSize:12, fontWeight:500, cursor:'pointer', fontFamily:'inherit', background: mode===m?'var(--blue)':'transparent', color: mode===m?'white':'var(--gray)' }}>
                     {m==='line_items'?'📋 Line Items':'⚡ Simple'}
@@ -120,11 +120,11 @@ export default function NewInvoicePage() {
                   )}
 
                   {/* Line items */}
-                  <div style={{ display:'grid', gridTemplateColumns:'3fr 2fr 1fr 1.5fr auto', gap:8, fontSize:11, color:'var(--gray)', marginBottom:8, padding:'0 4px' }}>
+                  <div className="mobile-stack-3" style={{ gridTemplateColumns:'3fr 2fr 1fr 1.5fr auto', gap:8, fontSize:11, color:'var(--gray)', marginBottom:8, padding:'0 4px' }}>
                     <div>Item</div><div>Description</div><div>Qty</div><div>Price</div><div></div>
                   </div>
                   {items.map((it,i)=>(
-                    <div key={i} style={{ display:'grid', gridTemplateColumns:'3fr 2fr 1fr 1.5fr auto', gap:8, marginBottom:8, alignItems:'center' }}>
+                    <div key={i} className="mobile-stack-3" style={{ gridTemplateColumns:'3fr 2fr 1fr 1.5fr auto', gap:8, marginBottom:8, alignItems:'center' }}>
                       <input style={{...inp,padding:'8px 10px'}} placeholder="Item name" value={it.name} onChange={e=>setItem(i,'name',e.target.value)} />
                       <input style={{...inp,padding:'8px 10px'}} placeholder="Description" value={it.description} onChange={e=>setItem(i,'description',e.target.value)} />
                       <input style={{...inp,padding:'8px 10px'}} type="number" min="1" value={it.quantity} onChange={e=>setItem(i,'quantity',e.target.value)} />
@@ -135,7 +135,7 @@ export default function NewInvoicePage() {
                   <button onClick={addItem} style={{ background:'transparent', border:'1px dashed rgba(0,82,255,0.3)', color:'#3D7FFF', borderRadius:8, padding:'8px 16px', fontSize:12, cursor:'pointer', fontFamily:'inherit', width:'100%', marginTop:4 }}>+ Add Line Item</button>
                 </>
               ) : (
-                <div style={{ display:'grid', gridTemplateColumns:'1fr 2fr', gap:16 }}>
+                <div className="mobile-stack-2" style={{ gap: 16 }}>
                   <div>
                     <label style={lbl}>Amount (PKR) *</label>
                     <input style={inp} type="number" placeholder="0.00" value={form.simple_amount} onChange={e=>set('simple_amount',e.target.value)} />
@@ -151,7 +151,7 @@ export default function NewInvoicePage() {
             {/* Client Info */}
             <div style={{ background:'var(--dark2)', border:'1px solid var(--border)', borderRadius:14, padding:20 }}>
               <div style={{ fontFamily:'var(--font-head)', fontSize:14, fontWeight:600, marginBottom:16 }}>Client Information</div>
-              <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:14 }}>
+              <div className="mobile-stack-2" style={{ gap:14 }}>
                 <div><label style={lbl}>Client Name *</label><input style={inp} value={form.client_name} onChange={e=>set('client_name',e.target.value)} placeholder="Full name or company" /></div>
                 <div><label style={lbl}>Email *</label><input style={inp} type="email" value={form.client_email} onChange={e=>set('client_email',e.target.value)} placeholder="client@email.com" /></div>
                 <div><label style={lbl}>Phone</label><input style={inp} value={form.client_phone} onChange={e=>set('client_phone',e.target.value)} placeholder="+92 300 0000000" /></div>
@@ -198,7 +198,7 @@ export default function NewInvoicePage() {
                 <label style={lbl}>Invoice Title</label>
                 <input style={inp} value={form.title} onChange={e=>set('title',e.target.value)} />
               </div>
-              <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:12, marginBottom:16 }}>
+              <div className="mobile-stack-2" style={{ marginBottom:16 }}>
                 <div><label style={lbl}>Issue Date</label><input style={inp} type="date" value={form.issue_date} onChange={e=>set('issue_date',e.target.value)} /></div>
                 <div><label style={lbl}>Tax Rate (%)</label><input style={inp} type="number" min="0" max="100" value={form.tax_rate} onChange={e=>set('tax_rate',e.target.value)} /></div>
               </div>
@@ -206,7 +206,7 @@ export default function NewInvoicePage() {
               {/* Discount */}
               <div style={{ marginBottom:16 }}>
                 <label style={lbl}>Discount</label>
-                <div style={{ display:'flex', gap:8 }}>
+                  <div style={{ display:'flex', gap:8, flexWrap:'wrap' }}>
                   <select style={{...inp, width:'auto', padding:'10px 12px', cursor:'pointer'}} value={form.discount_type} onChange={e=>set('discount_type',e.target.value)}>
                     <option value="percent">%</option>
                     <option value="fixed">PKR</option>

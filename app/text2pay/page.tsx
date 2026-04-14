@@ -33,11 +33,11 @@ export default function Text2PayPage() {
     <div className="app-shell">
       <Sidebar />
       <div className="main-content">
-        <div style={{ padding:'20px 32px', borderBottom:'1px solid var(--border)' }}>
+        <div className="resp-padding" style={{ borderBottom:'1px solid var(--border)' }}>
           <h2 style={{ fontFamily:'var(--font-head)', fontSize:20, fontWeight:700 }}>Text2Pay</h2>
           <p style={{ fontSize:13, color:'var(--gray)', marginTop:2 }}>Send payment requests via WhatsApp / SMS link</p>
         </div>
-        <div style={{ padding:'24px 32px', display:'grid', gridTemplateColumns:'400px 1fr', gap:24, alignItems:'start' }}>
+        <div className="resp-padding text2pay-layout">
           {/* Form */}
           <div style={{ background:'var(--dark2)', border:'1px solid var(--border)', borderRadius:16, padding:24, position:'sticky', top:20 }}>
             <div style={{ fontFamily:'var(--font-head)', fontSize:15, fontWeight:600, marginBottom:18 }}>Send Payment Request</div>

@@ -63,11 +63,11 @@ export default function NewPaymentLinkPage() {
     <div className="app-shell">
       <Sidebar />
       <div className="main-content">
-        <div style={{ padding:'18px 28px', borderBottom:'1px solid var(--border)', display:'flex', alignItems:'center', gap:14 }}>
+        <div className="resp-padding" style={{ borderBottom:'1px solid var(--border)', display:'flex', alignItems:'center', gap:14, flexWrap:'wrap' }}>
           <Link href="/payment-links" style={{ color:'var(--gray)', fontSize:14 }}>← Payment Links</Link>
           <h2 style={{ fontFamily:'var(--font-head)', fontSize:18, fontWeight:700 }}>New Payment Link</h2>
         </div>
-        <div style={{ padding:'28px', display:'grid', gridTemplateColumns:'1fr 1fr', gap:20, maxWidth:960, alignItems:'start' }}>
+        <div className="resp-padding mobile-stack-2" style={{ maxWidth:960, alignItems:'start' }}>
           {/* Left */}
           <div style={{ display:'flex', flexDirection:'column', gap:14 }}>
             <div style={{ background:'var(--dark2)', border:'1px solid var(--border)', borderRadius:14, padding:22 }}>
@@ -78,7 +78,7 @@ export default function NewPaymentLinkPage() {
               {/* Amount type */}
               <div style={fg}>
                 <label style={lbl}>Pricing</label>
-                <div style={{ display:'flex', gap:6, marginBottom:12 }}>
+                  <div style={{ display:'flex', gap:6, marginBottom:12, flexWrap:'wrap' }}>
                   {[['fixed','Fixed Amount'],['custom','Customer Sets Amount']].map(([v,l])=>(
                     <button key={v} onClick={()=>set('amount_type',v)} style={{ flex:1, padding:'8px', borderRadius:8, border:'1px solid', fontSize:12, cursor:'pointer', fontFamily:'inherit', background:form.amount_type===v?'rgba(0,82,255,0.1)':'transparent', color:form.amount_type===v?'#3D7FFF':'var(--gray)', borderColor:form.amount_type===v?'rgba(0,82,255,0.3)':'var(--border)' }}>{l}</button>
                   ))}
@@ -101,7 +101,7 @@ export default function NewPaymentLinkPage() {
             {/* Type */}
             <div style={{ background:'var(--dark2)', border:'1px solid var(--border)', borderRadius:14, padding:22 }}>
               <div style={{ fontFamily:'var(--font-head)', fontSize:14, fontWeight:600, marginBottom:16 }}>Payment Type</div>
-              <div style={{ display:'flex', gap:6, marginBottom:12 }}>
+              <div style={{ display:'flex', gap:6, marginBottom:12, flexWrap:'wrap' }}>
                 {[['one_time','One-Time'],['subscription','Subscription']].map(([v,l])=>(
                   <button key={v} onClick={()=>set('type',v)} style={{ flex:1, padding:'8px', borderRadius:8, border:'1px solid', fontSize:13, cursor:'pointer', fontFamily:'inherit', background:form.type===v?'rgba(0,82,255,0.1)':'transparent', color:form.type===v?'#3D7FFF':'var(--gray)', borderColor:form.type===v?'rgba(0,82,255,0.3)':'var(--border)' }}>{l}</button>
                 ))}

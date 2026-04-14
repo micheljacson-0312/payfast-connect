@@ -89,10 +89,10 @@ export default function AgencyDashboardClient({
   const primaryInstrument = instruments[0];
 
   return (
-    <div style={{ minHeight: '100vh', background: 'var(--dark)', color: 'white', padding: '28px 24px 40px', fontFamily: 'DM Sans, sans-serif' }}>
+    <div className="page-shell-dark" style={{ padding: '28px 24px 40px' }}>
       <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet" />
       <div style={{ maxWidth: 1280, margin: '0 auto' }}>
-        <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 18, marginBottom: 18 }}>
+        <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 18, marginBottom: 18, flexWrap: 'wrap' }}>
           <div style={{ maxWidth: 720 }}>
             <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: 'rgba(0,82,255,0.12)', border: '1px solid rgba(0,82,255,0.22)', borderRadius: 999, padding: '7px 12px', color: '#7FB0FF', fontSize: 12, fontWeight: 700, marginBottom: 14 }}>
               Agency Control Center
@@ -103,7 +103,7 @@ export default function AgencyDashboardClient({
             </p>
           </div>
 
-          <div style={{ display: 'grid', gap: 10, minWidth: 260 }}>
+          <div style={{ display: 'grid', gap: 10, minWidth: 260, width: '100%', maxWidth: 360 }}>
             <div style={{ background: 'var(--dark2)', border: '1px solid var(--border)', borderRadius: 16, padding: '14px 16px' }}>
               <div style={{ fontSize: 12, color: 'var(--gray)', marginBottom: 8 }}>Session</div>
               <div style={{ fontSize: 14, fontWeight: 700 }}>{sessionLocationId}</div>
@@ -122,7 +122,7 @@ export default function AgencyDashboardClient({
           </div>
         )}
 
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 14, marginBottom: 18 }}>
+        <div className="mobile-stack-2" style={{ marginBottom: 18 }}>
           {overviewCards.map((card) => (
             <div key={card.label} style={{ background: 'var(--dark2)', border: '1px solid var(--border)', borderRadius: 18, padding: 18 }}>
               <div style={{ fontSize: 12, color: 'var(--gray)', marginBottom: 10 }}>{card.label}</div>
@@ -131,7 +131,7 @@ export default function AgencyDashboardClient({
           ))}
         </div>
 
-        <div style={{ display: 'flex', gap: 28, borderBottom: '1px solid var(--border)', marginBottom: 20, overflowX: 'auto' }}>
+        <div style={{ display: 'flex', gap: 18, borderBottom: '1px solid var(--border)', marginBottom: 20, overflowX: 'auto', paddingBottom: 4 }}>
           {tabs.map((item) => (
             <button key={item.id} onClick={() => setTab(item.id)} style={tabButton(tab === item.id)}>
               {item.label}
@@ -141,7 +141,7 @@ export default function AgencyDashboardClient({
 
         {tab === 'summary' && (
           <div style={{ display: 'grid', gap: 18 }}>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: 18 }}>
+            <div className="mobile-stack-2">
               <div style={{ background: 'var(--dark2)', border: '1px solid var(--border)', borderRadius: 18, padding: 20 }}>
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
                   <span style={{ fontSize: 18, fontWeight: 700 }}>Payment Method</span>
@@ -192,7 +192,7 @@ export default function AgencyDashboardClient({
                 <button onClick={() => setTab('payments')} style={{ background: 'var(--blue)', color: 'white', border: 'none', borderRadius: 10, padding: '10px 14px', cursor: 'pointer', fontWeight: 700 }}>Open table</button>
               </div>
               <div style={{ overflowX: 'auto' }}>
-                <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: 760 }}>
                   <thead>
                     <tr style={{ background: 'var(--dark3)', color: 'var(--gray)', fontSize: 11, textTransform: 'uppercase', letterSpacing: 0.6 }}>
                       <th style={{ textAlign: 'left', padding: '14px 20px' }}>Id</th>
@@ -243,7 +243,7 @@ export default function AgencyDashboardClient({
                 </div>
               </div>
 
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', gap: 16 }}>
+              <div className="mobile-stack-2">
                 <div style={{ background: 'var(--dark3)', border: '1px solid var(--border)', borderRadius: 18, padding: 18 }}>
                   <div style={{ fontSize: 16, fontWeight: 700, marginBottom: 12 }}>Tax Information</div>
                   <div style={{ color: 'var(--gray)', fontSize: 13, lineHeight: 1.7 }}>No tax ID declared. Use your agency settings to update billing contact details if needed.</div>
@@ -307,7 +307,7 @@ export default function AgencyDashboardClient({
         )}
 
         {tab === 'wallet' && (
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: 18 }}>
+          <div className="mobile-stack-2">
             <div style={{ background: 'var(--dark2)', border: '1px solid var(--border)', borderRadius: 18, padding: 22 }}>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
                 <div>
@@ -347,7 +347,7 @@ export default function AgencyDashboardClient({
         )}
 
         {tab === 'notifications' && (
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: 18 }}>
+          <div className="mobile-stack-2">
             <div style={{ background: 'var(--dark2)', border: '1px solid var(--border)', borderRadius: 18, padding: 22 }}>
               <div style={{ fontSize: 18, fontWeight: 700, marginBottom: 8 }}>Notification Recipients</div>
               <div style={{ color: 'var(--gray)', fontSize: 13, lineHeight: 1.7, marginBottom: 16 }}>Add the people who should receive billing alerts.</div>
