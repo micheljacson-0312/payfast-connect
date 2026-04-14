@@ -4,7 +4,7 @@ Current application documentation for the live codebase.
 
 ## Overview
 
-This app is a Next.js 15 payment system connected to GoPayFast and a CRM custom payment provider flow.
+This app is a Next.js 15 payment system connected to GoPayFast and a CRM custom payment provider flow. It serves as an aggregator platform allowing agencies to manage multiple merchant accounts and their own SaaS billing.
 
 Core areas implemented:
 
@@ -13,6 +13,8 @@ Core areas implemented:
 - Payments, invoices, payment links, text2pay, coupons, products, order forms
 - Merchant apply form and admin review panel
 - Installment plans and installment payment links
+- **Agency Billing Console:** Centralized hub for agency MRR, wallet, and SaaS payment methods.
+- **Mobile Optimization:** Full responsive design with a slide-out sidebar and fluid grids.
 
 ## Main Routes
 
@@ -35,6 +37,7 @@ Core areas implemented:
 - `/coupons`
 - `/subscriptions`
 - `/text2pay`
+- `/agency` (Agency Dashboard)
 
 ### Public Routes
 
@@ -43,6 +46,7 @@ Core areas implemented:
 - `/pay/success`
 - `/invoice/[token]`
 - `/apply`
+- `/agency/install` (Agency-specific onboarding)
 
 ### CRM Integration Routes
 
@@ -80,8 +84,8 @@ Core areas implemented:
 
 ## GoPayFast Notes
 
-- Live URL: `https://gopayfast.com/pg/pay`
-- Sandbox URL: `https://sandbox.gopayfast.com/pg/pay`
+- Live URL: `https://www.payfast.co.za/eng/process.php`
+- Sandbox URL: `https://sandbox.payfast.co.za/eng/process.php`
 - Visible labels use `Store ID` and `Store Password`
 - Database still stores these in `merchant_id` and `merchant_key` for compatibility
 
@@ -103,6 +107,15 @@ Admin users can review applications in `/admin` and save:
 
 If a CRM location ID exists, admin-saved credentials are also injected into `installations`.
 
+## Agency Billing Flow
+
+Agencies use `/agency` to manage their business:
+- **Summary Tab:** Tracks MRR, Active Clients, Trials, and Suspensions.
+- **Payments Tab:** Manages the agency's own PayFast account and saved cards.
+- **Wallet Tab:** Tracks internal balance and transaction history.
+- **Notifications Tab:** Configures billing contact emails.
+- **Controls Tab:** Manage SaaS enablement and rebilling.
+
 ## Installment Flow
 
 Users can create installment plans from `/payment-schedules/new`.
@@ -120,6 +133,14 @@ When GoPayFast confirms payment through ITN:
 - `paid_count` updates
 - `amount_paid` updates
 - schedule becomes `completed` once all installments are paid
+
+## Mobile Responsiveness
+
+The app uses a custom responsive system:
+- `.app-shell`: Handles the layout transition from desktop to mobile.
+- `.mobile-stack-X`: Converts multi-column grids into single-column stacks on mobile.
+- `.resp-padding`: Adjusts whitespace for smaller screens.
+- **Sidebar:** Switches from a permanent side nav to a toggleable slide-over menu.
 
 ## Remaining Real-World Tasks
 

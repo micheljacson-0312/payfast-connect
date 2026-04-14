@@ -46,7 +46,14 @@ npm install
 npm run build
 ```
 
-This creates `.next/standalone` folder (because of `output: 'standalone'` in next.config.js)
+This creates a `.next/standalone` folder (because of `output: 'standalone'` in next.config.js). 
+
+To deploy this to Hostinger:
+1. Upload the contents of `.next/standalone` to your server's app root.
+2. Copy the `.next/static` folder into `.next/static` inside the server app root.
+3. Copy the `public` folder into the server app root.
+4. Use `node server.js` as the startup command.
+
 
 ---
 

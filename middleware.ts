@@ -36,23 +36,29 @@ export async function middleware(request: NextRequest) {
     const token = request.cookies.get('pf_session')?.value;
 
     if (!token) {
-      return NextResponse.redirect(getAppUrl('/install', request));
+      // Redirect to specific login based on path
+      if (path.startsWith('/agency')) {
+        return NextResponse.redirect(new URL('/agency/login', request.url));
+      }
+      return NextResponse.redirect(getAppUrl('/login', request));
     }
 
     try {
       const { payload } = await jwtVerify(token, secret());
 
+      const role = (payload.role as string) || 'user';
       const installMode = (payload.installMode as string) || 'subaccount';
-      if (path.startsWith('/agency') && installMode !== 'agency') {
+
+      if (path.startsWith('/agency') && role !== 'agency' && installMode !== 'agency') {
         return NextResponse.redirect(new URL('/dashboard', request.url));
       }
-      if (!path.startsWith('/agency') && installMode === 'agency' && path === '/install') {
+      if (!path.startsWith('/agency') && (role === 'agency' || installMode === 'agency') && path === '/install') {
         return NextResponse.redirect(new URL('/agency', request.url));
       }
 
       return NextResponse.next();
     } catch {
-      const response = NextResponse.redirect(getAppUrl('/install', request));
+      const response = NextResponse.redirect(getAppUrl('/login', request));
       response.cookies.delete('pf_session');
       return response;
     }

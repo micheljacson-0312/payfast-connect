@@ -9,11 +9,13 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@types/bcryptjs": "^2.4.6",
+    "bcryptjs": "^3.0.3",
+    "jose": "^5.2.4",
+    "mysql2": "^3.9.7",
     "next": "^15.0.0",
     "react": "^19",
-    "react-dom": "^19",
-    "mysql2": "^3.9.7",
-    "jose": "^5.2.4"
+    "react-dom": "^19"
   },
   "devDependencies": {
     "@types/node": "^20",
