@@ -73,15 +73,17 @@ export async function ensureCustomProviderProvisioned(locationId: string, config
 
   const providerBody = {
     locationId,
-    providerName: 'GoPayFast by 10x Digital Ventures',
+    providerName: 'Payfast connect By 10x Digital Ventures',
     paymentsUrl: appUrl('/ghl-checkout'),
     queryUrl: appUrl('/api/ghl/query'),
     configUrl: appUrl('/ghl-config'),
+    imageUrl: process.env.GHL_PROVIDER_LOGO_URL || 'https://cdn-icons-png.flaticon.com/512/1019/1019608.png',
   };
+
 
   const connectBody = {
     locationId,
-    providerName: 'GoPayFast by 10x Digital Ventures',
+    providerName: 'Payfast connect By 10x Digital Ventures',
     paymentsUrl: appUrl('/ghl-checkout'),
     queryUrl: appUrl('/api/ghl/query'),
     configUrl: appUrl('/ghl-config'),
@@ -91,6 +93,7 @@ export async function ensureCustomProviderProvisioned(locationId: string, config
     environment: config?.environment || 'live',
     merchantId: config?.merchantId || null,
     merchantKey: config?.merchantKey || null,
+    imageUrl: process.env.GHL_PROVIDER_LOGO_URL || 'https://cdn-icons-png.flaticon.com/512/1019/1019608.png',
   };
 
   try {
