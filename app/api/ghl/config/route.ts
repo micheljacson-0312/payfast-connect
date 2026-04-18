@@ -61,6 +61,7 @@ export async function POST(request: NextRequest) {
     merchantKey: merchant_key,
     passphrase: passphrase || null,
     environment: environment || 'live',
+    appType: 'normal',
   });
 
   return NextResponse.json({ success: true });

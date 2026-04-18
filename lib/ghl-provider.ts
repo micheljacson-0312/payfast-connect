@@ -34,14 +34,20 @@ async function ghlRequest(path: string, token: string, method: 'GET' | 'POST' | 
   return data;
 }
 
-function getMarketplaceToken() {
-  return process.env.GHL_MARKETPLACE_APP_TOKEN || process.env.MARKETPLACE_APP_TOKEN || '';
+function getMarketplaceToken(appType: 'normal' | 'agency' = 'normal') {
+  if (appType === 'agency') {
+    return process.env.AGENCY_GHL_APP_TOKEN || process.env.GHL_APP_TOKEN || '';
+  }
+
+  return process.env.GHL_APP_TOKEN || '';
 }
 
-async function marketplaceRequest(path: string, method: 'GET' | 'POST' | 'PUT', body?: unknown) {
-  const token = getMarketplaceToken();
+async function marketplaceRequest(path: string, method: 'GET' | 'POST' | 'PUT', body?: unknown, appType: 'normal' | 'agency' = 'normal') {
+  const token = getMarketplaceToken(appType);
   if (!token) {
-    throw new Error('Missing marketplace app token (GHL_MARKETPLACE_APP_TOKEN)');
+    throw new Error(appType === 'agency'
+      ? 'Missing agency app token (AGENCY_GHL_APP_TOKEN)'
+      : 'Missing normal app token (GHL_APP_TOKEN)');
   }
 
   return ghlRequest(path, token, method, body);
@@ -52,9 +58,11 @@ export async function ensureCustomProviderProvisioned(locationId: string, config
   merchantKey?: string | null;
   passphrase?: string | null;
   environment?: string | null;
+  appType?: 'normal' | 'agency';
 }) {
   const locationToken = await getValidToken(locationId);
-  const marketplaceToken = getMarketplaceToken();
+  const appType = config?.appType || 'normal';
+  const marketplaceToken = getMarketplaceToken(appType);
   const token = marketplaceToken || locationToken;
 
   if (!token) {
@@ -87,7 +95,7 @@ export async function ensureCustomProviderProvisioned(locationId: string, config
 
   try {
     if (marketplaceToken) {
-      await marketplaceRequest('/payments/custom-provider/provider', 'POST', providerBody);
+      await marketplaceRequest('/payments/custom-provider/provider', 'POST', providerBody, appType);
     } else {
       await ghlRequest('/payments/custom-provider/provider', token, 'POST', providerBody);
     }
@@ -99,7 +107,7 @@ export async function ensureCustomProviderProvisioned(locationId: string, config
 
   try {
     if (marketplaceToken) {
-      await marketplaceRequest('/payments/custom-provider/connect', 'POST', connectBody);
+      await marketplaceRequest('/payments/custom-provider/connect', 'POST', connectBody, appType);
     } else {
       await ghlRequest('/payments/custom-provider/connect', token, 'POST', connectBody);
     }
@@ -118,7 +126,7 @@ export async function ensureCustomProviderProvisioned(locationId: string, config
         subscriptions: true,
         refunds: true,
         savedCards: true,
-      });
+      }, appType);
       details.push({ step: 'capabilities', ok: true });
     } else {
       details.push({ step: 'capabilities', ok: false, error: 'missing-marketplace-token' });
@@ -132,6 +140,7 @@ export async function ensureCustomProviderProvisioned(locationId: string, config
     ok: true,
     usedMarketplaceToken: !!marketplaceToken,
     usedLocationToken: !marketplaceToken && !!locationToken,
+    appType,
     details,
   };
 }
@@ -141,6 +150,7 @@ export async function debugProvisionCustomProvider(locationId: string, config?: 
   merchantKey?: string | null;
   passphrase?: string | null;
   environment?: string | null;
+  appType?: 'normal' | 'agency';
 }) {
   return ensureCustomProviderProvisioned(locationId, config);
 }

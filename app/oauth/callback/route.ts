@@ -133,6 +133,7 @@ export async function GET(request: NextRequest) {
       merchantKey: null,
       passphrase: null,
       environment: 'live',
+      appType: 'normal',
     });
 
     // Keep the sub-account install flow on the regular app setup path.

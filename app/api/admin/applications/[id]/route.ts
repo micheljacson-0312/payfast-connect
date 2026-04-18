@@ -58,6 +58,7 @@ export async function PATCH(
       merchantKey,
       passphrase,
       environment: 'live',
+      appType: 'normal',
     });
   }
 

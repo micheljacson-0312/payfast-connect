@@ -129,7 +129,8 @@ Debug endpoint:
 - `POST /api/ghl/provider/provision`
 
 Required env:
-- `GHL_MARKETPLACE_APP_TOKEN`
+- `GHL_APP_TOKEN`
+- `AGENCY_GHL_APP_TOKEN`
 
 ## Installment Flow
 
@@ -177,4 +178,5 @@ The app uses a custom responsive system:
 - `DB_NAME`
 - `SESSION_SECRET`
 - `NEXT_PUBLIC_ADMIN_PASSWORD`
-- `GHL_MARKETPLACE_APP_TOKEN`
+- `GHL_APP_TOKEN`
+- `AGENCY_GHL_APP_TOKEN`

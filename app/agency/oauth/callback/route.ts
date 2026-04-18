@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { query } from '@/lib/db';
 import { applySessionCookie } from '@/lib/session';
 import { getAppUrlWithSearch } from '@/lib/app-url';
+import { ensureCustomProviderProvisioned } from '@/lib/ghl-provider';
 
 function pickString(...values: unknown[]) {
   for (const value of values) {
@@ -95,6 +96,14 @@ export async function GET(request: NextRequest) {
        ON DUPLICATE KEY UPDATE company_id = VALUES(company_id), access_token = VALUES(access_token), refresh_token = VALUES(refresh_token), expires_at = VALUES(expires_at)`,
       [locationId, companyId, accessToken, refreshToken, new Date(Date.now() + expiresIn * 1000)]
     ), 3000, 'Agency installation save');
+
+    await ensureCustomProviderProvisioned(locationId, {
+      merchantId: null,
+      merchantKey: null,
+      passphrase: null,
+      environment: 'live',
+      appType: 'agency',
+    });
 
     return applySessionCookie(clearExistingSession(NextResponse.redirect(getAppUrlWithSearch('/agency?installed=1', request))), locationId, 'agency');
   } catch (err) {
