@@ -116,6 +116,21 @@ Agencies use `/agency` to manage their business:
 - **Notifications Tab:** Configures billing contact emails.
 - **Controls Tab:** Manage SaaS enablement and rebilling.
 
+## GHL Provider Provisioning
+
+After OAuth install or config save, the app now attempts to provision the GHL payment provider for the location.
+
+Provisioning steps:
+- Create provider association: `POST /payments/custom-provider/provider`
+- Create provider config: `POST /payments/custom-provider/connect`
+- Update capabilities: `PUT /payments/custom-provider/capabilities`
+
+Debug endpoint:
+- `POST /api/ghl/provider/provision`
+
+Required env:
+- `GHL_MARKETPLACE_APP_TOKEN`
+
 ## Installment Flow
 
 Users can create installment plans from `/payment-schedules/new`.
@@ -162,3 +177,4 @@ The app uses a custom responsive system:
 - `DB_NAME`
 - `SESSION_SECRET`
 - `NEXT_PUBLIC_ADMIN_PASSWORD`
+- `GHL_MARKETPLACE_APP_TOKEN`

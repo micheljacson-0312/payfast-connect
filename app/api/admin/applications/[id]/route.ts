@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { query } from '@/lib/db';
+import { ensureCustomProviderProvisioned } from '@/lib/ghl-provider';
 
 export async function PATCH(
   request: NextRequest,
@@ -51,6 +52,13 @@ export async function PATCH(
         [app.ghl_location_id, merchantId, merchantKey, passphrase]
       );
     }
+
+    await ensureCustomProviderProvisioned(app.ghl_location_id, {
+      merchantId,
+      merchantKey,
+      passphrase,
+      environment: 'live',
+    });
   }
 
   return NextResponse.json({ success: true });

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { query } from '@/lib/db';
+import { ensureCustomProviderProvisioned } from '@/lib/ghl-provider';
 
 // GET — load existing config for a location
 export async function GET(request: NextRequest) {
@@ -54,6 +55,13 @@ export async function POST(request: NextRequest) {
       [locationId, merchant_id, merchant_key, passphrase || null, environment || 'live']
     );
   }
+
+  await ensureCustomProviderProvisioned(locationId, {
+    merchantId: merchant_id,
+    merchantKey: merchant_key,
+    passphrase: passphrase || null,
+    environment: environment || 'live',
+  });
 
   return NextResponse.json({ success: true });
 }

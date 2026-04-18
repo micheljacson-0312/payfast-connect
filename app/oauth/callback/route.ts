@@ -3,6 +3,7 @@ import { query } from '@/lib/db';
 import { applySessionCookie } from '@/lib/session';
 import { getAppUrlWithSearch } from '@/lib/app-url';
 import { startTrial } from '@/lib/billing';
+import { ensureCustomProviderProvisioned } from '@/lib/ghl-provider';
 
 function pickString(...values: unknown[]) {
   for (const value of values) {
@@ -125,6 +126,14 @@ export async function GET(request: NextRequest) {
     );
 
     await startTrial(locationId);
+
+    // Provision the GHL payment provider association + config for this location.
+    await ensureCustomProviderProvisioned(locationId, {
+      merchantId: null,
+      merchantKey: null,
+      passphrase: null,
+      environment: 'live',
+    });
 
     // Keep the sub-account install flow on the regular app setup path.
     return applySessionCookie(
