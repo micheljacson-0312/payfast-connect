@@ -2,7 +2,10 @@ import { SignJWT, jwtVerify } from 'jose';
 import { cookies } from 'next/headers';
 import { NextResponse } from 'next/server';
 
-const secret = () => new TextEncoder().encode(process.env.SESSION_SECRET!);
+const secret = () => {
+  const s = process.env.SESSION_SECRET || 'default_secret_fallback_32_chars_min';
+  return new TextEncoder().encode(s);
+};
 
 export type InstallMode = 'subaccount' | 'agency';
 

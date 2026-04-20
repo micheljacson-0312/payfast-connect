@@ -3,7 +3,10 @@ import type { NextRequest } from 'next/server';
 import { jwtVerify } from 'jose';
 import { getAppUrl } from '@/lib/app-url';
 
-const secret = () => new TextEncoder().encode(process.env.SESSION_SECRET!);
+const secret = () => {
+  const s = process.env.SESSION_SECRET || 'default_secret_fallback_32_chars_min';
+  return new TextEncoder().encode(s);
+};
 
 const PROTECTED = [
   '/dashboard',
@@ -24,7 +27,7 @@ export async function middleware(request: NextRequest) {
   const path = request.nextUrl.pathname;
   const searchParams = request.nextUrl.searchParams;
 
-  // Bypass protection for GHL Preview/Demo mode
+  // Bypass mode for testing - no session required
   if (searchParams.get('preview') === 'true' || searchParams.get('demo') === 'true') {
     return NextResponse.next();
   }
@@ -102,3 +105,4 @@ export const config = {
     '/support/:path*',
   ],
 };
+
