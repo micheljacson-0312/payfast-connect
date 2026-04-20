@@ -13,9 +13,9 @@
     "bcryptjs": "^3.0.3",
     "jose": "^5.2.4",
     "mysql2": "^3.9.7",
-    "next": "^15.0.0",
-    "react": "^19",
-    "react-dom": "^19"
+    "next": "15.1.4",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0"
   },
   "devDependencies": {
     "@types/node": "^20",
