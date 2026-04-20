@@ -22,6 +22,12 @@ const PROTECTED = [
 
 export async function middleware(request: NextRequest) {
   const path = request.nextUrl.pathname;
+  const searchParams = request.nextUrl.searchParams;
+
+  // Bypass protection for GHL Preview/Demo mode
+  if (searchParams.get('preview') === 'true' || searchParams.get('demo') === 'true') {
+    return NextResponse.next();
+  }
 
   if (path.startsWith('/admin') && path !== '/admin/login') {
     const adminCookie = request.cookies.get('pf_admin')?.value;
