@@ -1,182 +1,50 @@
-# GoPayFast Connect
+# GoPayFast Connect - Technical Documentation
 
-Current application documentation for the live codebase.
+This document serves as the living technical reference for the GoPayFast Connect codebase.
 
-## Overview
+## 🏗 System Architecture
+The application acts as a middleware between **GoPayFast** (Payment Gateway), **GHL** (CRM), and the **Agency/Merchant** (Users).
 
-This app is a Next.js 15 payment system connected to GoPayFast and a CRM custom payment provider flow. It serves as an aggregator platform allowing agencies to manage multiple merchant accounts and their own SaaS billing.
+### Core Modules
+1. **Auth & Session:** Handles OAuth 2.0 flows for GHL and JWT-based sessions for internal users.
+2. **Payment Engine:** Manages PayFast ITN (Instant Payment Notification) and payment link generation.
+3. **GHL Provider:** Implements the "Custom Payment Provider" specification for native GHL integration.
+4. **Agency Console:** Manages SaaS billing, wallet balance, and agency-level settings.
+5. **Merchant Pipeline:** Handles the application $\rightarrow$ review $\rightarrow$ provisioning lifecycle.
 
-Core areas implemented:
+## 🔌 GHL Integration Details
 
-- OAuth install and session handling
-- GoPayFast settings and webhook flow
-- Payments, invoices, payment links, text2pay, coupons, products, order forms
-- Merchant apply form and admin review panel
-- Installment plans and installment payment links
-- **Agency Billing Console:** Centralized hub for agency MRR, wallet, and SaaS payment methods.
-- **Mobile Optimization:** Full responsive design with a slide-out sidebar and fluid grids.
+### 1. Custom Payment Provider Flow
+The app is registered as a Third-Party Provider in the GHL Marketplace.
+- **Provisioning:** Triggered on install or config save. Calls `/payments/custom-provider/provider` and `/connect`.
+- **Capabilities:** Configured for `payments`, `orders`, `subscriptions`, and `refunds`.
+- **Checkout:** GHL loads `/ghl-checkout` in an iFrame. The page communicates via `window.postMessage` using events:
+    - `custom_provider_ready` $\rightarrow$ `payment_initiate_props` $\rightarrow$ `custom_element_success_response`.
 
-## Main Routes
+### 2. Native API Sync
+- **Products:** When a product is created locally, it's mirrored in GHL using `/products` and `/prices` APIs.
+- **Invoices:** Invoices created in the app are pushed to GHL via `/invoices` and can be sent natively.
+- **Orders:** Payment capture triggers a call to `/payments/orders/{id}/record-payment` to mark orders as Paid.
+- **Conversations:** Text2Pay uses `/conversations/messages` to send SMS payment links.
 
-### Internal App Routes
+### 3. SaaS & Agency API
+- Uses specialized agency tokens (`AGENCY_GHL_APP_TOKEN`) to manage SaaS enablement and rebilling for sub-accounts.
 
-- `/dashboard`
-- `/settings`
-- `/payments`
-- `/payments/new`
-- `/payment-links`
-- `/payment-links/new`
-- `/payment-schedules`
-- `/payment-schedules/new`
-- `/invoices`
-- `/invoices/new`
-- `/order-forms`
-- `/order-forms/new`
-- `/products`
-- `/products/new`
-- `/coupons`
-- `/subscriptions`
-- `/text2pay`
-- `/agency` (Agency Dashboard)
+## 🔐 Security Implementation
+- **Webhook Verification:** All incoming GHL webhooks are verified using the **Ed25519** public key (`X-GHL-Signature`).
+- **Idempotency:** Processed webhook IDs are stored in `processed_webhooks` to prevent duplicate processing.
+- **Token Management:** Automatic OAuth token refresh mechanism implemented in `lib/ghl.ts`.
 
-### Public Routes
+## 📈 Database Schema Key Areas
+- `installations`: Stores GHL OAuth tokens and location mapping.
+- `billing_invoices`: Internal tracking of agency SaaS billing.
+- `merchant_applications`: Queue for onboarding new merchants.
+- `payments`: Master log of all PayFast transactions.
+- `processed_webhooks`: Audit log for webhook delivery.
 
-- `/install`
-- `/pay/[token]`
-- `/pay/success`
-- `/invoice/[token]`
-- `/apply`
-- `/agency/install` (Agency-specific onboarding)
-
-### CRM Integration Routes
-
-- `/ghl-checkout`
-- `/ghl-checkout/success`
-- `/ghl-config`
-- `/oauth/callback`
-
-### Admin Route
-
-- `/admin`
-
-## Main API Routes
-
-- `/api/settings`
-- `/api/products`
-- `/api/invoices`
-- `/api/payment-links`
-- `/api/payment-schedules`
-- `/api/order-forms`
-- `/api/text2pay`
-- `/api/coupons`
-- `/api/coupons/validate`
-- `/api/pay/create`
-- `/api/payfast/create`
-- `/api/payfast/itn`
-- `/api/ghl/pay`
-- `/api/ghl/query`
-- `/api/ghl/notify`
-- `/api/ghl/config`
-- `/api/apply`
-- `/api/admin/applications`
-- `/api/admin/applications/[id]`
-- `/api/auth/logout`
-
-## GoPayFast Notes
-
-- Live URL: `https://www.payfast.co.za/eng/process.php`
-- Sandbox URL: `https://sandbox.payfast.co.za/eng/process.php`
-- Visible labels use `Store ID` and `Store Password`
-- Database still stores these in `merchant_id` and `merchant_key` for compatibility
-
-## Merchant Apply Flow
-
-Public users can submit merchant applications from `/apply`.
-
-Stored in:
-
-- `merchant_applications`
-
-Admin users can review applications in `/admin` and save:
-
-- status
-- Store ID
-- Store Password
-- passphrase
-- notes
-
-If a CRM location ID exists, admin-saved credentials are also injected into `installations`.
-
-## Agency Billing Flow
-
-Agencies use `/agency` to manage their business:
-- **Summary Tab:** Tracks MRR, Active Clients, Trials, and Suspensions.
-- **Payments Tab:** Manages the agency's own PayFast account and saved cards.
-- **Wallet Tab:** Tracks internal balance and transaction history.
-- **Notifications Tab:** Configures billing contact emails.
-- **Controls Tab:** Manage SaaS enablement and rebilling.
-
-## GHL Provider Provisioning
-
-After OAuth install or config save, the app now attempts to provision the GHL payment provider for the location.
-
-Provisioning steps:
-- Create provider association: `POST /payments/custom-provider/provider`
-- Create provider config: `POST /payments/custom-provider/connect`
-- Update capabilities: `PUT /payments/custom-provider/capabilities`
-
-Debug endpoint:
-- `POST /api/ghl/provider/provision`
-
-Required env:
-- `GHL_APP_TOKEN`
-- `AGENCY_GHL_APP_TOKEN`
-
-## Installment Flow
-
-Users can create installment plans from `/payment-schedules/new`.
-
-Saved in:
-
-- `payment_schedules`
-- `schedule_installments`
-
-Each installment gets its own public `/pay/[token]` link.
-
-When GoPayFast confirms payment through ITN:
-
-- installment status becomes `paid`
-- `paid_count` updates
-- `amount_paid` updates
-- schedule becomes `completed` once all installments are paid
-
-## Mobile Responsiveness
-
-The app uses a custom responsive system:
-- `.app-shell`: Handles the layout transition from desktop to mobile.
-- `.mobile-stack-X`: Converts multi-column grids into single-column stacks on mobile.
-- `.resp-padding`: Adjusts whitespace for smaller screens.
-- **Sidebar:** Switches from a permanent side nav to a toggleable slide-over menu.
-
-## Remaining Real-World Tasks
-
-- Test OAuth install on a real CRM test location
-- Test GoPayFast sandbox payment end-to-end
-- Verify ITN callbacks on deployed environment
-- Harden `/admin` auth beyond the current simple password gate
-
-## Environment Variables
-
-- `GHL_CLIENT_ID`
-- `GHL_CLIENT_SECRET`
-- `GHL_SHARED_SECRET`
-- `NEXT_PUBLIC_APP_URL`
-- `DB_HOST`
-- `DB_PORT`
-- `DB_USER`
-- `DB_PASSWORD`
-- `DB_NAME`
-- `SESSION_SECRET`
-- `NEXT_PUBLIC_ADMIN_PASSWORD`
-- `GHL_APP_TOKEN`
-- `AGENCY_GHL_APP_TOKEN`
+## 🛠 Environment Configuration
+Key variables required for operation:
+- `GHL_CLIENT_ID` / `GHL_CLIENT_SECRET`: OAuth credentials.
+- `GHL_APP_TOKEN` / `AGENCY_GHL_APP_TOKEN`: Marketplace API tokens.
+- `NEXT_PUBLIC_APP_URL`: Base URL for webhook and checkout callbacks.
+- `NEXT_PUBLIC_ADMIN_PASSWORD`: Access key for the admin panel.
