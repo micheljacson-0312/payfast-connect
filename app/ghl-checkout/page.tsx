@@ -27,14 +27,15 @@ export default function GHLCheckoutPage() {
   const [error,    setError]    = useState('');
   const [pfForm,   setPfForm]   = useState<{ actionUrl:string; fields:Record<string,string> } | null>(null);
 
-  // CRM sends payment data via postMessage
+  // CRM communication
   useEffect(() => {
     function handleMessage(event: MessageEvent) {
-      // Accept messages from CRM domains
       if (!event.origin.includes('gohighlevel') && !event.origin.includes('leadconnectorhq') && !event.origin.includes('localhost')) return;
 
       const d = event.data;
-      if (d?.type === 'payment-init' || d?.amount) {
+      
+      // 1. Handle payment initiation
+      if (d?.type === 'payment_initiate_props' || d?.type === 'payment-init' || d?.amount) {
         setPayData(d);
         if (d.contact) {
           setForm({
@@ -44,26 +45,27 @@ export default function GHLCheckoutPage() {
           });
         }
       }
+
+      // 2. Handle Refund
+      if (d?.type === 'refund') {
+        alert(`Processing refund of ${d.amount} for transaction ${d.transactionId}`);
+        // Note: Actual refund is handled via queryUrl API
+      }
+
+      // 3. Handle Setup (Saved Cards)
+      if (d?.type === 'setup_initiate_props') {
+        alert('Saved cards are not supported by this provider');
+      }
     }
 
     window.addEventListener('message', handleMessage);
 
-    // Also try URL params (CRM sometimes passes via query string)
-    const params = new URLSearchParams(window.location.search);
-    const fromUrl: Partial<GHLPaymentData> = {};
-    if (params.get('amount'))           fromUrl.amount = parseFloat(params.get('amount')!);
-    if (params.get('currency'))         fromUrl.currency = params.get('currency')!;
-    if (params.get('locationId'))       fromUrl.locationId = params.get('locationId')!;
-    if (params.get('contactId'))        fromUrl.contactId = params.get('contactId')!;
-    if (params.get('ghlTransactionId')) fromUrl.ghlTransactionId = params.get('ghlTransactionId')!;
-    if (params.get('invoiceId'))        fromUrl.invoiceId = params.get('invoiceId')!;
-    if (params.get('description'))      fromUrl.description = params.get('description')!;
-    if (fromUrl.amount && fromUrl.locationId) {
-      setPayData(fromUrl as GHLPaymentData);
-    }
-
     // Tell CRM the iframe is ready
-    window.parent.postMessage({ type: 'payment-ready' }, '*');
+    window.parent.postMessage({ 
+      type: 'custom_provider_ready', 
+      loaded: true,
+      addCardOnFileSupported: false 
+    }, '*');
 
     return () => window.removeEventListener('message', handleMessage);
   }, []);
@@ -106,12 +108,21 @@ export default function GHLCheckoutPage() {
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Failed to initiate payment');
 
-      // Tell CRM we're redirecting
-      window.parent.postMessage({ type: 'payment-processing', ghlTransactionId: payData.ghlTransactionId }, '*');
+      // Tell CRM we're processing
+      window.parent.postMessage({ 
+        type: 'custom_element_success_response', 
+        chargeId: data.pf_payment_id 
+      }, '*');
 
       setPfForm(data);
     } catch (e: unknown) {
       setError(e instanceof Error ? e.message : 'Payment failed');
+      
+      window.parent.postMessage({ 
+        type: 'custom_element_error_response', 
+        error: { description: e instanceof Error ? e.message : 'Payment initiation failed' } 
+      }, '*');
+      
       setLoading(false);
     }
   }
@@ -122,7 +133,6 @@ export default function GHLCheckoutPage() {
     outline: 'none', fontFamily: 'inherit',
   } as const;
 
-  // GoPayFast redirect form
   if (pfForm) {
     return (
       <div style={{ minHeight: '100vh', background: '#F8FAFC', display: 'grid', placeItems: 'center', fontFamily: 'DM Sans, sans-serif' }}>
@@ -139,7 +149,6 @@ export default function GHLCheckoutPage() {
     );
   }
 
-  // Loading state — waiting for CRM to send data
   if (!payData) {
     return (
       <div style={{ minHeight: '100vh', background: '#F8FAFC', display: 'grid', placeItems: 'center', fontFamily: 'DM Sans, sans-serif' }}>
@@ -155,7 +164,6 @@ export default function GHLCheckoutPage() {
     <div style={{ minHeight: '100vh', background: '#F8FAFC', fontFamily: 'DM Sans, sans-serif', display: 'flex', flexDirection: 'column' }}>
       <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet" />
 
-      {/* Header */}
       <div style={{ background: 'white', borderBottom: '1px solid #E2E8F0', padding: '12px 20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
           <div style={{ width: 28, height: 28, background: '#0052FF', borderRadius: 7, display: 'grid', placeItems: 'center' }}>
@@ -170,7 +178,6 @@ export default function GHLCheckoutPage() {
       </div>
 
       <div style={{ flex: 1, padding: '24px 20px', maxWidth: 440, margin: '0 auto', width: '100%' }}>
-        {/* Amount */}
         <div style={{ background: 'white', border: '1px solid #E2E8F0', borderRadius: 14, padding: 20, marginBottom: 16, textAlign: 'center' }}>
           <div style={{ fontSize: 12, color: '#64748B', marginBottom: 6 }}>
             {payData.description || 'Amount Due'}
@@ -180,7 +187,6 @@ export default function GHLCheckoutPage() {
           </div>
         </div>
 
-        {/* Customer Details */}
         <div style={{ background: 'white', border: '1px solid #E2E8F0', borderRadius: 14, padding: 20, marginBottom: 16 }}>
           <div style={{ fontSize: 13, fontWeight: 600, color: '#0F172A', marginBottom: 14 }}>Your Details</div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>

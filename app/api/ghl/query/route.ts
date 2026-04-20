@@ -22,7 +22,6 @@ export async function POST(request: NextRequest) {
     case 'InvoiceSent':
     case 'InvoiceUpdate':
     case 'ContactTagUpdate': {
-      // CRM sends these provider capability checks / lifecycle pings.
       return NextResponse.json({ success: true, type, locationId });
     }
 
@@ -58,29 +57,23 @@ export async function POST(request: NextRequest) {
       );
 
       if (!rows.length) {
-        return NextResponse.json({ status: 'pending', message: 'Payment not found yet' });
+        return NextResponse.json({ success: false });
       }
 
       const p = rows[0];
       return NextResponse.json({
-        status:  p.status === 'complete' ? 'succeeded' : p.status === 'failed' ? 'failed' : 'pending',
-        chargeId: p.pf_payment_id,
-        amount:   p.amount,
-        chargedAt: new Date(p.created_at).getTime() / 1000,
+        success: p.status === 'complete',
+        failed: p.status === 'failed',
       });
     }
 
     // ── Refund ───────────────────────────────────────────────
     case 'refund': {
-      // GoPayFast refunds are done via their dashboard manually
-      // We mark it in our DB and notify CRM
       await query(
         `UPDATE payments SET status = 'refunded' WHERE pf_payment_id = ? AND location_id = ?`,
         [chargeId, locationId]
       );
 
-      // GoPayFast does not have a programmatic refund API — must be done manually
-      // Return success so CRM records it, then do manual refund in GoPayFast dashboard
       return NextResponse.json({
         success: true,
         message: 'Refund recorded. Please process manually in GoPayFast dashboard.',
@@ -91,8 +84,16 @@ export async function POST(request: NextRequest) {
 
     // ── List Payment Methods (for saved cards) ─────────────
     case 'list_payment_methods': {
-      // GoPayFast doesn't support saved cards — return empty
-      return NextResponse.json({ paymentMethods: [] });
+      // GoPayFast doesn't support saved cards
+      return NextResponse.json([]);
+    }
+
+    // ── Charge Payment Method (for saved cards) ─────────────
+    case 'charge_payment': {
+      return NextResponse.json({ 
+        success: false, 
+        message: 'Saved card payments not supported by this provider' 
+      }, { status: 400 });
     }
 
     // ── Default ──────────────────────────────────────────────
@@ -102,6 +103,5 @@ export async function POST(request: NextRequest) {
 }
 
 export async function GET(request: NextRequest) {
-  // CRM may send GET for health check
   return NextResponse.json({ status: 'ok', provider: 'GoPayFast by 10x Digital Ventures' });
 }

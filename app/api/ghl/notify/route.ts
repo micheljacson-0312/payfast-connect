@@ -1,12 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { query, Installation } from '@/lib/db';
 import { getValidToken } from '@/lib/ghl';
+import { recordOrderPayment } from '@/lib/ghl-orders';
 
 const GHL_WEBHOOK = 'https://backend.leadconnectorhq.com/payments/custom-provider/webhook';
 
 // Called internally (from GoPayFast ITN handler) after payment is confirmed
 // Sends payment.captured webhook to CRM so it marks invoice as Paid
-
 export async function POST(request: NextRequest) {
   const body = await request.json();
   const {
@@ -17,6 +17,7 @@ export async function POST(request: NextRequest) {
     contactId,
     invoiceId,
     subscriptionId,
+    orderId,          // newly added
     eventType = 'payment.captured',
   } = body;
 
@@ -35,6 +36,20 @@ export async function POST(request: NextRequest) {
   }
 
   const now = Math.floor(Date.now() / 1000);
+
+  // 1. Record Order Payment if orderId is provided
+  if (orderId) {
+    try {
+      await recordOrderPayment(locationId, orderId, {
+        amount: parseFloat(amount),
+        transactionId: chargeId,
+        paymentMethod: 'Payfast',
+      });
+    } catch (err) {
+      console.warn('[CRM Notify] Order payment recording failed', err);
+      // We continue anyway to send the webhook
+    }
+  }
 
   // Build CRM webhook payload
   const payload: Record<string, unknown> = {

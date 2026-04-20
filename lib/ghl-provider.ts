@@ -148,12 +148,17 @@ export async function ensureCustomProviderProvisioned(locationId: string, config
   };
 }
 
-export async function debugProvisionCustomProvider(locationId: string, config?: {
-  merchantId?: string | null;
-  merchantKey?: string | null;
-  passphrase?: string | null;
-  environment?: string | null;
-  appType?: 'normal' | 'agency';
-}) {
-  return ensureCustomProviderProvisioned(locationId, config);
+export async function disconnectCustomProvider(locationId: string, appType: 'normal' | 'agency' = 'normal') {
+  const marketplaceToken = getMarketplaceToken(appType);
+  if (!marketplaceToken) {
+    throw new Error(`Missing marketplace token for ${appType} app`);
+  }
+
+  try {
+    await marketplaceRequest('/payments/custom-provider/disconnect', 'POST', { locationId }, appType);
+    return { ok: true };
+  } catch (error) {
+    console.error('[GHL Provider] disconnect failed', error);
+    throw error;
+  }
 }
