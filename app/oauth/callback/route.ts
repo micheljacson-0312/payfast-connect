@@ -126,18 +126,45 @@ export async function GET(request: NextRequest) {
       ]
     );
 
-    // Create default user account for login
+    // Ensure the login table exists before creating the default user.
+    await query(
+      `CREATE TABLE IF NOT EXISTS users (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        location_id VARCHAR(100) NOT NULL,
+        username VARCHAR(100) NOT NULL,
+        password VARCHAR(255) NOT NULL,
+        role ENUM('user','agency') NOT NULL DEFAULT 'user',
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+        INDEX idx_location_id (location_id),
+        INDEX idx_username (username)
+      )`
+    );
+
+    // Create or refresh the default user account for login.
     const defaultUsername = `user_${locationId.slice(-8)}`;
     const defaultPassword = Math.random().toString(36).slice(-10); // Random 10 char password
     const hashedPassword = await bcrypt.hash(defaultPassword, 10);
 
-    await query(
-      `INSERT INTO users (location_id, username, password, role, created_at)
-       VALUES (?, ?, ?, 'user', NOW())
-       ON DUPLICATE KEY UPDATE
-         updated_at = NOW()`,
-      [locationId, defaultUsername, hashedPassword]
+    const existingUsers = await query<any[]>(
+      'SELECT id FROM users WHERE location_id = ? LIMIT 1',
+      [locationId]
     );
+
+    if (existingUsers.length) {
+      await query(
+        `UPDATE users
+         SET username = ?, password = ?, role = 'user'
+         WHERE location_id = ?`,
+        [defaultUsername, hashedPassword, locationId]
+      );
+    } else {
+      await query(
+        `INSERT INTO users (location_id, username, password, role, created_at)
+         VALUES (?, ?, ?, 'user', NOW())`,
+        [locationId, defaultUsername, hashedPassword]
+      );
+    }
 
     await startTrial(locationId);
 

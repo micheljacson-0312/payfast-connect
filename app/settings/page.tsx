@@ -33,8 +33,21 @@ export default function SettingsPage() {
       const u = params.get('username');
       const p = params.get('password');
       if (u && p) {
-        setLoginCreds({ username: u, password: p });
+        const creds = { username: u, password: p };
+        setLoginCreds(creds);
+        sessionStorage.setItem('pf_install_login_creds', JSON.stringify(creds));
         setTab('login'); // Auto-switch to login tab
+      } else {
+        const stored = sessionStorage.getItem('pf_install_login_creds');
+        if (stored) {
+          try {
+            const creds = JSON.parse(stored);
+            if (creds?.username && creds?.password) {
+              setLoginCreds(creds);
+              setTab('login');
+            }
+          } catch {}
+        }
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps

@@ -56,6 +56,19 @@ CREATE TABLE IF NOT EXISTS payments (
   INDEX idx_pf_payment (pf_payment_id)
 );
 
+-- ─── Login Users ─────────────────────────────────────────────
+CREATE TABLE IF NOT EXISTS users (
+  id              INT AUTO_INCREMENT PRIMARY KEY,
+  location_id     VARCHAR(100) NOT NULL,
+  username        VARCHAR(100) NOT NULL,
+  password        VARCHAR(255) NOT NULL,
+  role            ENUM('user','agency') DEFAULT 'user',
+  created_at      DATETIME DEFAULT CURRENT_TIMESTAMP,
+  updated_at      DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  INDEX idx_location_id (location_id),
+  INDEX idx_username (username)
+);
+
 -- ─── Subscriptions ───────────────────────────────────────────
 CREATE TABLE IF NOT EXISTS subscriptions (
   id              INT AUTO_INCREMENT PRIMARY KEY,
