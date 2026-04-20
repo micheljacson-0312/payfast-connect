@@ -21,14 +21,21 @@ export default function SettingsPage() {
   const [saving,  setSaving]  = useState(false);
   const [saved,   setSaved]   = useState(false);
   const [error,   setError]   = useState('');
-  const [tab,     setTab]     = useState<'payfast' | 'ghl' | 'webhooks'>('payfast');
+  const [tab,     setTab]     = useState<'payfast' | 'ghl' | 'webhooks' | 'login'>('payfast');
   const [installed, setInstalled] = useState(false);
+  const [loginCreds, setLoginCreds] = useState<{username: string, password: string} | null>(null);
 
   useEffect(() => {
     fetch('/api/settings').then(r => r.json()).then(d => { if (d) setCfg({ ...cfg, ...d }); }).catch(() => {});
     if (typeof window !== 'undefined') {
       const params = new URLSearchParams(window.location.search);
       setInstalled(params.get('installed') === '1');
+      const u = params.get('username');
+      const p = params.get('password');
+      if (u && p) {
+        setLoginCreds({ username: u, password: p });
+        setTab('login'); // Auto-switch to login tab
+      }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -93,7 +100,7 @@ export default function SettingsPage() {
 
           {/* Tabs */}
           <div style={{ display: 'flex', gap: 4, background: 'var(--dark2)', border: '1px solid var(--border)', padding: 4, borderRadius: 10, marginBottom: 28, width: 'fit-content' }}>
-            {([['payfast', 'GoPayFast'], ['ghl', 'CRM Rules'], ['webhooks', 'Webhooks']] as const).map(([k, label]) => (
+            {([['payfast', 'GoPayFast'], ['ghl', 'CRM Rules'], ['webhooks', 'Webhooks'], ['login', 'Login']] as const).map(([k, label]) => (
               <button key={k} onClick={() => setTab(k)}
                 style={{ padding: '8px 20px', borderRadius: 7, border: 'none', fontSize: 13, fontWeight: 500, cursor: 'pointer', background: tab === k ? 'var(--blue)' : 'transparent', color: tab === k ? 'white' : 'var(--gray)' }}>
                 {label}
@@ -221,6 +228,54 @@ export default function SettingsPage() {
                   <li>Payment is recorded in your dashboard</li>
                 </ol>
               </div>
+            </div>
+          )}
+
+          {/* Login Credentials Tab */}
+          {tab === 'login' && (
+            <div style={sec}>
+              <div style={{ fontFamily: 'var(--font-head)', fontSize: 16, fontWeight: 600, marginBottom: 4 }}>Your Login Credentials</div>
+              <div style={{ fontSize: 13, color: 'var(--gray)', marginBottom: 24 }}>
+                Save these credentials. You will need them to access your dashboard.
+              </div>
+
+              {loginCreds ? (
+                <div style={{ background: 'var(--dark3)', border: '1px solid var(--border)', borderRadius: 10, padding: 20 }}>
+                  <div style={{ marginBottom: 16 }}>
+                    <label style={lbl}>Username</label>
+                    <div style={{ display: 'flex', gap: 10 }}>
+                      <input style={inp({ flex: 1 })} value={loginCreds.username} readOnly />
+                      <button 
+                        onClick={() => navigator.clipboard.writeText(loginCreds.username)}
+                        style={{ padding: '10px 16px', borderRadius: 8, border: '1px solid var(--border)', background: 'var(--dark)', color: 'var(--gray)', cursor: 'pointer', fontSize: 12 }}
+                      >
+                        Copy
+                      </button>
+                    </div>
+                  </div>
+
+                  <div style={{ marginBottom: 16 }}>
+                    <label style={lbl}>Password</label>
+                    <div style={{ display: 'flex', gap: 10 }}>
+                      <input style={inp({ flex: 1 })} type="text" value={loginCreds.password} readOnly />
+                      <button 
+                        onClick={() => navigator.clipboard.writeText(loginCreds.password)}
+                        style={{ padding: '10px 16px', borderRadius: 8, border: '1px solid var(--border)', background: 'var(--dark)', color: 'var(--gray)', cursor: 'pointer', fontSize: 12 }}
+                      >
+                        Copy
+                      </button>
+                    </div>
+                  </div>
+
+                  <div style={{ background: 'rgba(34,197,94,0.08)', border: '1px solid rgba(34,197,94,0.2)', borderRadius: 10, padding: '12px 16px', fontSize: 13, color: '#22C55E' }}>
+                    ✅ Credentials created successfully! You can now login at <a href="/login" style={{ color: '#3D7FFF' }}>/login</a>
+                  </div>
+                </div>
+              ) : (
+                <div style={{ background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.2)', borderRadius: 10, padding: '12px 16px', fontSize: 13, color: '#F87171' }}>
+                  No login credentials found. Please reinstall the app or contact support.
+                </div>
+              )}
             </div>
           )}
 

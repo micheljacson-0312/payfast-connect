@@ -4,6 +4,7 @@ import { applySessionCookie } from '@/lib/session';
 import { getAppUrlWithSearch } from '@/lib/app-url';
 import { startTrial } from '@/lib/billing';
 import { ensureCustomProviderProvisioned } from '@/lib/ghl-provider';
+import bcrypt from 'bcryptjs';
 
 function pickString(...values: unknown[]) {
   for (const value of values) {
@@ -125,6 +126,19 @@ export async function GET(request: NextRequest) {
       ]
     );
 
+    // Create default user account for login
+    const defaultUsername = `user_${locationId.slice(-8)}`;
+    const defaultPassword = Math.random().toString(36).slice(-10); // Random 10 char password
+    const hashedPassword = await bcrypt.hash(defaultPassword, 10);
+
+    await query(
+      `INSERT INTO users (location_id, username, password, role, created_at)
+       VALUES (?, ?, ?, 'user', NOW())
+       ON DUPLICATE KEY UPDATE
+         updated_at = NOW()`,
+      [locationId, defaultUsername, hashedPassword]
+    );
+
     await startTrial(locationId);
 
     // Provision the GHL payment provider association + config for this location.
@@ -137,8 +151,12 @@ export async function GET(request: NextRequest) {
     });
 
     // Keep the sub-account install flow on the regular app setup path.
+    // Include login credentials in the redirect URL for the user to save
     return applySessionCookie(
-      NextResponse.redirect(getAppUrlWithSearch('/settings?installed=1', request)),
+      NextResponse.redirect(getAppUrlWithSearch(
+        `/settings?installed=1&username=${encodeURIComponent(defaultUsername)}&password=${encodeURIComponent(defaultPassword)}`, 
+        request
+      )),
       locationId
     );
   } catch (err) {
