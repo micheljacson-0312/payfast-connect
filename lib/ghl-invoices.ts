@@ -31,6 +31,8 @@ async function ghlRequest(path: string, token: string, method: 'GET' | 'POST' | 
 
 export async function createGHLInvoice(locationId: string, invoiceData: any) {
   const token = await getValidToken(locationId);
+  if (!token) throw new Error('Failed to retrieve a valid GHL access token');
+  
   return ghlRequest('/invoices', token, 'POST', {
     ...invoiceData,
     locationId,
@@ -39,5 +41,7 @@ export async function createGHLInvoice(locationId: string, invoiceData: any) {
 
 export async function sendGHLInvoice(locationId: string, invoiceId: string) {
   const token = await getValidToken(locationId);
+  if (!token) throw new Error('Failed to retrieve a valid GHL access token');
+  
   return ghlRequest(`/invoices/${invoiceId}/send`, token, 'POST');
 }

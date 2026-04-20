@@ -31,16 +31,22 @@ async function ghlRequest(path: string, token: string, method: 'GET' | 'POST' | 
 
 export async function listGHLTransactions(locationId: string) {
   const token = await getValidToken(locationId);
+  if (!token) throw new Error('Failed to retrieve a valid GHL access token');
+  
   return ghlRequest(`/payments/transactions?locationId=${locationId}`, token, 'GET');
 }
 
 export async function listGHLSubscriptions(locationId: string) {
   const token = await getValidToken(locationId);
+  if (!token) throw new Error('Failed to retrieve a valid GHL access token');
+  
   return ghlRequest(`/payments/subscriptions?locationId=${locationId}`, token, 'GET');
 }
 
 export async function createGHLCoupon(locationId: string, couponData: any) {
   const token = await getValidToken(locationId);
+  if (!token) throw new Error('Failed to retrieve a valid GHL access token');
+  
   return ghlRequest('/payments/coupons', token, 'POST', {
     ...couponData,
     locationId,
@@ -49,5 +55,7 @@ export async function createGHLCoupon(locationId: string, couponData: any) {
 
 export async function getGHLCoupon(locationId: string, couponId: string) {
   const token = await getValidToken(locationId);
+  if (!token) throw new Error('Failed to retrieve a valid GHL access token');
+  
   return ghlRequest(`/payments/coupons/${couponId}`, token, 'GET');
 }

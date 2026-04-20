@@ -34,6 +34,8 @@ export async function createGHLProduct(locationId: string, productData: {
   description?: string;
 }) {
   const token = await getValidToken(locationId);
+  if (!token) throw new Error('Failed to retrieve a valid GHL access token');
+  
   return ghlRequest('/products', token, 'POST', {
     ...productData,
     locationId,
@@ -47,6 +49,8 @@ export async function createGHLPrice(locationId: string, productId: string, pric
   interval?: 'month' | 'year' | 'week' | 'day';
 }) {
   const token = await getValidToken(locationId);
+  if (!token) throw new Error('Failed to retrieve a valid GHL access token');
+  
   return ghlRequest('/prices', token, 'POST', {
     ...priceData,
     productId,
@@ -56,5 +60,7 @@ export async function createGHLPrice(locationId: string, productId: string, pric
 
 export async function getGHLProducts(locationId: string) {
   const token = await getValidToken(locationId);
+  if (!token) throw new Error('Failed to retrieve a valid GHL access token');
+  
   return ghlRequest(`/products?locationId=${locationId}`, token, 'GET');
 }

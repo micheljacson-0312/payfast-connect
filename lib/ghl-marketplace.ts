@@ -35,6 +35,8 @@ export async function createWalletCharge(locationId: string, chargeData: {
   description: string;
 }) {
   const token = await getValidToken(locationId);
+  if (!token) throw new Error('Failed to retrieve a valid GHL access token');
+  
   return ghlRequest('/marketplace/charges', token, 'POST', {
     ...chargeData,
     locationId,
@@ -43,10 +45,14 @@ export async function createWalletCharge(locationId: string, chargeData: {
 
 export async function checkSufficientFunds(locationId: string, amount: number) {
   const token = await getValidToken(locationId);
+  if (!token) throw new Error('Failed to retrieve a valid GHL access token');
+  
   return ghlRequest(`/marketplace/has-funds?locationId=${locationId}&amount=${amount}`, token, 'GET');
 }
 
 export async function getAppBillingConfig(locationId: string) {
   const token = await getValidToken(locationId);
+  if (!token) throw new Error('Failed to retrieve a valid GHL access token');
+  
   return ghlRequest(`/marketplace/rebilling-config`, token, 'GET');
 }

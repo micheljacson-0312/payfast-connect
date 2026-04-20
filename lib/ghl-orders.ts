@@ -35,6 +35,8 @@ export async function recordOrderPayment(locationId: string, orderId: string, pa
   paymentMethod: string;
 }) {
   const token = await getValidToken(locationId);
+  if (!token) throw new Error('Failed to retrieve a valid GHL access token');
+  
   return ghlRequest(`/payments/orders/${orderId}/record-payment`, token, 'POST', {
     ...paymentDetails,
     locationId,
@@ -43,10 +45,14 @@ export async function recordOrderPayment(locationId: string, orderId: string, pa
 
 export async function listGHLOrders(locationId: string) {
   const token = await getValidToken(locationId);
+  if (!token) throw new Error('Failed to retrieve a valid GHL access token');
+  
   return ghlRequest(`/payments/orders?locationId=${locationId}`, token, 'GET');
 }
 
 export async function getGHLOrder(locationId: string, orderId: string) {
   const token = await getValidToken(locationId);
+  if (!token) throw new Error('Failed to retrieve a valid GHL access token');
+  
   return ghlRequest(`/payments/orders/${orderId}`, token, 'GET');
 }
