@@ -5,6 +5,29 @@ import { SignJWT } from 'jose';
 
 const secret = new TextEncoder().encode(process.env.SESSION_SECRET!);
 
+// GET /api/auth/login - Check if subaccount login is available
+export async function GET(req: Request) {
+  try {
+    // Get count of active user accounts
+    const result = await query<any[]>('SELECT COUNT(*) as count FROM users WHERE role = \'user\'');
+    const userCount = result[0]?.count || 0;
+
+    return NextResponse.json({
+      status: 'active',
+      message: 'Subaccount login API is active',
+      users: userCount,
+      endpoints: {
+        login: 'POST /api/auth/login',
+        logout: 'POST /api/auth/logout',
+        register: 'POST /api/auth/register (Admin only)',
+      }
+    });
+  } catch (e) {
+    console.error('Login Info Error:', e);
+    return NextResponse.json({ error: 'Failed to fetch login info' }, { status: 500 });
+  }
+}
+
 export async function POST(req: Request) {
   try {
     const { username, password } = await req.json();
