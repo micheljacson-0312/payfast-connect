@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { debugProvisionCustomProvider } from '@/lib/ghl-provider';
+import { ensureCustomProviderProvisioned } from '@/lib/ghl-provider';
 import { getSession } from '@/lib/session';
 
 export async function POST(request: NextRequest) {
@@ -13,7 +13,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'locationId required' }, { status: 400 });
   }
 
-  const result = await debugProvisionCustomProvider(locationId, {
+  const result = await ensureCustomProviderProvisioned(locationId, {
     merchantId: body.merchantId || body.merchant_id || null,
     merchantKey: body.merchantKey || body.merchant_key || null,
     passphrase: body.passphrase || null,
