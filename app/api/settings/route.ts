@@ -2,18 +2,46 @@ import { NextRequest, NextResponse } from 'next/server';
 import { query, Installation } from '@/lib/db';
 import { getSession } from '@/lib/session';
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   const session = await getSession();
-  if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  const { searchParams } = new URL(request.url);
+  
+  // Bypass mode for testing - no session required
+  const bypassMode = searchParams.get('preview') === 'true' || searchParams.get('demo') === 'true';
+  
+  if (!session && !bypassMode) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
+  // If bypass mode, return demo/sample settings
+  if (bypassMode) {
+    return NextResponse.json({
+      merchant_name:       'Demo Merchant',
+      store_id:            'demo-store-001',
+      merchant_id:         '26290',
+      merchant_key:        'demo-secured-key',
+      passphrase:          'demo-passphrase',
+      environment:         'sandbox',
+      tag_on_payment:      'paid,customer,demo',
+      tag_on_fail:         'payment-failed,demo',
+      move_opp_stage:      'won',
+      auto_create_contact: true,
+      fire_workflow:       true,
+      _mode:               'bypass/demo',
+      _note:               'These are demo settings. Login to see real data.'
+    });
+  }
 
   const rows = await query<Installation[]>(
     `SELECT merchant_name, store_id, merchant_id, merchant_key, passphrase, environment,
             tag_on_payment, tag_on_fail, move_opp_stage,
             auto_create_contact, fire_workflow
      FROM installations WHERE location_id = ?`,
-    [session.locationId]
+    [session!.locationId]
   );
+  
   if (!rows.length) return NextResponse.json(null);
+  
   const r = rows[0];
   return NextResponse.json({
     merchant_name:       r.merchant_name      || '',
