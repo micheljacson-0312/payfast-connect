@@ -1,64 +1,43 @@
 # Application Sitemap & URL Map
 
-Comprehensive list of all accessible pages and their purposes.
-
-## 👤 User / Merchant Dashboard
-Accessible after login.
-
+## User / Merchant
 | URL | Purpose | Access |
 | :--- | :--- | :--- |
-| `/dashboard` | Main overview of payments and stats | User |
-| `/settings` | Account & PayFast credential configuration | User |
-| `/payments` | View and manage all transactions | User |
-| `/payments/new` | Create a new payment link | User |
-| `/payment-links` | List of active payment links | User |
-| `/payment-links/new` | Setup a new payment link | User |
-| `/payment-schedules` | Manage installment plans | User |
-| `/payment-schedules/new` | Create a new installment plan | User |
-| `/invoices` | List of created invoices | User |
-| `/invoices/new` | Generate a new invoice | User |
-| `/order-forms` | Management of order form links | User |
-| `/order-forms/new` | Create a new order form | User |
-| `/products` | Product catalog management | User |
-| `/products/new` | Add a new product/service | User |
-| `/coupons` | Discount code management | User |
-| `/subscriptions` | Subscription tracking | User |
-| `/text2pay` | Create and track SMS payment requests | User |
+| `/dashboard` | CRM dashboard | User |
+| `/settings` | GoPayFast credentials and CRM automation | User |
+| `/billing` | Agency billing overview | User |
+| `/billing/plans` | Billing plans | User |
+| `/billing/suspended` | Suspended notice | User |
+| `/install` | CRM install flow | Public |
+| `/login` | User login | Public |
 
-## 🏢 Agency Console
-Dedicated portal for agency owners.
-
+## Agency
 | URL | Purpose | Access |
 | :--- | :--- | :--- |
-| `/agency` | Agency Billing Console (Summary, Wallet, SaaS) | Agency |
-| `/agency/install` | Agency-specific GHL onboarding | Public/Agency |
-| `/agency/login` | Dedicated login for agency accounts | Public |
+| `/agency` | Agency billing console | Agency |
+| `/agency/install` | Agency install flow | Public/Agency |
+| `/agency/login` | Agency login | Public |
 
-## 🌍 Public & External Pages
-Accessible without login.
-
+## Public
 | URL | Purpose | Access |
 | :--- | :--- | :--- |
 | `/apply` | Merchant application form | Public |
-| `/pay/[token]` | Secure checkout page for payment links | Public |
-| `/pay/success` | Payment confirmation landing page | Public |
-| `/invoice/[token]` | Public view of a generated invoice | Public |
-| `/install` | Standard GHL app installation flow | Public |
-| `/login` | User login portal | Public |
+| `/support` | Support contacts | Public |
+| `/docs` | Documentation links | Public |
+| `/pay/[token]` | Public payment page | Public |
+| `/pay/success` | Payment success page | Public |
+| `/invoice/[token]` | Public invoice page | Public |
 
-## 🔌 GHL Integration Pages
-Loaded as iFrames or via API.
-
+## GHL / CRM
 | URL | Purpose | Access |
 | :--- | :--- | :--- |
-| `/ghl-checkout` | Native GHL checkout iFrame | GHL |
-| `/ghl-checkout/success` | GHL-specific payment success page | GHL |
-| `/ghl-config` | Provider configuration page in GHL | GHL |
-| `/oauth/callback` | OAuth token exchange endpoint | GHL |
+| `/ghl-checkout` | CRM checkout iframe | CRM |
+| `/ghl-checkout/success` | CRM success page | CRM |
+| `/ghl-config` | CRM provider config page | CRM |
+| `/oauth/callback` | OAuth callback endpoint | CRM |
 
-## 🛠 Admin Panel
-Internal management area.
-
+## Admin
 | URL | Purpose | Access |
 | :--- | :--- | :--- |
-| `/admin` | Merchant application review and approval | Admin |
+| `/admin` | Admin dashboard | Admin |
+| `/admin/login` | Admin login | Public |

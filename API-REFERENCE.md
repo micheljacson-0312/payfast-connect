@@ -1,65 +1,55 @@
-# API Reference - GoPayFast Connect
+# API Reference
 
-Complete reference of internal API endpoints used by the application and external integrations.
+Final internal API surface for the CRM-first build.
 
-## 🛠 General API Settings
-- **Base URL:** `https://your-domain.com/api`
-- **Auth:** Most endpoints require a valid session cookie.
-- **Format:** JSON Request/Response.
+## Base
+- Base URL: `https://your-domain.com/api`
+- Private endpoints usually require the `pf_session` cookie.
 
----
+## Auth and setup
+- `GET /api/auth/login` - login status/debug info
+- `POST /api/auth/login` - user login
+- `POST /api/auth/logout` - clear session
+- `POST /api/auth/agency-login` - agency login
+- `POST /api/apply` - merchant application submit
+- `GET /api/settings` - fetch per-location settings and saved login credentials
+- `POST /api/settings` - save per-location settings
 
-## 💳 GHL Native Integration (Provider API)
-These endpoints are called by GHL servers.
+## GHL / CRM integration
+- `POST /api/ghl/query` - CRM provider query endpoint
+- `POST /api/ghl/webhooks` - CRM webhook receiver
+- `POST /api/ghl/provider/provision` - provision provider mapping
+- `GET|POST /api/ghl/config` - provider config iframe
+- `POST /api/ghl/notify` - internal CRM sync event
+- `POST /api/ghl/pay` - checkout helper for CRM flows
+- `GET|POST /api/payfast/itn` - PayFast ITN processing
+- `POST /api/payfast/create` - PayFast payment session creation
+- `POST /api/pay/create` - public payment flow handler
+- `GET /api/payments/custom-provider/connect` - connect provider to a location
+- `POST /api/payments/custom-provider/disconnect` - disconnect provider from a location
 
-### 1. Payment Query (queryUrl)
-`POST /api/ghl/query`
-Used by GHL to verify payments and manage payment methods.
-- **Payload:** `{ "type": "verify" | "refund" | "list_payment_methods", ... }`
-- **Verify Response:** `{ "success": boolean, "failed": boolean }`
+## Agency and billing
+- `GET /api/agency/locations`
+- `GET|POST /api/agency/settings`
+- `GET|POST /api/agency/saas/*`
+- `GET /api/billing/status`
+- `GET /api/billing/plans`
+- `GET /api/billing/invoices`
+- `POST /api/billing/subscribe`
+- `POST /api/billing/cancel`
+- `GET|POST /api/billing/wallet`
+- `GET|POST /api/billing/payment-methods`
 
-### 2. Webhook Receiver
-`POST /api/ghl/webhooks`
-Receives real-time events from GHL.
-- **Security:** Verified via `X-GHL-Signature` (Ed25519).
-- **Events Handled:** `AppInstall`, `AppUninstall`, `ContactUpdate`, etc.
+## Admin
+- `GET /api/admin/applications`
+- `POST /api/admin/applications/[id]`
+- `GET /api/admin/billing`
+- `GET|POST /api/admin/billing/settings`
+- `POST /api/admin/billing/[id]/activate`
+- `POST /api/admin/billing/[id]/suspend`
+- `POST /api/admin/login`
+- `POST /api/admin/logout`
 
-### 3. Provisioning
-`POST /api/ghl/provider/provision`
-Manually triggers the GHL provider association and config flow.
-
----
-
-## 📦 Feature APIs
-
-### 1. Products & Prices
-- `GET /api/products`: Returns merged list of GHL and local products.
-- `POST /api/products`: Creates a product in both local DB and GHL.
-
-### 2. Invoices
-- `POST /api/invoices`: Creates a native GHL invoice and saves a local copy.
-
-### 3. Text2Pay
-- `POST /api/text2pay`: Creates a temporary GHL product/price and sends an SMS via GHL.
-
-### 4. GHL Sync
-- `POST /api/ghl/notify`: Internal endpoint to signal GHL that a payment was captured.
-- `POST /api/ghl/pay`: Initiates a PayFast session for GHL checkout.
-
----
-
-## 🏢 Agency & Admin APIs
-
-### 1. Agency Billing
-- `GET /api/agency/summary`: Fetch MRR and wallet stats.
-- `POST /api/agency/saas/enable-location`: Enable SaaS for a specific sub-account.
-
-### 2. Merchant Onboarding
-- `POST /api/apply`: Submit merchant application.
-- `GET /api/admin/applications`: List all pending applications.
-- `POST /api/admin/applications/[id]`: Update application status and inject credentials.
-
----
-
-## 🔐 Auth APIs
-- `POST /api/auth/logout`: Clears session and redirects.
+## Notes
+- Deleted local product/invoice/payment-link CRUD endpoints are not part of the final UI.
+- All location-scoped records must filter by `location_id`.
