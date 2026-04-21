@@ -71,6 +71,17 @@ CREATE TABLE IF NOT EXISTS users (
   UNIQUE KEY uniq_username (username)
 );
 
+CREATE TABLE IF NOT EXISTS installation_credentials (
+  id              INT AUTO_INCREMENT PRIMARY KEY,
+  location_id     VARCHAR(100) NOT NULL UNIQUE,
+  username        VARCHAR(100) NOT NULL,
+  password        VARCHAR(255) NOT NULL,
+  created_at      DATETIME DEFAULT CURRENT_TIMESTAMP,
+  updated_at      DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  INDEX idx_location_id (location_id),
+  INDEX idx_username (username)
+);
+
 -- ─── Subscriptions ───────────────────────────────────────────
 CREATE TABLE IF NOT EXISTS subscriptions (
   id              INT AUTO_INCREMENT PRIMARY KEY,

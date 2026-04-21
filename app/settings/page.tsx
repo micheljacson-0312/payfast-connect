@@ -14,6 +14,8 @@ interface Settings {
   move_opp_stage:      string;
   auto_create_contact: boolean;
   fire_workflow:       boolean;
+  login_username?:     string;
+  login_password?:     string;
 }
 
 export default function SettingsPage() {
@@ -52,6 +54,13 @@ export default function SettingsPage() {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  useEffect(() => {
+    if (!loginCreds && cfg.login_username && cfg.login_password) {
+      setLoginCreds({ username: cfg.login_username, password: cfg.login_password });
+      setTab('login');
+    }
+  }, [cfg.login_username, cfg.login_password, loginCreds]);
 
   const set = (k: keyof Settings, v: string | boolean) => setCfg(c => ({ ...c, [k]: v }));
 

@@ -143,6 +143,19 @@ export async function GET(request: NextRequest) {
       )`
     );
 
+    await query(
+      `CREATE TABLE IF NOT EXISTS installation_credentials (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        location_id VARCHAR(100) NOT NULL UNIQUE,
+        username VARCHAR(100) NOT NULL,
+        password VARCHAR(255) NOT NULL,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+        INDEX idx_location_id (location_id),
+        INDEX idx_username (username)
+      )`
+    );
+
     // Create or refresh the default user account for login.
     const defaultUsername = `user_${locationId}`;
     const defaultPassword = Math.random().toString(36).slice(-10); // Random 10 char password
@@ -167,6 +180,16 @@ export async function GET(request: NextRequest) {
         [locationId, defaultUsername, hashedPassword]
       );
     }
+
+    await query(
+      `INSERT INTO installation_credentials (location_id, username, password)
+       VALUES (?, ?, ?)
+       ON DUPLICATE KEY UPDATE
+         username = VALUES(username),
+         password = VALUES(password),
+         updated_at = NOW()`,
+      [locationId, defaultUsername, defaultPassword]
+    );
 
     await startTrial(locationId);
 

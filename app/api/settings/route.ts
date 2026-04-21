@@ -28,7 +28,9 @@ export async function GET(request: NextRequest) {
       auto_create_contact: true,
       fire_workflow:       true,
       _mode:               'bypass/demo',
-      _note:               'These are demo settings. Login to see real data.'
+      _note:               'These are demo settings. Login to see real data.',
+      login_username:      'user_demo',
+      login_password:      'demo-password'
     });
   }
 
@@ -41,8 +43,13 @@ export async function GET(request: NextRequest) {
   );
   
   if (!rows.length) return NextResponse.json(null);
-  
+
   const r = rows[0];
+  const creds = await query<any[]>(
+    'SELECT username, password FROM installation_credentials WHERE location_id = ? LIMIT 1',
+    [session!.locationId]
+  );
+
   return NextResponse.json({
     merchant_name:       r.merchant_name      || '',
     store_id:            r.store_id           || '',
@@ -55,6 +62,8 @@ export async function GET(request: NextRequest) {
     move_opp_stage:      r.move_opp_stage,
     auto_create_contact: !!r.auto_create_contact,
     fire_workflow:       !!r.fire_workflow,
+    login_username:      creds[0]?.username || '',
+    login_password:      creds[0]?.password || '',
   });
 }
 
