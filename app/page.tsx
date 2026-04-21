@@ -61,8 +61,8 @@ export default async function RootPage() {
           <div style={{ ...card, padding: 26, display: 'grid', gap: 14 }}>
             {[
               ['Merchant Applications', 'Use the application form to collect onboarding, business, and banking details.'],
-              ['Sub-Account CRM App', 'Keep the client-facing dashboard and payment tools separate from agency controls.'],
-              ['Agency SaaS Controls', 'Use the agency app to manage SaaS enablement, rebilling, and subscription checks.'],
+              ['Sub-Account CRM App', 'Keep each client location isolated and connected to its own CRM session.'],
+              ['Agency SaaS Controls', 'Use the agency app to manage onboarding and location-level access.'],
             ].map(([title, desc]) => (
               <div key={title} style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 14, padding: 16 }}>
                 <div style={{ fontFamily: 'Outfit, sans-serif', fontSize: 18, fontWeight: 700, marginBottom: 6 }}>{title}</div>
@@ -86,30 +86,13 @@ export default async function RootPage() {
           ))}
         </section>
 
-        <section style={{ marginBottom: 56 }}>
-          <h2 className="home-section-title" style={{ fontFamily: 'Outfit, sans-serif', fontSize: 32, fontWeight: 800, marginBottom: 32, textAlign: 'center' }}>Advanced Payment Features</h2>
-          <div className="resp-grid-auto">
-            {[
-              ['Secure Card Saving', 'Save customer payment instruments securely and enable one-click checkouts and subscriptions.', '💳'],
-              ['Wallet Management', 'Maintain and track wallet balances for sub-accounts with real-time top-ups and deductions.', '💰'],
-              ['Automated Rebilling', 'Set and forget. Our system monitors subscriptions and handles recurring billing automatically.', '🔄'],
-            ].map(([title, desc, icon]) => (
-              <div key={title} style={{ ...card, textAlign: 'center' }}>
-                <div style={{ fontSize: 40, marginBottom: 16 }}>{icon}</div>
-                <div style={{ fontFamily: 'Outfit, sans-serif', fontSize: 20, fontWeight: 700, marginBottom: 12 }}>{title}</div>
-                <div style={{ color: '#8AA0C8', fontSize: 14, lineHeight: 1.6 }}>{desc}</div>
-              </div>
-            ))}
-          </div>
-        </section>
-
         <section style={{ background: 'rgba(0,82,255,0.05)', border: '1px solid rgba(0,82,255,0.1)', borderRadius: 32, padding: 48, textAlign: 'center' }}>
           <h2 style={{ fontFamily: 'Outfit, sans-serif', fontSize: 32, fontWeight: 800, marginBottom: 48 }}>How It Works</h2>
           <div className="resp-grid-auto" style={{ gap: 32, position: 'relative' }}>
             {[
               ['Onboard', 'Merchants apply via the portal and undergo KYC verification.', '01'],
-              ['Connect', 'Sub-accounts connect their GHL instance to enable payment tools.', '02'],
-              ['Scale', 'Agencies manage billing and subscriptions through the SaaS panel.', '03'],
+              ['Connect', 'Sub-accounts connect their CRM instance so payments stay isolated by location.', '02'],
+              ['Scale', 'Agencies manage each location independently from the CRM side.', '03'],
             ].map(([title, desc, step]) => (
               <div key={title} style={{ position: 'relative' }}>
                 <div style={{ fontFamily: 'Outfit, sans-serif', fontSize: 64, fontWeight: 800, color: 'rgba(0,82,255,0.1)', position: 'absolute', top: -40, left: '50%', transform: 'translateX(-50%)', zIndex: 0 }}>{step}</div>

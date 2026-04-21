@@ -10,16 +10,7 @@ const secret = () => {
 
 const PROTECTED = [
   '/dashboard',
-  '/payments',
-  '/payment-schedules',
-  '/payment-links',
   '/billing',
-  '/products',
-  '/invoices',
-  '/order-forms',
-  '/coupons',
-  '/subscriptions',
-  '/text2pay',
   '/settings',
 ];
 
@@ -90,19 +81,9 @@ export const config = {
     '/dashboard/:path*',
     '/agency/:path*',
     '/admin/:path*',
-    '/payments/:path*',
     '/billing/:path*',
-    '/payment-schedules/:path*',
-    '/payment-links/:path*',
-    '/products/:path*',
-    '/invoices/:path*',
-    '/order-forms/:path*',
-    '/coupons/:path*',
     '/settings/:path*',
-    '/subscriptions/:path*',
-    '/text2pay/:path*',
     '/docs/:path*',
     '/support/:path*',
   ],
 };
-

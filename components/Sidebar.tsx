@@ -7,19 +7,6 @@ const SECTIONS = [
   { label: 'Overview', items: [
     { label: 'Dashboard',     href: '/dashboard',     icon: '📊' },
   ]},
-  { label: 'Payments', items: [
-    { label: 'Transactions',  href: '/payments',      icon: '💳' },
-    { label: 'Payment Links', href: '/payment-links', icon: '🔗' },
-    { label: 'Installments',  href: '/payment-schedules', icon: '🗓️' },
-    { label: 'Invoices',      href: '/invoices',      icon: '🧾' },
-    { label: 'Text2Pay',      href: '/text2pay',      icon: '📱' },
-    { label: 'Order Forms',   href: '/order-forms',   icon: '📋' },
-    { label: 'Subscriptions', href: '/subscriptions', icon: '🔄' },
-  ]},
-  { label: 'Catalog', items: [
-    { label: 'Products',      href: '/products',      icon: '📦' },
-    { label: 'Coupons',       href: '/coupons',       icon: '🏷️' },
-  ]},
   { label: 'Config', items: [
     { label: 'Settings',      href: '/settings',      icon: '⚙️' },
   ]},
@@ -137,4 +124,3 @@ export default function Sidebar() {
     </>
   );
 }
-
