@@ -67,7 +67,15 @@ export default function AgencyControls({ initialLocationId = '' }: { initialLoca
     fetch('/api/agency/locations')
       .then((r) => r.json())
       .then((data) => {
-        if (Array.isArray(data)) setLocations(data);
+        if (!Array.isArray(data)) {
+          setLocations([]);
+          return;
+        }
+
+        const unique = Array.from(
+          new Map(data.filter((loc) => loc?.locationId).map((loc) => [loc.locationId, loc])).values()
+        );
+        setLocations(unique);
       })
       .catch(() => setLocations([]));
   }, []);
