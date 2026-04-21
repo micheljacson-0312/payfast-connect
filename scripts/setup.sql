@@ -66,7 +66,9 @@ CREATE TABLE IF NOT EXISTS users (
   created_at      DATETIME DEFAULT CURRENT_TIMESTAMP,
   updated_at      DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   INDEX idx_location_id (location_id),
-  INDEX idx_username (username)
+  INDEX idx_username (username),
+  UNIQUE KEY uniq_location_id (location_id),
+  UNIQUE KEY uniq_username (username)
 );
 
 -- ─── Subscriptions ───────────────────────────────────────────

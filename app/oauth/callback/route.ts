@@ -137,12 +137,14 @@ export async function GET(request: NextRequest) {
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
         updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
         INDEX idx_location_id (location_id),
-        INDEX idx_username (username)
+        INDEX idx_username (username),
+        UNIQUE KEY uniq_location_id (location_id),
+        UNIQUE KEY uniq_username (username)
       )`
     );
 
     // Create or refresh the default user account for login.
-    const defaultUsername = `user_${locationId.slice(-8)}`;
+    const defaultUsername = `user_${locationId}`;
     const defaultPassword = Math.random().toString(36).slice(-10); // Random 10 char password
     const hashedPassword = await bcrypt.hash(defaultPassword, 10);
 
