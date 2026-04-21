@@ -63,7 +63,17 @@ export default async function DashboardPage({ searchParams }: { searchParams?: P
             ].map(c => (
               <div key={c.label} style={{ background: 'var(--dark2)', border: '1px solid var(--border)', borderRadius: 14, padding: 22 }}>
                 <div style={{ fontSize: 12, color: 'var(--gray)', marginBottom: 10 }}>{c.label}</div>
-                <div style={{ fontFamily: 'var(--font-head)', fontSize: 28, fontWeight: 700, color: c.color }}>{c.value}</div>
+                <div style={{
+                  fontFamily: c.label === 'Location ID' ? 'monospace' : 'var(--font-head)',
+                  fontSize: c.label === 'Location ID' ? 14 : 28,
+                  fontWeight: 700,
+                  color: c.color,
+                  lineHeight: 1.4,
+                  wordBreak: c.label === 'Location ID' ? 'break-all' : 'normal',
+                  overflowWrap: c.label === 'Location ID' ? 'anywhere' : 'normal',
+                }}>
+                  {c.value}
+                </div>
               </div>
             ))}
           </div>
