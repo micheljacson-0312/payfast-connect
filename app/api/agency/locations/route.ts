@@ -9,15 +9,23 @@ export async function GET() {
   }
 
   const rows = await query<any[]>(
-    `SELECT location_id, merchant_name
-     FROM installations
-     ORDER BY COALESCE(merchant_name, location_id) ASC`
+    `SELECT
+       i.location_id,
+       i.merchant_name,
+       ma.business_name,
+       ma.status AS application_status
+     FROM installations i
+     LEFT JOIN merchant_applications ma ON ma.ghl_location_id = i.location_id
+     ORDER BY COALESCE(ma.business_name, i.merchant_name, i.location_id) ASC`
   );
 
   return NextResponse.json(
     rows.map((row) => ({
       locationId: row.location_id,
-      name: row.merchant_name || row.location_id,
+      name: row.business_name || row.merchant_name || row.location_id,
+      businessName: row.business_name || '',
+      merchantName: row.merchant_name || '',
+      status: row.application_status || '',
     }))
   );
 }

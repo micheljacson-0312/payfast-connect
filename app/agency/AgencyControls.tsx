@@ -32,8 +32,9 @@ export default function AgencyControls({ initialLocationId = '' }: { initialLoca
   const [plans, setPlans] = useState<any>(null);
   const [subscription, setSubscription] = useState<any>(null);
   const [rebillingResult, setRebillingResult] = useState<any>(null);
-  const [locations, setLocations] = useState<Array<{ locationId: string; name: string }>>([]);
+  const [locations, setLocations] = useState<Array<{ locationId: string; name: string; businessName?: string; merchantName?: string; status?: string }>>([]);
   const [locationId, setLocationId] = useState(initialLocationId);
+  const [search, setSearch] = useState('');
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
   const [loading, setLoading] = useState<string | null>(null);
   const [rebillingPayload, setRebillingPayload] = useState(`{
@@ -53,6 +54,14 @@ export default function AgencyControls({ initialLocationId = '' }: { initialLoca
   const formattedPlans = useMemo(() => (plans ? JSON.stringify(plans, null, 2) : ''), [plans]);
   const formattedSubscription = useMemo(() => (subscription ? JSON.stringify(subscription, null, 2) : ''), [subscription]);
   const formattedRebilling = useMemo(() => (rebillingResult ? JSON.stringify(rebillingResult, null, 2) : ''), [rebillingResult]);
+  const filteredLocations = useMemo(() => {
+    const term = search.trim().toLowerCase();
+    if (!term) return locations;
+    return locations.filter((loc) => {
+      const haystack = [loc.name, loc.businessName, loc.merchantName, loc.locationId, loc.status].filter(Boolean).join(' ').toLowerCase();
+      return haystack.includes(term);
+    });
+  }, [locations, search]);
 
   useEffect(() => {
     fetch('/api/agency/locations')
@@ -142,8 +151,20 @@ export default function AgencyControls({ initialLocationId = '' }: { initialLoca
             <div style={{ color: 'var(--gray)', fontSize: 13, lineHeight: 1.6 }}>These are the installed locations saved in the portal, shown as name plus location ID.</div>
           </div>
         </div>
-      <div className="mobile-stack-2" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: 8 }}>
-          {locations.length ? locations.map((loc) => (
+      <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', marginBottom: 14 }}>
+        <input
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          placeholder="Search business name or location ID"
+          style={{ ...input, maxWidth: 380, flex: '1 1 260px' }}
+        />
+        <div style={{ alignSelf: 'center', color: 'var(--gray)', fontSize: 12 }}>
+          {filteredLocations.length} location(s)
+        </div>
+      </div>
+
+      <div className="mobile-stack-2" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 8 }}>
+          {filteredLocations.length ? filteredLocations.map((loc) => (
             <button
               key={loc.locationId}
               onClick={() => setLocationId(loc.locationId)}
@@ -157,8 +178,18 @@ export default function AgencyControls({ initialLocationId = '' }: { initialLoca
                 cursor: 'pointer',
               }}
             >
-              <div style={{ fontWeight: 700 }}>{loc.name}</div>
-              <div style={{ fontSize: 12, color: 'var(--gray)', marginTop: 4 }}>{loc.locationId}</div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', gap: 10, alignItems: 'flex-start', marginBottom: 8 }}>
+                <div style={{ fontWeight: 700, lineHeight: 1.4 }}>{loc.businessName || loc.name}</div>
+                {loc.status && (
+                  <div style={{ fontSize: 11, color: '#7FB0FF', background: 'rgba(0,82,255,0.12)', border: '1px solid rgba(0,82,255,0.18)', borderRadius: 999, padding: '4px 8px', textTransform: 'capitalize' }}>
+                    {loc.status}
+                  </div>
+                )}
+              </div>
+              {loc.merchantName && loc.merchantName !== loc.businessName && (
+                <div style={{ fontSize: 12, color: '#9FB0D5', marginBottom: 4 }}>{loc.merchantName}</div>
+              )}
+              <div style={{ fontSize: 12, color: 'var(--gray)', fontFamily: 'monospace' }}>{loc.locationId}</div>
             </button>
           )) : (
             <div style={{ color: 'var(--gray)', fontSize: 13 }}>No saved locations found yet.</div>
