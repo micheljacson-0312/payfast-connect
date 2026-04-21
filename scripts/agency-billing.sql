@@ -62,8 +62,19 @@ CREATE TABLE IF NOT EXISTS agency_settings (
   updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 
+CREATE TABLE IF NOT EXISTS agency_legal_links (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  terms_url VARCHAR(1000) NULL,
+  privacy_policy_url VARCHAR(1000) NULL,
+  updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
 INSERT INTO agency_settings (id, environment, grace_period_days, trial_days)
 VALUES (1, 'live', 3, 14)
+ON DUPLICATE KEY UPDATE updated_at = CURRENT_TIMESTAMP;
+
+INSERT INTO agency_legal_links (id)
+VALUES (1)
 ON DUPLICATE KEY UPDATE updated_at = CURRENT_TIMESTAMP;
 
 INSERT INTO agency_plans (name, slug, price_monthly, price_yearly, max_locations, features, trial_days)

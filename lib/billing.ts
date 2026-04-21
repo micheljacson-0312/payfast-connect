@@ -12,7 +12,13 @@ export interface BillingStatus {
 
 export async function getAgencySettings() {
   const rows = await query<any[]>('SELECT * FROM agency_settings ORDER BY id ASC LIMIT 1');
-  return rows[0] || null;
+  const legalRows = await query<any[]>('SELECT * FROM agency_legal_links ORDER BY id ASC LIMIT 1').catch(() => []);
+  const settings = {
+    ...(rows[0] || null),
+    ...(legalRows[0] || null),
+  };
+
+  return Object.keys(settings).length ? settings : null;
 }
 
 export async function startTrial(locationId: string) {

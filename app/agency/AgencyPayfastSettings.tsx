@@ -23,6 +23,8 @@ export default function AgencyPayfastSettings() {
     passphrase: '',
     environment: 'live',
     notify_email: '',
+    terms_url: '',
+    privacy_policy_url: '',
   });
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState('');
@@ -40,6 +42,8 @@ export default function AgencyPayfastSettings() {
             passphrase: data.passphrase || '',
             environment: data.environment || 'live',
             notify_email: data.notify_email || '',
+            terms_url: data.terms_url || '',
+            privacy_policy_url: data.privacy_policy_url || '',
           });
         }
       })
@@ -84,6 +88,15 @@ export default function AgencyPayfastSettings() {
           <option value="sandbox">Sandbox</option>
         </select>
       </div>
+
+      <div style={{ background: 'var(--dark3)', border: '1px solid var(--border)', borderRadius: 14, padding: 16, marginBottom: 12 }}>
+        <div style={{ fontSize: 13, fontWeight: 700, marginBottom: 10 }}>Terms & Conditions and Privacy Policy</div>
+        <div className="mobile-stack-2" style={{ gridTemplateColumns: '1fr 1fr' }}>
+          <input value={form.terms_url} onChange={(e) => setForm((f) => ({ ...f, terms_url: e.target.value }))} placeholder="Terms & Conditions URL" style={input} />
+          <input value={form.privacy_policy_url} onChange={(e) => setForm((f) => ({ ...f, privacy_policy_url: e.target.value }))} placeholder="Privacy Policy URL" style={input} />
+        </div>
+      </div>
+
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap' }}>
         <div style={{ fontSize: 13, color: 'var(--gray)', lineHeight: 1.6 }}>
           {ready ? 'Credentials ready for agency billing.' : 'Connect merchant ID and key before collecting agency payments.'}
