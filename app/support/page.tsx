@@ -14,7 +14,8 @@ export default function SupportPage() {
           </a>
           <a href="https://wa.me/923202900295" target="_blank" style={{ background:'rgba(12, 22, 48, 0.88)', border:'1px solid rgba(255,255,255,0.08)', borderRadius:14, padding:18, textDecoration:'none', color:'white' }}>
             <div style={{ fontWeight: 700, marginBottom: 6 }}>WhatsApp Support</div>
-            <div style={{ color: '#8AA0C8', fontSize: 13 }}>Open support chat on WhatsApp: +92 320 2900295</div>
+            <div style={{ color: '#8AA0C8', fontSize: 13, marginBottom: 4 }}>Open support chat on WhatsApp</div>
+            <div style={{ color: 'white', fontSize: 14, fontWeight: 700, fontFamily: 'monospace' }}>+92 320 2900295</div>
           </a>
         </div>
       </div>
