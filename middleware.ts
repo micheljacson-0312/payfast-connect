@@ -12,6 +12,7 @@ const PROTECTED = [
   '/dashboard',
   '/billing',
   '/settings',
+  '/agency/settings',
 ];
 
 export async function middleware(request: NextRequest) {
@@ -83,6 +84,7 @@ export const config = {
     '/admin/:path*',
     '/billing/:path*',
     '/settings/:path*',
+    '/agency/settings/:path*',
     '/docs/:path*',
     '/support/:path*',
   ],

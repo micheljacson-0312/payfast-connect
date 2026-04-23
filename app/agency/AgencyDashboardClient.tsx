@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from 'react';
 import AgencyControls from './AgencyControls';
-import AgencyPayfastSettings from './AgencyPayfastSettings';
+import Link from 'next/link';
 import type { WalletBalance } from '@/lib/wallet';
 import type { PaymentInstrument } from '@/lib/payment-instruments';
 
@@ -392,12 +392,14 @@ export default function AgencyDashboardClient({
           </div>
         )}
 
-        <div style={{ marginTop: 18 }}>
-          <div style={{ display: 'grid', gap: 12 }}>
-            <div style={{ fontFamily: 'var(--font-head)', fontSize: 18, fontWeight: 700 }}>Agency PayFast Setup</div>
-            <div style={{ color: 'var(--gray)', fontSize: 13, lineHeight: 1.7 }}>Connect your own PayFast credentials before creating agency invoices or collecting agency-level payments.</div>
-            <AgencyPayfastSettings />
+        <div style={{ marginTop: 18, background: 'var(--dark2)', border: '1px solid var(--border)', borderRadius: 20, padding: 22, display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 16, flexWrap: 'wrap' }}>
+          <div>
+            <div style={{ fontFamily: 'var(--font-head)', fontSize: 18, fontWeight: 700, marginBottom: 6 }}>Agency PayFast Setup</div>
+            <div style={{ color: 'var(--gray)', fontSize: 13, lineHeight: 1.7 }}>Manage agency credentials, legal URLs, and billing contact details on the dedicated settings page.</div>
           </div>
+          <Link href="/agency/settings" style={{ background: 'var(--blue)', color: 'white', textDecoration: 'none', padding: '11px 16px', borderRadius: 10, fontSize: 13, fontWeight: 700 }}>
+            Open Agency Settings
+          </Link>
         </div>
       </div>
     </div>
