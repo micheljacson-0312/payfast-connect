@@ -54,7 +54,7 @@ export default function GHLCheckoutPage() {
 
       // 3. Handle Setup (Saved Cards)
       if (d?.type === 'setup_initiate_props') {
-        alert('Saved cards are not supported by this provider');
+        alert('Saved cards are supported. Continue to PayFast to save this card.');
       }
     }
 
@@ -64,7 +64,7 @@ export default function GHLCheckoutPage() {
     window.parent.postMessage({ 
       type: 'custom_provider_ready', 
       loaded: true,
-      addCardOnFileSupported: false 
+      addCardOnFileSupported: true 
     }, '*');
 
     return () => window.removeEventListener('message', handleMessage);
