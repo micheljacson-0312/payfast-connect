@@ -17,13 +17,24 @@ export function normalizeUpstreamResponse(upstream: any, page: number, per_page:
     const total = typeof upstream.total === 'number' ? upstream.total : items.length;
     const upstreamPage = upstream.page || upstream.currentPage || upstream.pageNumber || page;
     const upstreamPer = upstream.per_page || upstream.perPage || upstream.limit || per_page;
+    const respPage = upstream.page || upstream.currentPage || upstream.pageNumber ? upstreamPage : page;
+    const respPer = upstream.per_page || upstream.perPage || upstream.limit ? upstreamPer : per_page;
+
     // If upstream likely handled pagination, respect its values
     if (upstream.page || upstream.per_page || upstream.total) {
-      return { total, page: upstreamPage || page, per_page: upstreamPer || per_page, items };
+      const has_more = (respPage * respPer) < total;
+      const next = has_more ? respPage + 1 : null;
+      const prev = respPage > 1 ? respPage - 1 : null;
+      return { total, page: respPage || page, per_page: respPer || per_page, items, has_more, links: { next, prev } };
     }
+
     // Otherwise paginate locally
     const offset = (page - 1) * per_page;
-    return { total: items.length, page, per_page, items: items.slice(offset, offset + per_page) };
+    const pageItems = items.slice(offset, offset + per_page);
+    const has_more = (page * per_page) < items.length;
+    const next = has_more ? page + 1 : null;
+    const prev = page > 1 ? page - 1 : null;
+    return { total: items.length, page, per_page, items: pageItems, has_more, links: { next, prev } };
   }
 
   // If upstream is object with single record

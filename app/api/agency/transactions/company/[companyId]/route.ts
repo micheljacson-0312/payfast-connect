@@ -33,6 +33,12 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
 
   try {
     const url = `/blade-platform/transactions/COMPANY/${encodeURIComponent(companyId)}${qs && Object.keys(qs).length ? `?${new URLSearchParams(qs).toString()}` : ''}`;
+    const cacheKey = `GET:${url}`;
+    // Try cache first
+    const { getCache, setCache } = await import('@/lib/simple-cache');
+    const cached = getCache(cacheKey);
+    if (cached) return NextResponse.json(cached);
+
     const res = await fetch(`https://services.leadconnectorhq.com${url}`, {
       headers: { Authorization: `Bearer ${ctx.accessToken}`, Version: '2021-07-28', 'Content-Type': 'application/json' },
     });
@@ -40,6 +46,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
     const data = text ? JSON.parse(text) : null;
     if (!res.ok) return NextResponse.json({ error: data?.message || text || 'Request failed' }, { status: res.status });
     const normalized = normalizeUpstreamResponse(data, page, per_page);
+    setCache(cacheKey, normalized, 30);
     return NextResponse.json(normalized);
   } catch (err: any) {
     return NextResponse.json({ error: err?.message || String(err) }, { status: 500 });
