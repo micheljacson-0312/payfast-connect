@@ -33,6 +33,28 @@ type AgencySettings = {
   notify_email?: string | null;
 };
 
+type SubaccountRow = {
+  locationId: string;
+  businessName: string;
+  merchantName: string;
+  status: string;
+  planId: number | null;
+  planName: string;
+  priceMonthly: number;
+  priceYearly: number;
+  maxLocations: number;
+  resellAmount: number;
+  subscriptionId: number | null;
+  trialEndsAt: string | null;
+  currentPeriodEnd: string | null;
+  currentPeriodStart: string | null;
+  walletBalance: number;
+  walletCurrency: string;
+  lastInvoiceStatus: string;
+  lastInvoiceAmount: number;
+  lastInvoiceAt: string | null;
+};
+
 export default function AgencyDashboardClient({
   stats,
   sessionLocationId,
@@ -43,6 +65,7 @@ export default function AgencyDashboardClient({
   instruments,
   invoices,
   agencySettings,
+  subaccounts,
 }: {
   stats: Stats;
   sessionLocationId: string;
@@ -53,8 +76,11 @@ export default function AgencyDashboardClient({
   instruments: PaymentInstrument[];
   invoices: InvoiceRow[];
   agencySettings: AgencySettings | null;
+  subaccounts: SubaccountRow[];
 }) {
-  const [tab, setTab] = useState<'summary' | 'payments' | 'wallet' | 'notifications' | 'controls'>('summary');
+  const [tab, setTab] = useState<'summary' | 'subaccounts' | 'payments' | 'wallet' | 'notifications' | 'controls'>('summary');
+  const [selectedLocationId, setSelectedLocationId] = useState(sessionLocationId);
+  const [actionLoading, setActionLoading] = useState<string | null>(null);
 
   const overviewCards = useMemo(
     () => [
@@ -68,6 +94,7 @@ export default function AgencyDashboardClient({
 
   const tabs = [
     { id: 'summary', label: 'Summary' },
+    { id: 'subaccounts', label: 'Subaccounts' },
     { id: 'payments', label: 'Payments' },
     { id: 'wallet', label: 'Wallet & Transactions' },
     { id: 'notifications', label: 'Notifications' },
@@ -87,6 +114,36 @@ export default function AgencyDashboardClient({
 
   const maskedMerchantId = agencySettings?.merchant_id ? `${String(agencySettings.merchant_id).slice(0, 2)}••••${String(agencySettings.merchant_id).slice(-2)}` : 'Not connected';
   const primaryInstrument = instruments[0];
+
+  async function runSubaccountAction(locationId: string, action: 'pause' | 'charge' | 'inspect', row?: SubaccountRow) {
+    setActionLoading(`${action}:${locationId}`);
+    try {
+      if (action === 'inspect') {
+        setSelectedLocationId(locationId);
+        setTab('controls');
+        return;
+      }
+
+      const endpoint = action === 'pause' ? '/api/agency/saas/pause-location' : '/api/agency/saas/update-subscription';
+      const payload = action === 'pause'
+        ? { locationId, payload: {} }
+        : { locationId, payload: { planId: row?.planId || null, amount: row?.resellAmount || row?.priceMonthly || 0, subscriptionId: row?.subscriptionId || null } };
+
+      const res = await fetch(endpoint, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+
+      if (!res.ok) {
+        throw new Error((await res.json().catch(() => ({})))?.error || 'Action failed');
+      }
+    } catch (error) {
+      alert(error instanceof Error ? error.message : 'Action failed');
+    } finally {
+      setActionLoading(null);
+    }
+  }
 
   return (
     <div className="page-shell-dark" style={{ padding: '28px 24px 40px' }}>
@@ -218,6 +275,75 @@ export default function AgencyDashboardClient({
                     ))}
                   </tbody>
                 </table>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {tab === 'subaccounts' && (
+          <div style={{ display: 'grid', gap: 18 }}>
+            <div style={{ background: 'var(--dark2)', border: '1px solid var(--border)', borderRadius: 18, padding: 20 }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, marginBottom: 12, flexWrap: 'wrap' }}>
+                <div>
+                  <div style={{ fontSize: 18, fontWeight: 700 }}>Subaccount Showcase</div>
+                  <div style={{ color: 'var(--gray)', fontSize: 13, lineHeight: 1.7 }}>See every location, active plan, resell price, wallet balance, and quick actions.</div>
+                </div>
+                <div style={{ color: 'var(--gray)', fontSize: 12 }}>Click a card to inspect and manage it.</div>
+              </div>
+
+              <div className="resp-grid-auto" style={{ alignItems: 'stretch' }}>
+                {subaccounts.map((row) => {
+                  const monthlyCharge = row.priceMonthly || row.resellAmount || 0;
+                  const active = row.status === 'active';
+                  const isSelected = selectedLocationId === row.locationId;
+                  return (
+                    <div
+                      key={row.locationId}
+                      role="button"
+                      tabIndex={0}
+                      onClick={() => setSelectedLocationId(row.locationId)}
+                      onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') setSelectedLocationId(row.locationId); }}
+                      style={{
+                        textAlign: 'left',
+                        border: `1px solid ${isSelected ? 'rgba(0,82,255,0.35)' : 'var(--border)'}`,
+                        background: isSelected ? 'rgba(0,82,255,0.08)' : 'var(--dark3)',
+                        borderRadius: 18,
+                        padding: 18,
+                        color: 'white',
+                        cursor: 'pointer',
+                      }}
+                    >
+                      <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12, alignItems: 'flex-start', marginBottom: 10 }}>
+                        <div>
+                          <div style={{ fontSize: 16, fontWeight: 800, lineHeight: 1.4 }}>{row.businessName || row.merchantName || row.locationId}</div>
+                          <div style={{ fontSize: 12, color: 'var(--gray)', marginTop: 4, fontFamily: 'monospace' }}>{row.locationId}</div>
+                        </div>
+                        <div style={{ fontSize: 11, color: active ? '#22C55E' : '#FBBF24', background: active ? 'rgba(34,197,94,0.1)' : 'rgba(251,191,36,0.1)', border: `1px solid ${active ? 'rgba(34,197,94,0.18)' : 'rgba(251,191,36,0.18)'}`, borderRadius: 999, padding: '5px 10px', textTransform: 'capitalize' }}>{row.status || 'none'}</div>
+                      </div>
+
+                      <div style={{ display: 'grid', gap: 8, fontSize: 13, color: 'var(--gray)', lineHeight: 1.6, marginBottom: 12 }}>
+                        <div>Active plan: <span style={{ color: 'white', fontWeight: 700 }}>{row.planName || 'Trial'}</span></div>
+                        <div>Monthly charge: <span style={{ color: 'white', fontWeight: 700 }}>PKR {Number(monthlyCharge).toLocaleString()}</span></div>
+                        <div>Reselling price: <span style={{ color: 'white', fontWeight: 700 }}>PKR {Number(row.resellAmount || monthlyCharge).toLocaleString()}</span></div>
+                        <div>Wallet balance: <span style={{ color: 'white', fontWeight: 700 }}>{row.walletCurrency} {Number(row.walletBalance || 0).toLocaleString()}</span></div>
+                        <div>Next billing: <span style={{ color: 'white', fontWeight: 700 }}>{row.currentPeriodEnd ? new Date(row.currentPeriodEnd).toLocaleDateString() : (row.trialEndsAt ? new Date(row.trialEndsAt).toLocaleDateString() : '—')}</span></div>
+                        <div>Last invoice: <span style={{ color: 'white', fontWeight: 700 }}>{row.lastInvoiceStatus || '—'} {row.lastInvoiceAmount ? `• PKR ${Number(row.lastInvoiceAmount).toLocaleString()}` : ''}</span></div>
+                      </div>
+
+                      <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+                        <button type="button" onClick={(e) => { e.stopPropagation(); runSubaccountAction(row.locationId, 'inspect', row); }} style={{ background: 'var(--blue)', color: 'white', border: 'none', borderRadius: 10, padding: '10px 12px', cursor: 'pointer', fontWeight: 700 }}>
+                          Open
+                        </button>
+                        <button type="button" onClick={(e) => { e.stopPropagation(); runSubaccountAction(row.locationId, 'charge', row); }} style={{ background: 'transparent', color: 'white', border: '1px solid var(--border)', borderRadius: 10, padding: '10px 12px', cursor: 'pointer', fontWeight: 700 }}>
+                          {actionLoading === `charge:${row.locationId}` ? 'Charging…' : 'Charge same plan'}
+                        </button>
+                        <button type="button" onClick={(e) => { e.stopPropagation(); runSubaccountAction(row.locationId, 'pause', row); }} style={{ background: 'rgba(239,68,68,0.08)', color: '#F87171', border: '1px solid rgba(239,68,68,0.18)', borderRadius: 10, padding: '10px 12px', cursor: 'pointer', fontWeight: 700 }}>
+                          {actionLoading === `pause:${row.locationId}` ? 'Stopping…' : 'Stop subaccount'}
+                        </button>
+                      </div>
+                    </div>
+                  );
+                })}
               </div>
             </div>
           </div>
@@ -388,7 +514,7 @@ export default function AgencyDashboardClient({
                 <div style={{ color: 'var(--gray)', fontSize: 13, lineHeight: 1.7 }}>Inspect plans, pull sub-account subscription details, and run rebilling or pause actions.</div>
               </div>
             </div>
-            <AgencyControls initialLocationId={sessionLocationId} />
+            <AgencyControls key={selectedLocationId} initialLocationId={selectedLocationId || sessionLocationId} />
           </div>
         )}
 

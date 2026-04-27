@@ -1,11 +1,25 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getAgencyContext } from '@/lib/ghl-saas';
+import { getSession } from '@/lib/session';
+import { query } from '@/lib/db';
 
 export async function GET(request: NextRequest, { params }: { params: Promise<{ locationId: string }> }) {
   const { locationId } = await params;
   if (!locationId) return NextResponse.json({ error: 'locationId required' }, { status: 400 });
 
-  const ctx = await getAgencyContext(request.headers.get('x-location-id') || '');
+  const session = await getSession();
+  if (!session || session.installMode !== 'agency') return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+
+  const inst = await query<any[]>('SELECT company_id FROM installations WHERE location_id = ? LIMIT 1', [session.locationId]);
+  const companyFromInst = inst[0]?.company_id;
+  if (companyFromInst) {
+    const target = await query<any[]>('SELECT company_id FROM installations WHERE location_id = ? LIMIT 1', [locationId]);
+    if (!target.length || String(target[0].company_id) !== String(companyFromInst)) {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
+    }
+  }
+
+  const ctx = await getAgencyContext(session.locationId);
   if (!ctx || !ctx.accessToken) return NextResponse.json({ error: 'Unauthorized or missing agency token' }, { status: 401 });
 
   const q = request.nextUrl.searchParams;
