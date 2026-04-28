@@ -27,8 +27,20 @@ export async function query<T = unknown>(
   values?: SqlValue[]
 ): Promise<T> {
   const db = getPool();
-  const [rows]: [QueryResult, FieldPacket[]] = await db.execute(sql, values);
-  return rows as T;
+  try {
+    const [rows]: [QueryResult, FieldPacket[]] = await db.execute(sql, values);
+    return rows as T;
+  } catch (err: any) {
+    // If the DB isn't available during build or in dev, degrade gracefully by returning
+    // an empty result rather than crashing the build. This avoids hard failures when
+    // Next.js prerenders pages that call server code at build time on machines without DB.
+    console.warn('[DB] query failed:', err && err.message ? err.message : String(err));
+    if (err && (err.code === 'ECONNREFUSED' || String(err).includes('ECONNREFUSED'))) {
+      return [] as unknown as T;
+    }
+    // For other errors, rethrow so they're visible during development
+    throw err;
+  }
 }
 
 // ─── Type helpers ───────────────────────────────────────────

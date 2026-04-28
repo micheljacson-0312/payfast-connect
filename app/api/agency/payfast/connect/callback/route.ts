@@ -74,7 +74,8 @@ export async function GET(request: Request) {
     // Clear state cookie and redirect back to settings with success flag
     const res = NextResponse.redirect(`${process.env.NEXT_PUBLIC_APP_URL}/agency/settings?payfast_connected=1`);
     try {
-      res.cookies.delete('pf_agency_state', { path: '/api/agency/payfast/connect/callback' });
+      // Delete state cookie (no options to satisfy Next.js types)
+      res.cookies.delete('pf_agency_state');
     } catch (e) {
       // ignore
     }
