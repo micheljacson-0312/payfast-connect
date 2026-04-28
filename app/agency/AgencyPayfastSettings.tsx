@@ -48,6 +48,35 @@ export default function AgencyPayfastSettings() {
         }
       })
       .catch(() => {});
+    // fetch agency context (company id) and update connect link
+    fetch('/api/agency/context')
+      .then((r) => r.json())
+      .then((ctx) => {
+        const link = document.getElementById('payfast-connect-link') as HTMLAnchorElement | null;
+        if (ctx?.companyId && link) {
+          link.href = `/api/agency/payfast/connect/start?companyId=${encodeURIComponent(ctx.companyId)}`;
+        }
+      })
+      .catch(() => {});
+
+    // Check URL query params for connect result and display message
+    try {
+      const qp = new URLSearchParams(window.location.search);
+      if (qp.get('payfast_connected')) {
+        setMessage('PayFast connected successfully.');
+        // remove query params from URL without reloading
+        const url = new URL(window.location.href);
+        url.searchParams.delete('payfast_connected');
+        window.history.replaceState({}, '', url.toString());
+      } else if (qp.get('payfast_error')) {
+        setMessage(decodeURIComponent(qp.get('payfast_error') || 'Unknown error'));
+        const url = new URL(window.location.href);
+        url.searchParams.delete('payfast_error');
+        window.history.replaceState({}, '', url.toString());
+      }
+    } catch (e) {
+      // ignore
+    }
   }, []);
 
   async function save() {
@@ -101,9 +130,16 @@ export default function AgencyPayfastSettings() {
         <div style={{ fontSize: 13, color: 'var(--gray)', lineHeight: 1.6 }}>
           {ready ? 'Credentials ready for agency billing.' : 'Connect merchant ID and key before collecting agency payments.'}
         </div>
-        <button onClick={save} disabled={saving} style={{ background: 'var(--blue)', color: 'white', border: 'none', borderRadius: 10, padding: '11px 16px', cursor: 'pointer', fontWeight: 700, opacity: saving ? 0.6 : 1 }}>
-          {saving ? 'Saving…' : 'Save PayFast Settings'}
-        </button>
+        <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+          <button onClick={save} disabled={saving} style={{ background: 'var(--blue)', color: 'white', border: 'none', borderRadius: 10, padding: '11px 16px', cursor: 'pointer', fontWeight: 700, opacity: saving ? 0.6 : 1 }}>
+            {saving ? 'Saving…' : 'Save PayFast Settings'}
+          </button>
+          <a id="payfast-connect-link" href={`/api/agency/payfast/connect/start?companyId=default`} style={{ textDecoration: 'none' }}>
+            <button style={{ background: 'transparent', color: 'white', border: '1px solid var(--border)', borderRadius: 10, padding: '11px 16px', cursor: 'pointer', fontWeight: 700 }}>
+              Connect PayFast (Agency)
+            </button>
+          </a>
+        </div>
       </div>
       {message && <div style={{ marginTop: 12, fontSize: 13, color: '#9FB0D5' }}>{message}</div>}
     </div>

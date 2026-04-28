@@ -119,6 +119,12 @@ export async function POST(request: NextRequest) {
 
     // ── Verify Payment ──────────────────────────────────────
     case 'verify': {
+      // Require apiKey for verification requests
+      // Validate API key via helper (headers-only)
+      if (!(await import('@/lib/ghl-auth')).then(m => m.validateProviderApiKey(locationId, request, 'verify'))) {
+        return NextResponse.json({ error: 'unauthorized' }, { status: 401 });
+      }
+
       const rows = await query<any[]>(
         `SELECT * FROM payments WHERE (pf_payment_id = ? OR custom_str3 = ?) AND location_id = ? LIMIT 1`,
         [chargeId, ghlTransactionId, locationId]
@@ -146,6 +152,10 @@ export async function POST(request: NextRequest) {
 
     // ── Refund ───────────────────────────────────────────────
     case 'refund': {
+      // Require apiKey for refund requests
+      if (!(await import('@/lib/ghl-auth')).then(m => m.validateProviderApiKey(locationId, request, 'refund'))) {
+        return NextResponse.json({ error: 'unauthorized' }, { status: 401 });
+      }
       await query(
         `UPDATE payments SET status = 'refunded' WHERE pf_payment_id = ? AND location_id = ?`,
         [chargeId, locationId]
@@ -161,6 +171,11 @@ export async function POST(request: NextRequest) {
 
     // ── List Payment Methods (for saved cards) ─────────────
     case 'list_payment_methods': {
+      // Require apiKey for listing saved payment methods
+      if (!(await import('@/lib/ghl-auth')).then(m => m.validateProviderApiKey(locationId, request, 'list_payment_methods'))) {
+        return NextResponse.json({ error: 'unauthorized' }, { status: 401 });
+      }
+
       if (!locationId) {
         return NextResponse.json({ error: 'locationId required' }, { status: 400 });
       }
@@ -179,6 +194,11 @@ export async function POST(request: NextRequest) {
 
     // ── Charge Payment Method (for saved cards) ─────────────
     case 'charge_payment': {
+      // Require apiKey for charging saved payment methods
+      if (!(await import('@/lib/ghl-auth')).then(m => m.validateProviderApiKey(locationId, request, 'charge_payment'))) {
+        return NextResponse.json({ error: 'unauthorized' }, { status: 401 });
+      }
+
       if (!locationId || !amount) {
         return NextResponse.json({ error: 'locationId and amount required' }, { status: 400 });
       }
@@ -293,6 +313,10 @@ export async function POST(request: NextRequest) {
     }
 
     case 'create_subscription': {
+      // Require apiKey for subscription creation
+      if (!(await import('@/lib/ghl-auth')).then(m => m.validateProviderApiKey(locationId, request, 'create_subscription'))) {
+        return NextResponse.json({ error: 'unauthorized' }, { status: 401 });
+      }
       if (!locationId || !amount) {
         return NextResponse.json({ error: 'locationId and amount required' }, { status: 400 });
       }
@@ -361,6 +385,10 @@ export async function POST(request: NextRequest) {
     }
 
     case 'cancel_subscription': {
+      // Require apiKey for subscription cancellation
+      if (!(await import('@/lib/ghl-auth')).then(m => m.validateProviderApiKey(locationId, request, 'cancel_subscription'))) {
+        return NextResponse.json({ error: 'unauthorized' }, { status: 401 });
+      }
       if (!locationId) {
         return NextResponse.json({ error: 'locationId required' }, { status: 400 });
       }

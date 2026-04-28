@@ -1,4 +1,5 @@
 import { getValidToken } from './ghl';
+import { query } from './db';
 
 const GHL_API = 'https://services.leadconnectorhq.com';
 const VERSION = '2021-07-28';
@@ -34,7 +35,7 @@ async function ghlRequest(path: string, token: string, method: 'GET' | 'POST' | 
   return data;
 }
 
-function getMarketplaceToken(appType: 'normal' | 'agency' = 'normal') {
+export function getMarketplaceToken(appType: 'normal' | 'agency' = 'normal') {
   if (appType === 'agency') {
     return process.env.AGENCY_GHL_APP_TOKEN || process.env.GHL_APP_TOKEN || '';
   }
@@ -109,15 +110,34 @@ export async function ensureCustomProviderProvisioned(locationId: string, config
   }
 
   try {
+    let connectResp: any = null;
     if (marketplaceToken) {
-      await marketplaceRequest('/payments/custom-provider/connect', 'POST', connectBody, appType);
+      connectResp = await marketplaceRequest('/payments/custom-provider/connect', 'POST', connectBody, appType);
     } else {
-      await ghlRequest('/payments/custom-provider/connect', token, 'POST', connectBody);
+      connectResp = await ghlRequest('/payments/custom-provider/connect', token, 'POST', connectBody);
     }
-    details.push({ step: 'create-config', ok: true });
+
+    // If the connect response includes provider keys, persist them for this location
+    const apiKey = connectResp?.apiKey || connectResp?.api_key || connectResp?.providerApiKey || connectResp?.provider_api_key || null;
+    const publishableKey = connectResp?.publishableKey || connectResp?.publishable_key || connectResp?.providerPublishableKey || connectResp?.provider_publishable_key || null;
+
+    if (apiKey || publishableKey) {
+      try {
+        await query(`UPDATE installations SET provider_api_key = ?, provider_publishable_key = ? WHERE location_id = ?`, [apiKey, publishableKey, locationId]);
+        details.push({ step: 'create-config', ok: true });
+        try { (await import('./alerts')).alertAdmin('ghl_provider_keys_saved', { locationId, hasApiKey: !!apiKey, hasPublishableKey: !!publishableKey }); } catch {}
+      } catch (err) {
+        details.push({ step: 'create-config', ok: false, error: err instanceof Error ? err.message : String(err) });
+        console.warn('[GHL Provider] failed to persist provider keys', err);
+        try { (await import('./alerts')).alertAdmin('ghl_provider_keys_persist_failed', { locationId, error: err instanceof Error ? err.message : String(err) }); } catch {}
+      }
+    } else {
+      details.push({ step: 'create-config', ok: true });
+    }
   } catch (error) {
     details.push({ step: 'create-config', ok: false, error: error instanceof Error ? error.message : String(error) });
     console.warn('[GHL Provider] provider config failed', error);
+    try { (await import('./alerts')).alertAdmin('ghl_provider_connect_failed', { locationId, error: error instanceof Error ? error.message : String(error) }); } catch {}
   }
 
   try {
@@ -137,6 +157,7 @@ export async function ensureCustomProviderProvisioned(locationId: string, config
   } catch (error) {
     details.push({ step: 'capabilities', ok: false, error: error instanceof Error ? error.message : String(error) });
     console.warn('[GHL Provider] capabilities update failed', error);
+    try { (await import('./alerts')).alertAdmin('ghl_provider_capabilities_failed', { locationId, error: error instanceof Error ? error.message : String(error) }); } catch {}
   }
 
   return {

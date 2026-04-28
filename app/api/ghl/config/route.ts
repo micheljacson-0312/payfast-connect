@@ -64,5 +64,9 @@ export async function POST(request: NextRequest) {
     appType: 'normal',
   });
 
+  // If HighLevel create-config returned provider keys synchronously (rare), save placeholders.
+  // In normal operations the provider_api_key/publishable_key will be set via the marketplace connect callbacks
+  // or can be manually saved via the admin endpoints. For now ensure columns exist and leave null.
+
   return NextResponse.json({ success: true });
 }
