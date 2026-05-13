@@ -97,13 +97,11 @@ export async function GET(request: NextRequest) {
       [locationId, companyId, accessToken, refreshToken, new Date(Date.now() + expiresIn * 1000)]
     ), 3000, 'Agency installation save');
 
-    await ensureCustomProviderProvisioned(locationId, {
-      merchantId: null,
-      merchantKey: null,
-      passphrase: null,
-      environment: 'live',
-      appType: 'agency',
-    });
+try {
+      await ensureCustomProviderProvisioned(locationId, { appType: 'agency' });
+    } catch (provErr) {
+      console.warn('[Agency OAuth] provider registration failed (continuing):', provErr);
+    }
 
     return applySessionCookie(clearExistingSession(NextResponse.redirect(getAppUrlWithSearch('/agency?installed=1', request))), locationId, 'agency');
   } catch (err) {

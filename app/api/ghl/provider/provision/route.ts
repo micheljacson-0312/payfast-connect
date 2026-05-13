@@ -1,5 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { ensureCustomProviderProvisioned } from '@/lib/ghl-provider';
+import {
+  ensureCustomProviderProvisioned,
+  connectProviderConfig,
+} from '@/lib/ghl-provider';
 import { getSession } from '@/lib/session';
 
 export async function POST(request: NextRequest) {
@@ -13,12 +16,25 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'locationId required' }, { status: 400 });
   }
 
-  const result = await ensureCustomProviderProvisioned(locationId, {
-    merchantId: body.merchantId || body.merchant_id || null,
-    merchantKey: body.merchantKey || body.merchant_key || null,
-    passphrase: body.passphrase || null,
-    environment: body.environment || 'live',
-  });
+  // Step 1 — make sure the provider is registered for this location.
+  const reg = await ensureCustomProviderProvisioned(locationId, { appType: 'normal' });
 
-  return NextResponse.json(result);
+  // Step 2 — if caller wants to connect-config right now (credentials present),
+  // call connect to flip the tile.
+  const wantsConnect =
+    body.connect === true ||
+    body.merchantId ||
+    body.merchant_id;
+
+  let connect: any = null;
+  if (wantsConnect) {
+    const mode: 'live' | 'test' =
+      body.environment === 'sandbox' || body.environment === 'test' ? 'test' : 'live';
+    connect = await connectProviderConfig(locationId, mode, 'normal');
+  }
+
+  return NextResponse.json({
+    register: reg,
+    connect,
+  });
 }
