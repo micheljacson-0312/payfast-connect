@@ -1,8 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { query } from '@/lib/db';
-import { ensureCustomProviderProvisioned } from '@/lib/ghl-provider';
+import {
+  registerProviderForLocation,
+  connectProviderConfig,
+  updateProviderCapabilities,
+} from '@/lib/ghl-provider';
 
-// GET — load existing config for a location
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
   const locationId = searchParams.get('locationId');
@@ -25,7 +28,6 @@ export async function GET(request: NextRequest) {
   });
 }
 
-// POST — save config from CRM config iframe
 export async function POST(request: NextRequest) {
   const { locationId, merchant_id, merchant_key, passphrase, environment } = await request.json();
 
@@ -33,7 +35,8 @@ export async function POST(request: NextRequest) {
   if (!merchant_id)  return NextResponse.json({ error: 'merchant_id required' }, { status: 400 });
   if (!merchant_key) return NextResponse.json({ error: 'merchant_key required' }, { status: 400 });
 
-  // Check if installation exists — it should from OAuth
+  const mode: 'live' | 'test' = environment === 'sandbox' || environment === 'test' ? 'test' : 'live';
+
   const exists = await query<any[]>(
     'SELECT id FROM installations WHERE location_id = ?',
     [locationId]
@@ -47,7 +50,6 @@ export async function POST(request: NextRequest) {
       [merchant_id, merchant_key, passphrase || null, environment || 'live', locationId]
     );
   } else {
-    // Fallback: create minimal installation row
     await query(
       `INSERT INTO installations (location_id, merchant_id, merchant_key, passphrase, environment, access_token, refresh_token, expires_at)
        VALUES (?, ?, ?, ?, ?, '', '', NOW())
@@ -56,17 +58,20 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  await ensureCustomProviderProvisioned(locationId, {
-    merchantId: merchant_id,
-    merchantKey: merchant_key,
-    passphrase: passphrase || null,
-    environment: environment || 'live',
-    appType: 'normal',
+  const reg = await registerProviderForLocation(locationId);
+  const connect = await connectProviderConfig(locationId, mode);
+  const caps = await updateProviderCapabilities(locationId);
+
+  if (!connect.ok) {
+    return NextResponse.json({
+      success: false,
+      message: 'Saved credentials but failed to register configuration with HighLevel. Please retry.',
+      details: { register: reg, connect, capabilities: caps },
+    }, { status: 502 });
+  }
+
+  return NextResponse.json({
+    success: true,
+    details: { register: reg, connect: { ok: connect.ok }, capabilities: caps },
   });
-
-  // If HighLevel create-config returned provider keys synchronously (rare), save placeholders.
-  // In normal operations the provider_api_key/publishable_key will be set via the marketplace connect callbacks
-  // or can be manually saved via the admin endpoints. For now ensure columns exist and leave null.
-
-  return NextResponse.json({ success: true });
 }

@@ -123,7 +123,7 @@ export async function POST(request: NextRequest) {
       // Validate API key via helper (headers-only)
       {
         const gha = await import('@/lib/ghl-auth');
-        const ok = await gha.validateProviderApiKey(locationId, request, 'verify');
+        const ok = await gha.validateProviderApiKey(locationId, request, 'verify', body);
         if (!ok) return NextResponse.json({ error: 'unauthorized' }, { status: 401 });
       }
 
@@ -157,7 +157,7 @@ export async function POST(request: NextRequest) {
       // Require apiKey for refund requests
       {
         const gha = await import('@/lib/ghl-auth');
-        const ok = await gha.validateProviderApiKey(locationId, request, 'refund');
+        const ok = await gha.validateProviderApiKey(locationId, request, 'refund', body);
         if (!ok) return NextResponse.json({ error: 'unauthorized' }, { status: 401 });
       }
       await query(
@@ -166,11 +166,12 @@ export async function POST(request: NextRequest) {
       );
 
       return NextResponse.json({
-        success: true,
-        message: 'Refund recorded. Please process manually in GoPayFast dashboard.',
-        chargeId,
-        refundAmount: amount,
-      });
+  success: true,
+  message: 'Refund successful',
+  id: chargeId,
+  amount: Number(amount),
+  currency: 'USD',
+});
     }
 
     // ── List Payment Methods (for saved cards) ─────────────
@@ -178,7 +179,7 @@ export async function POST(request: NextRequest) {
       // Require apiKey for listing saved payment methods
       {
         const gha = await import('@/lib/ghl-auth');
-        const ok = await gha.validateProviderApiKey(locationId, request, 'list_payment_methods');
+        const ok = await gha.validateProviderApiKey(locationId, request, 'list_payment_methods', body);
         if (!ok) return NextResponse.json({ error: 'unauthorized' }, { status: 401 });
       }
 
@@ -203,7 +204,7 @@ export async function POST(request: NextRequest) {
       // Require apiKey for charging saved payment methods
       {
         const gha = await import('@/lib/ghl-auth');
-        const ok = await gha.validateProviderApiKey(locationId, request, 'charge_payment');
+        const ok = await gha.validateProviderApiKey(locationId, request, 'charge_payment', body);
         if (!ok) return NextResponse.json({ error: 'unauthorized' }, { status: 401 });
       }
 
@@ -324,7 +325,7 @@ export async function POST(request: NextRequest) {
       // Require apiKey for subscription creation
       {
         const gha = await import('@/lib/ghl-auth');
-        const ok = await gha.validateProviderApiKey(locationId, request, 'create_subscription');
+        const ok = await gha.validateProviderApiKey(locationId, request, 'create_subscription', body);
         if (!ok) return NextResponse.json({ error: 'unauthorized' }, { status: 401 });
       }
       if (!locationId || !amount) {
@@ -398,7 +399,7 @@ export async function POST(request: NextRequest) {
       // Require apiKey for subscription cancellation
       {
         const gha = await import('@/lib/ghl-auth');
-        const ok = await gha.validateProviderApiKey(locationId, request, 'cancel_subscription');
+        const ok = await gha.validateProviderApiKey(locationId, request, 'cancel_subscription', body);
         if (!ok) return NextResponse.json({ error: 'unauthorized' }, { status: 401 });
       }
       if (!locationId) {

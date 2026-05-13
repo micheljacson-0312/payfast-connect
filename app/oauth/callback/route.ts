@@ -193,14 +193,13 @@ export async function GET(request: NextRequest) {
 
     await startTrial(locationId);
 
-    // Provision the GHL payment provider association + config for this location.
-    await ensureCustomProviderProvisioned(locationId, {
-      merchantId: null,
-      merchantKey: null,
-      passphrase: null,
-      environment: 'live',
-      appType: 'normal',
-    });
+    // Register the provider association for this location (no credentials yet).
+    // Connect-config happens later when the user saves PayFast credentials in /ghl-config.
+    try {
+      await ensureCustomProviderProvisioned(locationId, { appType: 'normal' });
+    } catch (provErr) {
+      console.warn('[OAuth] provider registration failed (continuing):', provErr);
+    }
 
     // Keep the sub-account install flow on the regular app setup path.
     return applySessionCookie(

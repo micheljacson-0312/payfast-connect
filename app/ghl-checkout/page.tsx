@@ -30,7 +30,9 @@ export default function GHLCheckoutPage() {
   // CRM communication
   useEffect(() => {
     function handleMessage(event: MessageEvent) {
-      if (!event.origin.includes('gohighlevel') && !event.origin.includes('leadconnectorhq') && !event.origin.includes('localhost')) return;
+      const allowedOriginHints = ['gohighlevel', 'leadconnectorhq', 'msgsndr', 'localhost', '127.0.0.1'];
+const isTrustedHint = allowedOriginHints.some(h => event.origin.includes(h));
+if (!isTrustedHint && event.origin && !/^https:\/\//.test(event.origin)) return;
 
       const d = event.data;
       
@@ -60,12 +62,15 @@ export default function GHLCheckoutPage() {
 
     window.addEventListener('message', handleMessage);
 
-    // Tell CRM the iframe is ready
-    window.parent.postMessage({ 
-      type: 'custom_provider_ready', 
-      loaded: true,
-      addCardOnFileSupported: true 
-    }, '*');
+    // Tell CRM the iframe is ready — defer to next tick so the message
+    // listener is wired before GHL sends payment_initiate_props back.
+    queueMicrotask(() => {
+      window.parent.postMessage({
+        type: 'custom_provider_ready',
+        loaded: true,
+        addCardOnFileSupported: true,
+      }, '*');
+    });
 
     return () => window.removeEventListener('message', handleMessage);
   }, []);

@@ -1,5 +1,6 @@
 import { getValidToken } from './ghl';
 import { query } from './db';
+import crypto from 'crypto';
 
 const GHL_API = 'https://services.leadconnectorhq.com';
 const VERSION = '2021-07-28';
@@ -8,6 +9,9 @@ function appUrl(path: string) {
   const base = (process.env.NEXT_PUBLIC_APP_URL || '').replace(/\/$/, '');
   return `${base}${path}`;
 }
+
+const PROVIDER_NAME = 'Payfast Connect by 10x Digital Ventures';
+const PROVIDER_DESCRIPTION = 'CRM-native PayFast payment connector';
 
 async function ghlRequest(path: string, token: string, method: 'GET' | 'POST' | 'PUT', body?: unknown) {
   const res = await fetch(`${GHL_API}${path}`, {
@@ -29,7 +33,11 @@ async function ghlRequest(path: string, token: string, method: 'GET' | 'POST' | 
   }
 
   if (!res.ok) {
-    throw new Error(typeof data === 'string' ? data : data?.message || data?.error || `GHL request failed: ${res.status}`);
+    const msg = typeof data === 'string' ? data : data?.message || data?.error || `GHL request failed: ${res.status}`;
+    const err = new Error(`${res.status} ${msg}`);
+    (err as any).status = res.status;
+    (err as any).body = data;
+    throw err;
   }
 
   return data;
@@ -39,7 +47,6 @@ export function getMarketplaceToken(appType: 'normal' | 'agency' = 'normal') {
   if (appType === 'agency') {
     return process.env.AGENCY_GHL_APP_TOKEN || process.env.GHL_APP_TOKEN || '';
   }
-
   return process.env.GHL_APP_TOKEN || '';
 }
 
@@ -50,123 +57,134 @@ async function marketplaceRequest(path: string, method: 'GET' | 'POST' | 'PUT', 
       ? 'Missing agency app token (AGENCY_GHL_APP_TOKEN)'
       : 'Missing normal app token (GHL_APP_TOKEN)');
   }
-
   return ghlRequest(path, token, method, body);
 }
 
-export async function ensureCustomProviderProvisioned(locationId: string, config?: {
-  merchantId?: string | null;
-  merchantKey?: string | null;
-  passphrase?: string | null;
-  environment?: string | null;
-  appType?: 'normal' | 'agency';
-}) {
-  const locationToken = await getValidToken(locationId);
-  const appType = config?.appType || 'normal';
+async function chooseToken(locationId: string, appType: 'normal' | 'agency') {
   const marketplaceToken = getMarketplaceToken(appType);
-  const token = marketplaceToken || locationToken;
+  if (marketplaceToken) return { token: marketplaceToken, isMarketplace: true };
+  const locationToken = await getValidToken(locationId);
+  if (locationToken) return { token: locationToken, isMarketplace: false };
+  return { token: '', isMarketplace: false };
+}
 
-  if (!token) {
-    return { ok: false, reason: 'missing_token' as const };
+async function ensureProviderKeys(locationId: string) {
+  const rows = await query<any[]>(
+    `SELECT provider_api_key, provider_publishable_key
+     FROM installations WHERE location_id = ? LIMIT 1`,
+    [locationId]
+  );
+
+  let apiKey = rows[0]?.provider_api_key || null;
+  let publishableKey = rows[0]?.provider_publishable_key || null;
+
+  if (!apiKey || !publishableKey) {
+    apiKey = apiKey || `sk_${crypto.randomBytes(24).toString('hex')}`;
+    publishableKey = publishableKey || `pk_${crypto.randomBytes(16).toString('hex')}`;
+    await query(
+      `UPDATE installations
+       SET provider_api_key = ?, provider_publishable_key = ?
+       WHERE location_id = ?`,
+      [apiKey, publishableKey, locationId]
+    );
   }
 
-  const details: Array<{ step: string; ok: boolean; error?: string }> = [];
+  return { apiKey, publishableKey };
+}
 
-  const providerBody = {
+export async function registerProviderForLocation(
+  locationId: string,
+  appType: 'normal' | 'agency' = 'normal'
+) {
+  const { token, isMarketplace } = await chooseToken(locationId, appType);
+  if (!token) return { ok: false, reason: 'missing_token' as const };
+
+  const body = {
+    name: PROVIDER_NAME,
+    description: PROVIDER_DESCRIPTION,
+    imageUrl: process.env.GHL_PROVIDER_LOGO_URL || appUrl('/logo.png'),
     locationId,
-    providerName: 'Payfast connect By 10x Digital Ventures',
-    paymentsUrl: appUrl('/ghl-checkout'),
     queryUrl: appUrl('/api/ghl/query'),
-    configUrl: appUrl('/ghl-config'),
-    imageUrl: process.env.GHL_PROVIDER_LOGO_URL || 'https://cdn-icons-png.flaticon.com/512/1019/1019608.png',
+    paymentsUrl: appUrl('/ghl-checkout'),
   };
 
+  try {
+    const resp = isMarketplace
+      ? await marketplaceRequest('/payments/custom-provider/provider', 'POST', body, appType)
+      : await ghlRequest('/payments/custom-provider/provider', token, 'POST', body);
+    return { ok: true, response: resp };
+  } catch (error) {
+    console.error('[GHL Provider] registerProviderForLocation failed', error);
+    return { ok: false, error: error instanceof Error ? error.message : String(error) };
+  }
+}
 
-  const connectBody = {
+export async function connectProviderConfig(
+  locationId: string,
+  mode: 'live' | 'test' = 'live',
+  appType: 'normal' | 'agency' = 'normal'
+) {
+  const { token, isMarketplace } = await chooseToken(locationId, appType);
+  if (!token) return { ok: false, reason: 'missing_token' as const };
+
+  const { apiKey, publishableKey } = await ensureProviderKeys(locationId);
+
+  const body: Record<string, any> = {
     locationId,
-    providerName: 'Payfast connect By 10x Digital Ventures',
-    paymentsUrl: appUrl('/ghl-checkout'),
-    queryUrl: appUrl('/api/ghl/query'),
-    configUrl: appUrl('/ghl-config'),
-    merchant_id: config?.merchantId || null,
-    merchant_key: config?.merchantKey || null,
-    passphrase: config?.passphrase || null,
-    environment: config?.environment || 'live',
-    merchantId: config?.merchantId || null,
-    merchantKey: config?.merchantKey || null,
-    imageUrl: process.env.GHL_PROVIDER_LOGO_URL || 'https://cdn-icons-png.flaticon.com/512/1019/1019608.png',
+    apiKey,
+    publishableKey,
+    [mode]: { apiKey, publishableKey },
   };
 
   try {
-    if (marketplaceToken) {
-      await marketplaceRequest('/payments/custom-provider/provider', 'POST', providerBody, appType);
-    } else {
-      await ghlRequest('/payments/custom-provider/provider', token, 'POST', providerBody);
-    }
-    details.push({ step: 'create-integration', ok: true });
+    const resp = isMarketplace
+      ? await marketplaceRequest('/payments/custom-provider/connect', 'POST', body, appType)
+      : await ghlRequest('/payments/custom-provider/connect', token, 'POST', body);
+    return { ok: true, response: resp, apiKey, publishableKey };
   } catch (error) {
-    details.push({ step: 'create-integration', ok: false, error: error instanceof Error ? error.message : String(error) });
-    console.warn('[GHL Provider] provider association failed', error);
+    console.error('[GHL Provider] connectProviderConfig failed', error);
+    return { ok: false, error: error instanceof Error ? error.message : String(error) };
   }
+}
 
+export async function updateProviderCapabilities(
+  locationId: string,
+  appType: 'normal' | 'agency' = 'normal'
+) {
+  const marketplaceToken = getMarketplaceToken(appType);
+  if (!marketplaceToken) {
+    return { ok: false, reason: 'missing_marketplace_token' as const };
+  }
   try {
-    let connectResp: any = null;
-    if (marketplaceToken) {
-      connectResp = await marketplaceRequest('/payments/custom-provider/connect', 'POST', connectBody, appType);
-    } else {
-      connectResp = await ghlRequest('/payments/custom-provider/connect', token, 'POST', connectBody);
-    }
-
-    // If the connect response includes provider keys, persist them for this location
-    const apiKey = connectResp?.apiKey || connectResp?.api_key || connectResp?.providerApiKey || connectResp?.provider_api_key || null;
-    const publishableKey = connectResp?.publishableKey || connectResp?.publishable_key || connectResp?.providerPublishableKey || connectResp?.provider_publishable_key || null;
-
-    if (apiKey || publishableKey) {
-      try {
-        await query(`UPDATE installations SET provider_api_key = ?, provider_publishable_key = ? WHERE location_id = ?`, [apiKey, publishableKey, locationId]);
-        details.push({ step: 'create-config', ok: true });
-        try { (await import('./alerts')).alertAdmin('ghl_provider_keys_saved', { locationId, hasApiKey: !!apiKey, hasPublishableKey: !!publishableKey }); } catch {}
-      } catch (err) {
-        details.push({ step: 'create-config', ok: false, error: err instanceof Error ? err.message : String(err) });
-        console.warn('[GHL Provider] failed to persist provider keys', err);
-        try { (await import('./alerts')).alertAdmin('ghl_provider_keys_persist_failed', { locationId, error: err instanceof Error ? err.message : String(err) }); } catch {}
-      }
-    } else {
-      details.push({ step: 'create-config', ok: true });
-    }
+    const resp = await marketplaceRequest('/payments/custom-provider/capabilities', 'PUT', {
+      locationId,
+      payments: true,
+      orders: true,
+      subscriptions: true,
+      refunds: true,
+      savedCards: true,
+    }, appType);
+    return { ok: true, response: resp };
   } catch (error) {
-    details.push({ step: 'create-config', ok: false, error: error instanceof Error ? error.message : String(error) });
-    console.warn('[GHL Provider] provider config failed', error);
-    try { (await import('./alerts')).alertAdmin('ghl_provider_connect_failed', { locationId, error: error instanceof Error ? error.message : String(error) }); } catch {}
+    console.error('[GHL Provider] updateProviderCapabilities failed', error);
+    return { ok: false, error: error instanceof Error ? error.message : String(error) };
   }
+}
 
-  try {
-    if (marketplaceToken) {
-      await marketplaceRequest('/payments/custom-provider/capabilities', 'PUT', {
-        locationId,
-        payments: true,
-        orders: true,
-        subscriptions: true,
-        refunds: true,
-        savedCards: true,
-      }, appType);
-      details.push({ step: 'capabilities', ok: true });
-    } else {
-      details.push({ step: 'capabilities', ok: false, error: 'missing-marketplace-token' });
-    }
-  } catch (error) {
-    details.push({ step: 'capabilities', ok: false, error: error instanceof Error ? error.message : String(error) });
-    console.warn('[GHL Provider] capabilities update failed', error);
-    try { (await import('./alerts')).alertAdmin('ghl_provider_capabilities_failed', { locationId, error: error instanceof Error ? error.message : String(error) }); } catch {}
-  }
+export async function ensureCustomProviderProvisioned(
+  locationId: string,
+  options?: { appType?: 'normal' | 'agency' }
+) {
+  const appType = options?.appType || 'normal';
+  const steps: Array<{ step: string; ok: boolean; error?: string }> = [];
 
-  return {
-    ok: true,
-    usedMarketplaceToken: !!marketplaceToken,
-    usedLocationToken: !marketplaceToken && !!locationToken,
-    appType,
-    details,
-  };
+  const reg = await registerProviderForLocation(locationId, appType);
+  steps.push({ step: 'register', ok: !!reg.ok, error: (reg as any).error });
+
+  const caps = await updateProviderCapabilities(locationId, appType);
+  steps.push({ step: 'capabilities', ok: !!caps.ok, error: (caps as any).error });
+
+  return { ok: true, appType, steps };
 }
 
 export async function disconnectCustomProvider(locationId: string, appType: 'normal' | 'agency' = 'normal') {
@@ -174,7 +192,6 @@ export async function disconnectCustomProvider(locationId: string, appType: 'nor
   if (!marketplaceToken) {
     throw new Error(`Missing marketplace token for ${appType} app`);
   }
-
   try {
     await marketplaceRequest('/payments/custom-provider/disconnect', 'POST', { locationId }, appType);
     return { ok: true };
