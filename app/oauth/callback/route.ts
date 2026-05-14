@@ -1,16 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { query } from '@/lib/db';
-import { applySessionCookie } from '@/lib/session';
 import { getAppUrlWithSearch } from '@/lib/app-url';
 import { startTrial } from '@/lib/billing';
 import { ensureCustomProviderProvisioned } from '@/lib/ghl-provider';
-import bcrypt from 'bcryptjs';
 
 function pickString(...values: unknown[]) {
   for (const value of values) {
     if (typeof value === 'string' && value.trim()) return value;
   }
-
   return null;
 }
 
@@ -24,20 +21,15 @@ async function resolveLocationIdFallback() {
        ORDER BY created_at DESC, id DESC
        LIMIT 1`
     );
-
-    if (rows[0]?.location_id) {
-      return rows[0].location_id as string;
-    }
-
+    if (rows[0]?.location_id) return rows[0].location_id as string;
     await new Promise((resolve) => setTimeout(resolve, 500));
   }
-
   return null;
 }
 
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
-  const code  = searchParams.get('code');
+  const code = searchParams.get('code');
   const error = searchParams.get('error');
   const locationIdFromQuery = searchParams.get('locationId') || searchParams.get('location_id');
   const companyIdFromQuery = searchParams.get('companyId') || searchParams.get('company_id');
@@ -49,65 +41,67 @@ export async function GET(request: NextRequest) {
   }
 
   try {
-    // Exchange code for tokens
+    // Step 1: Exchange code for tokens
     const tokenRes = await fetch('https://services.leadconnectorhq.com/oauth/token', {
-      method:  'POST',
+      method: 'POST',
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
       body: new URLSearchParams({
-        client_id:     process.env.GHL_CLIENT_ID!,
+        client_id: process.env.GHL_CLIENT_ID!,
         client_secret: process.env.GHL_CLIENT_SECRET!,
-        grant_type:    'authorization_code',
+        grant_type: 'authorization_code',
         code,
-        redirect_uri:  `${process.env.NEXT_PUBLIC_APP_URL}/oauth/callback`,
+        redirect_uri: `${process.env.NEXT_PUBLIC_APP_URL}/oauth/callback`,
       }),
     });
 
     const rawText = await tokenRes.text();
     let tokens: any;
-
     try {
       tokens = JSON.parse(rawText);
     } catch {
-      throw new Error(`Token exchange returned non-JSON response: ${rawText.slice(0, 300)}`);
+      throw new Error(`Token exchange returned non-JSON: ${rawText.slice(0, 300)}`);
     }
-
     if (!tokenRes.ok) {
       throw new Error(`Token exchange failed: ${tokenRes.status} ${rawText.slice(0, 300)}`);
     }
 
-    const accessToken = pickString(tokens.access_token, tokens.accessToken, tokens.data?.access_token, tokens.data?.accessToken);
-    const refreshToken = pickString(tokens.refresh_token, tokens.refreshToken, tokens.data?.refresh_token, tokens.data?.refreshToken);
+    const accessToken = pickString(
+      tokens.access_token, tokens.accessToken,
+      tokens.data?.access_token, tokens.data?.accessToken
+    );
+    const refreshToken = pickString(
+      tokens.refresh_token, tokens.refreshToken,
+      tokens.data?.refresh_token, tokens.data?.refreshToken
+    );
     let locationId = pickString(
-      tokens.locationId,
-      tokens.location_id,
-      tokens.data?.locationId,
-      tokens.data?.location_id,
-      tokens.user?.locationId,
-      tokens.user?.location_id,
+      tokens.locationId, tokens.location_id,
+      tokens.data?.locationId, tokens.data?.location_id,
+      tokens.user?.locationId, tokens.user?.location_id,
       locationIdFromQuery
     );
     const companyId = pickString(
-      tokens.companyId,
-      tokens.company_id,
-      tokens.data?.companyId,
-      tokens.data?.company_id,
-      tokens.user?.companyId,
-      tokens.user?.company_id,
+      tokens.companyId, tokens.company_id,
+      tokens.data?.companyId, tokens.data?.company_id,
+      tokens.user?.companyId, tokens.user?.company_id,
       companyIdFromQuery
     );
-    const expiresIn = Number(tokens.expires_in ?? tokens.expiresIn ?? tokens.data?.expires_in ?? tokens.data?.expiresIn ?? 3600);
+    const expiresIn = Number(
+      tokens.expires_in ?? tokens.expiresIn ??
+      tokens.data?.expires_in ?? tokens.data?.expiresIn ?? 3600
+    );
 
-    if (!locationId) {
-      locationId = await resolveLocationIdFallback();
-    }
+    if (!locationId) locationId = await resolveLocationIdFallback();
 
     if (!accessToken || !refreshToken || !locationId) {
-      throw new Error(`Missing OAuth fields. access_token=${!!accessToken} refresh_token=${!!refreshToken} locationId=${locationId || 'missing'}`);
+      throw new Error(
+        `Missing OAuth fields. access_token=${!!accessToken} ` +
+        `refresh_token=${!!refreshToken} locationId=${locationId || 'missing'}`
+      );
     }
 
     const expiresAt = new Date(Date.now() + expiresIn * 1000);
 
-    // Upsert installation in DB
+    // Step 2: Upsert installation in DB (handles reinstalls)
     await query(
       `INSERT INTO installations
          (location_id, company_id, access_token, refresh_token, expires_at)
@@ -117,100 +111,30 @@ export async function GET(request: NextRequest) {
          access_token  = VALUES(access_token),
          refresh_token = VALUES(refresh_token),
          expires_at    = VALUES(expires_at)`,
-      [
-        locationId,
-        companyId,
-        accessToken,
-        refreshToken,
-        expiresAt,
-      ]
+      [locationId, companyId, accessToken, refreshToken, expiresAt]
     );
 
-    // Ensure the login table exists before creating the default user.
-    await query(
-      `CREATE TABLE IF NOT EXISTS users (
-        id INT AUTO_INCREMENT PRIMARY KEY,
-        location_id VARCHAR(100) NOT NULL,
-        username VARCHAR(100) NOT NULL,
-        password VARCHAR(255) NOT NULL,
-        role ENUM('user','agency') NOT NULL DEFAULT 'user',
-        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-        updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-        INDEX idx_location_id (location_id),
-        INDEX idx_username (username),
-        UNIQUE KEY uniq_location_id (location_id),
-        UNIQUE KEY uniq_username (username)
-      )`
-    );
-
-    await query(
-      `CREATE TABLE IF NOT EXISTS installation_credentials (
-        id INT AUTO_INCREMENT PRIMARY KEY,
-        location_id VARCHAR(100) NOT NULL UNIQUE,
-        username VARCHAR(100) NOT NULL,
-        password VARCHAR(255) NOT NULL,
-        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-        updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-        INDEX idx_location_id (location_id),
-        INDEX idx_username (username)
-      )`
-    );
-
-    // Create or refresh the default user account for login.
-    const defaultUsername = `user_${locationId}`;
-    const defaultPassword = Math.random().toString(36).slice(-10); // Random 10 char password
-    const hashedPassword = await bcrypt.hash(defaultPassword, 10);
-
-    const existingUsers = await query<any[]>(
-      'SELECT id FROM users WHERE location_id = ? LIMIT 1',
-      [locationId]
-    );
-
-    if (existingUsers.length) {
-      await query(
-        `UPDATE users
-         SET username = ?, password = ?, role = 'user'
-         WHERE location_id = ?`,
-        [defaultUsername, hashedPassword, locationId]
-      );
-    } else {
-      await query(
-        `INSERT INTO users (location_id, username, password, role, created_at)
-         VALUES (?, ?, ?, 'user', NOW())`,
-        [locationId, defaultUsername, hashedPassword]
-      );
+    // Step 3: Start trial (idempotent)
+    try {
+      await startTrial(locationId);
+    } catch (trialErr) {
+      console.warn('[OAuth] startTrial failed (continuing):', trialErr);
     }
 
-    await query(
-      `INSERT INTO installation_credentials (location_id, username, password)
-       VALUES (?, ?, ?)
-       ON DUPLICATE KEY UPDATE
-         username = VALUES(username),
-         password = VALUES(password),
-         updated_at = NOW()`,
-      [locationId, defaultUsername, defaultPassword]
-    );
-
-    await startTrial(locationId);
-
-    // Register the provider association for this location (no credentials yet).
-    // Connect-config happens later when the user saves PayFast credentials in /ghl-config.
+    // Step 4: Register provider with GHL (idempotent, no credentials yet)
     try {
       await ensureCustomProviderProvisioned(locationId, { appType: 'normal' });
     } catch (provErr) {
       console.warn('[OAuth] provider registration failed (continuing):', provErr);
     }
 
-    // Keep the sub-account install flow on the regular app setup path.
-    return applySessionCookie(
-      NextResponse.redirect(getAppUrlWithSearch(
-        `/settings?installed=1&username=${encodeURIComponent(defaultUsername)}&password=${encodeURIComponent(defaultPassword)}`, 
-        request
-      )),
-      locationId
+    // Step 5: Show simple success screen — no dashboard, no auto-redirect.
+    // GHL itself loads our Custom Page iframe (/ghl-config) next.
+    return NextResponse.redirect(
+      getAppUrlWithSearch(`/installed?locationId=${encodeURIComponent(locationId)}`, request)
     );
   } catch (err) {
-    console.error('OAuth callback error:', err);
+    console.error('[OAuth Callback] error:', err);
     return NextResponse.redirect(
       getAppUrlWithSearch('/install?error=server_error', request)
     );
