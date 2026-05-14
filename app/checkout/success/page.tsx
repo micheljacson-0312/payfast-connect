@@ -1,4 +1,4 @@
-// ═══ app/ghl-checkout/success/page.tsx ═══
+// ═══ app/checkout/success/page.tsx ═══
 export default function GHLCheckoutSuccess() {
   return (
     <div style={{ minHeight:'100vh', background:'white', display:'grid', placeItems:'center', fontFamily:'DM Sans, sans-serif' }}>

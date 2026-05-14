@@ -91,7 +91,7 @@ if (!isTrustedHint && event.origin && !/^https:\/\//.test(event.origin)) return;
     setLoading(true); setError('');
 
     try {
-      const res = await fetch('/api/ghl/pay', {
+      const res = await fetch('/api/provider/pay', {
         method:  'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

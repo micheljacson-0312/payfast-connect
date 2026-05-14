@@ -16,12 +16,12 @@ Final internal API surface for the CRM-first build.
 - `POST /api/settings` - save per-location settings
 
 ## GHL / CRM integration
-- `POST /api/ghl/query` - CRM provider query endpoint
-- `POST /api/ghl/webhooks` - CRM webhook receiver
-- `POST /api/ghl/provider/provision` - provision provider mapping
-- `GET|POST /api/ghl/config` - provider config iframe
-- `POST /api/ghl/notify` - internal CRM sync event
-- `POST /api/ghl/pay` - checkout helper for CRM flows
+- `POST /api/provider/query` - CRM provider query endpoint
+- `POST /api/provider/webhooks` - CRM webhook receiver
+- `POST /api/provider/provider/provision` - provision provider mapping
+- `GET|POST /api/provider/config` - provider config iframe
+- `POST /api/provider/notify` - internal CRM sync event
+- `POST /api/provider/pay` - checkout helper for CRM flows
 - `GET|POST /api/payfast/itn` - PayFast ITN processing
 - `POST /api/payfast/create` - PayFast payment session creation
 - `POST /api/pay/create` - public payment flow handler

@@ -29,7 +29,7 @@ export default function GHLConfigPage() {
     // Fetch existing config
     async function loadConfig() {
       try {
-        const res = await fetch(`/api/ghl/config?locationId=${locId}&ssoToken=${ssoToken}`);
+        const res = await fetch(`/api/provider/config?locationId=${locId}&ssoToken=${ssoToken}`);
         if (res.ok) {
           const data = await res.json();
           if (data.merchant_id) setForm(f => ({ ...f, ...data }));
@@ -57,7 +57,7 @@ export default function GHLConfigPage() {
     try {
       const params   = new URLSearchParams(window.location.search);
       const ssoToken = params.get('ssoToken') || params.get('token') || '';
-      const res = await fetch('/api/ghl/config', {
+      const res = await fetch('/api/provider/config', {
         method:  'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ ...form, locationId, ssoToken }),

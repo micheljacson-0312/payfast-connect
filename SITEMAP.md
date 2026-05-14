@@ -31,9 +31,9 @@
 ## GHL / CRM
 | URL | Purpose | Access |
 | :--- | :--- | :--- |
-| `/ghl-checkout` | CRM checkout iframe | CRM |
-| `/ghl-checkout/success` | CRM success page | CRM |
-| `/ghl-config` | CRM provider config page | CRM |
+| `/checkout` | CRM checkout iframe | CRM |
+| `/checkout/success` | CRM success page | CRM |
+| `/payfast-config` | CRM provider config page | CRM |
 | `/oauth/callback` | OAuth callback endpoint | CRM |
 
 ## Admin

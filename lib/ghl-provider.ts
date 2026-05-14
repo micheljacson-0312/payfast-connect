@@ -104,8 +104,8 @@ export async function registerProviderForLocation(
     description: PROVIDER_DESCRIPTION,
     imageUrl: process.env.GHL_PROVIDER_LOGO_URL || appUrl('/logo.png'),
     locationId,
-    queryUrl: appUrl('/api/ghl/query'),
-    paymentsUrl: appUrl('/ghl-checkout'),
+    queryUrl: appUrl('/api/provider/query'),
+    paymentsUrl: appUrl('/checkout'),
   };
 
   try {

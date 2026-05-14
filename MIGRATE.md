@@ -19,12 +19,12 @@ DB migration & integration checklist
 3) Integration test sequence
 
  - Install marketplace app for a test location in HighLevel.
- - Confirm INSTALL webhook creates an installations row (app/api/ghl/query -> INSTALL).
- - Open Manage Integration in HighLevel — the config iframe loads app/ghl-config.
- - Save merchant config (merchant_id/merchant_key) via the iframe (POST /api/ghl/config).
+ - Confirm INSTALL webhook creates an installations row (app/api/provider/query -> INSTALL).
+ - Open Manage Integration in HighLevel — the config iframe loads app/payfast-config.
+ - Save merchant config (merchant_id/merchant_key) via the iframe (POST /api/provider/config).
  - ensureCustomProviderProvisioned should call GHL connect; if GHL returns provider keys, they will be saved to installations.provider_api_key.
  - Use the saved provider_api_key for subsequent queryUrl calls, sent as X-API-KEY or Authorization: ApiKey <key>.
- - Verify payment flow by creating a payment in the iframe (app/ghl-checkout) and making /api/ghl/query verify requests.
+ - Verify payment flow by creating a payment in the iframe (app/checkout) and making /api/provider/query verify requests.
 
 4) Alerts
 

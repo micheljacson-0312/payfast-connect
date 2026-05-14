@@ -129,7 +129,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Step 5: Show simple success screen — no dashboard, no auto-redirect.
-    // GHL itself loads our Custom Page iframe (/ghl-config) next.
+    // GHL itself loads our Custom Page iframe (/payfast-config) next.
     return NextResponse.redirect(
       getAppUrlWithSearch(`/installed?locationId=${encodeURIComponent(locationId)}`, request)
     );

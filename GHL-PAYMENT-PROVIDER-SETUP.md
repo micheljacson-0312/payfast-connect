@@ -11,9 +11,9 @@ Fill these fields in your CRM app:
 | Provider Name | GoPayFast by 10x Digital Ventures |
 | Description | CRM-native GoPayFast payment connector |
 | Logo URL | https://payfast.10xdigitalventures.com/logo.png |
-| queryUrl | https://payfast.10xdigitalventures.com/api/ghl/query |
-| paymentsUrl | https://payfast.10xdigitalventures.com/ghl-checkout |
-| Custom Page URL | https://payfast.10xdigitalventures.com/ghl-config |
+| queryUrl | https://payfast.10xdigitalventures.com/api/provider/query |
+| paymentsUrl | https://payfast.10xdigitalventures.com/checkout |
+| Custom Page URL | https://payfast.10xdigitalventures.com/payfast-config |
 
 ## Step 2 - Required scopes
 - payments.write
