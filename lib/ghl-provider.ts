@@ -13,13 +13,19 @@ function appUrl(path: string) {
 const PROVIDER_NAME = 'Payfast Connect by 10x Digital Ventures';
 const PROVIDER_DESCRIPTION = 'CRM-native PayFast payment connector';
 
-async function ghlRequest(path: string, token: string, method: 'GET' | 'POST' | 'PUT', body?: unknown) {
+async function ghlRequest(
+  path: string,
+  token: string,
+  method: 'GET' | 'POST' | 'PUT' | 'DELETE',
+  body?: unknown
+) {
   const res = await fetch(`${GHL_API}${path}`, {
     method,
     headers: {
       Authorization: `Bearer ${token}`,
       Version: VERSION,
       'Content-Type': 'application/json',
+      Accept: 'application/json',
     },
     body: body ? JSON.stringify(body) : undefined,
   });
@@ -41,31 +47,6 @@ async function ghlRequest(path: string, token: string, method: 'GET' | 'POST' | 
   }
 
   return data;
-}
-
-export function getMarketplaceToken(appType: 'normal' | 'agency' = 'normal') {
-  if (appType === 'agency') {
-    return process.env.AGENCY_GHL_APP_TOKEN || process.env.GHL_APP_TOKEN || '';
-  }
-  return process.env.GHL_APP_TOKEN || '';
-}
-
-async function marketplaceRequest(path: string, method: 'GET' | 'POST' | 'PUT', body?: unknown, appType: 'normal' | 'agency' = 'normal') {
-  const token = getMarketplaceToken(appType);
-  if (!token) {
-    throw new Error(appType === 'agency'
-      ? 'Missing agency app token (AGENCY_GHL_APP_TOKEN)'
-      : 'Missing normal app token (GHL_APP_TOKEN)');
-  }
-  return ghlRequest(path, token, method, body);
-}
-
-async function chooseToken(locationId: string, appType: 'normal' | 'agency') {
-  const marketplaceToken = getMarketplaceToken(appType);
-  if (marketplaceToken) return { token: marketplaceToken, isMarketplace: true };
-  const locationToken = await getValidToken(locationId);
-  if (locationToken) return { token: locationToken, isMarketplace: false };
-  return { token: '', isMarketplace: false };
 }
 
 async function ensureProviderKeys(locationId: string) {
@@ -92,26 +73,35 @@ async function ensureProviderKeys(locationId: string) {
   return { apiKey, publishableKey };
 }
 
+/**
+ * STAGE 1 — Register the provider association for this location.
+ * Per official SDK: locationId goes in QUERY STRING, not body.
+ */
 export async function registerProviderForLocation(
   locationId: string,
   appType: 'normal' | 'agency' = 'normal'
 ) {
-  const { token, isMarketplace } = await chooseToken(locationId, appType);
+  const token = await getValidToken(locationId);
   if (!token) return { ok: false, reason: 'missing_token' as const };
 
+  // Per the official SDK (Models.CreateCustomProvidersDto):
   const body = {
     name: PROVIDER_NAME,
     description: PROVIDER_DESCRIPTION,
-    imageUrl: process.env.GHL_PROVIDER_LOGO_URL || appUrl('/logo.png'),
-    locationId,
-    queryUrl: appUrl('/api/provider/query'),
     paymentsUrl: appUrl('/checkout'),
+    queryUrl: appUrl('/api/provider/query'),
+    imageUrl: process.env.GHL_PROVIDER_LOGO_URL || appUrl('/logo.png'),
+    supportsSubscriptionSchedule: true,
   };
 
   try {
-    const resp = isMarketplace
-      ? await marketplaceRequest('/payments/custom-provider/provider', 'POST', body, appType)
-      : await ghlRequest('/payments/custom-provider/provider', token, 'POST', body);
+    const qs = new URLSearchParams({ locationId }).toString();
+    const resp = await ghlRequest(
+      `/payments/custom-provider/provider?${qs}`,
+      token,
+      'POST',
+      body
+    );
     return { ok: true, response: resp };
   } catch (error) {
     console.error('[GHL Provider] registerProviderForLocation failed', error);
@@ -119,27 +109,37 @@ export async function registerProviderForLocation(
   }
 }
 
+/**
+ * STAGE 2 — Connect (or update) the provider config for this location.
+ * Per official SDK: locationId in query, body has only { live, test }.
+ */
 export async function connectProviderConfig(
   locationId: string,
   mode: 'live' | 'test' = 'live',
-  appType: 'normal' | 'agency' = 'normal'
+  _appType: 'normal' | 'agency' = 'normal'
 ) {
-  const { token, isMarketplace } = await chooseToken(locationId, appType);
+  const token = await getValidToken(locationId);
   if (!token) return { ok: false, reason: 'missing_token' as const };
 
   const { apiKey, publishableKey } = await ensureProviderKeys(locationId);
 
-  const body: Record<string, any> = {
-    locationId,
-    apiKey,
-    publishableKey,
-    [mode]: { apiKey, publishableKey },
+  // Per Models.ConnectCustomProvidersConfigDto: { live: any, test: any }
+  // Provide config for both modes; for the unused mode, send the same keys
+  // (GHL stores both independently).
+  const configForMode = { apiKey, publishableKey };
+  const body = {
+    live:  mode === 'live'  ? configForMode : configForMode,
+    test:  mode === 'test'  ? configForMode : configForMode,
   };
 
   try {
-    const resp = isMarketplace
-      ? await marketplaceRequest('/payments/custom-provider/connect', 'POST', body, appType)
-      : await ghlRequest('/payments/custom-provider/connect', token, 'POST', body);
+    const qs = new URLSearchParams({ locationId }).toString();
+    const resp = await ghlRequest(
+      `/payments/custom-provider/connect?${qs}`,
+      token,
+      'POST',
+      body
+    );
     return { ok: true, response: resp, apiKey, publishableKey };
   } catch (error) {
     console.error('[GHL Provider] connectProviderConfig failed', error);
@@ -147,23 +147,30 @@ export async function connectProviderConfig(
   }
 }
 
+/**
+ * Update capabilities for this marketplace app.
+ * Per Models.UpdateCustomProviderCapabilitiesDto: only supportsSubscriptionSchedules
+ * is required (boolean). locationId / companyId are OPTIONAL body fields.
+ */
 export async function updateProviderCapabilities(
   locationId: string,
-  appType: 'normal' | 'agency' = 'normal'
+  _appType: 'normal' | 'agency' = 'normal'
 ) {
-  const marketplaceToken = getMarketplaceToken(appType);
-  if (!marketplaceToken) {
-    return { ok: false, reason: 'missing_marketplace_token' as const };
-  }
+  const token = await getValidToken(locationId);
+  if (!token) return { ok: false, reason: 'missing_token' as const };
+
+  const body = {
+    supportsSubscriptionSchedules: true,
+    locationId,
+  };
+
   try {
-    const resp = await marketplaceRequest('/payments/custom-provider/capabilities', 'PUT', {
-      locationId,
-      payments: true,
-      orders: true,
-      subscriptions: true,
-      refunds: true,
-      savedCards: true,
-    }, appType);
+    const resp = await ghlRequest(
+      '/payments/custom-provider/capabilities',
+      token,
+      'PUT',
+      body
+    );
     return { ok: true, response: resp };
   } catch (error) {
     console.error('[GHL Provider] updateProviderCapabilities failed', error);
@@ -171,6 +178,36 @@ export async function updateProviderCapabilities(
   }
 }
 
+/**
+ * Disconnect provider config.
+ * Per Models.DeleteCustomProvidersConfigDto: { liveMode: boolean }
+ */
+export async function disconnectCustomProvider(
+  locationId: string,
+  mode: 'live' | 'test' = 'live',
+  _appType: 'normal' | 'agency' = 'normal'
+) {
+  const token = await getValidToken(locationId);
+  if (!token) throw new Error('Missing token for disconnect');
+
+  try {
+    const qs = new URLSearchParams({ locationId }).toString();
+    await ghlRequest(
+      `/payments/custom-provider/disconnect?${qs}`,
+      token,
+      'POST',
+      { liveMode: mode === 'live' }
+    );
+    return { ok: true };
+  } catch (error) {
+    console.error('[GHL Provider] disconnect failed', error);
+    throw error;
+  }
+}
+
+/**
+ * Convenience wrapper used by OAuth callback.
+ */
 export async function ensureCustomProviderProvisioned(
   locationId: string,
   options?: { appType?: 'normal' | 'agency' }
@@ -187,16 +224,5 @@ export async function ensureCustomProviderProvisioned(
   return { ok: true, appType, steps };
 }
 
-export async function disconnectCustomProvider(locationId: string, appType: 'normal' | 'agency' = 'normal') {
-  const marketplaceToken = getMarketplaceToken(appType);
-  if (!marketplaceToken) {
-    throw new Error(`Missing marketplace token for ${appType} app`);
-  }
-  try {
-    await marketplaceRequest('/payments/custom-provider/disconnect', 'POST', { locationId }, appType);
-    return { ok: true };
-  } catch (error) {
-    console.error('[GHL Provider] disconnect failed', error);
-    throw error;
-  }
-}
+// Backward compatibility export (no longer used; kept in case any code imports it)
+export function getMarketplaceToken() { return ''; }
