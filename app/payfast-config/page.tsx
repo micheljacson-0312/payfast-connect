@@ -5,12 +5,14 @@ import { useState, useEffect } from 'react';
 // in Payments > Integrations section of the CRM
 // We use SSO token from URL to identify the location
 
-export default function GHLConfigPage() {
+export default function PayfastConfigPage() {
   const [form, setForm] = useState({
-    merchant_id:  '',
-    merchant_key: '',
-    passphrase:   '',
-    environment:  'live',
+    merchant_id:   '',  // PayFast numeric Merchant ID (e.g. 26290)
+    merchant_name: '',  // PayFast Merchant Name (e.g. "Mentoring Hub")
+    store_id:      '',  // PayFast Store ID
+    merchant_key:  '',  // PayFast Merchant Secured Key
+    passphrase:    '',  // PayFast Secret Word
+    environment:   'live',
   });
   const [locationId, setLocationId] = useState('');
   const [loading,    setLoading]    = useState(false);
@@ -19,20 +21,20 @@ export default function GHLConfigPage() {
   const [fetching,   setFetching]   = useState(true);
 
   useEffect(() => {
-    // CRM passes ssoToken in URL params
     const params  = new URLSearchParams(window.location.search);
     const ssoToken = params.get('ssoToken') || params.get('token') || '';
     const locId    = params.get('locationId') || '';
 
     if (locId) setLocationId(locId);
 
-    // Fetch existing config
     async function loadConfig() {
       try {
         const res = await fetch(`/api/provider/config?locationId=${locId}&ssoToken=${ssoToken}`);
         if (res.ok) {
           const data = await res.json();
-          if (data.merchant_id) setForm(f => ({ ...f, ...data }));
+          if (data.merchant_id || data.store_id) {
+            setForm(f => ({ ...f, ...data }));
+          }
         }
       } catch { /* first time — no config yet */ }
       setFetching(false);
@@ -41,7 +43,6 @@ export default function GHLConfigPage() {
     if (locId) loadConfig();
     else setFetching(false);
 
-    // Notify CRM page is ready
     window.parent.postMessage({ type: 'config-ready' }, '*');
   }, []);
 
@@ -49,8 +50,8 @@ export default function GHLConfigPage() {
   const inp = { width: '100%', background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: 10, padding: '11px 15px', color: '#0F172A', fontSize: 14, outline: 'none', fontFamily: 'inherit' } as const;
 
   async function save() {
-    if (!form.merchant_id.trim() || !form.merchant_key.trim()) {
-      setError('Store ID and Store Password are required');
+    if (!form.merchant_id.trim() || !form.merchant_key.trim() || !form.store_id.trim()) {
+      setError('Merchant ID, Store ID and Merchant Secured Key are required');
       return;
     }
     setLoading(true); setError('');
@@ -65,7 +66,6 @@ export default function GHLConfigPage() {
       if (!res.ok) throw new Error('Save failed');
       setSaved(true);
       setTimeout(() => setSaved(false), 3000);
-      // Tell CRM config is saved
       window.parent.postMessage({ type: 'config-saved', success: true }, '*');
     } catch {
       setError('Failed to save. Please try again.');
@@ -81,11 +81,12 @@ export default function GHLConfigPage() {
     );
   }
 
+  const isConfigured = !!(form.merchant_id && form.store_id);
+
   return (
     <div className="page-shell-light" style={{ padding: '24px 20px' }}>
       <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet" />
 
-      {/* Header */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 24, flexWrap: 'wrap' }}>
         <div style={{ width: 36, height: 36, background: '#0052FF', borderRadius: 9, display: 'grid', placeItems: 'center', flexShrink: 0 }}>
           <svg width="16" height="16" viewBox="0 0 24 24" fill="white"><path d="M13 2L4.5 13H11L10 22L19.5 11H13Z"/></svg>
@@ -96,34 +97,49 @@ export default function GHLConfigPage() {
         </div>
       </div>
 
-      {/* Status */}
-      {form.merchant_id && (
+      {isConfigured && (
         <div style={{ background: 'rgba(34,197,94,0.06)', border: '1px solid rgba(34,197,94,0.2)', borderRadius: 10, padding: '10px 14px', marginBottom: 20, display: 'flex', alignItems: 'center', gap: 8, fontSize: 13, color: '#22C55E' }}>
           <span style={{ width: 7, height: 7, background: '#22C55E', borderRadius: '50%', display: 'inline-block' }} />
           GoPayFast Connected · {form.environment === 'live' ? 'Live Mode' : 'Sandbox Mode'}
         </div>
       )}
 
-      {/* Form */}
       <div style={{ display: 'flex', flexDirection: 'column', gap: 16, maxWidth: 720 }}>
+
+        <div>
+          <label style={{ fontSize: 12, color: '#64748B', marginBottom: 6, display: 'block', fontWeight: 500 }}>
+            Merchant ID <span style={{ color: '#EF4444' }}>*</span>
+          </label>
+          <input style={inp} value={form.merchant_id} onChange={e => set('merchant_id', e.target.value)} placeholder="e.g. 26290" />
+          <div style={{ fontSize: 11, color: '#94A3B8', marginTop: 5 }}>Your numeric PayFast Merchant ID.</div>
+        </div>
+
+        <div>
+          <label style={{ fontSize: 12, color: '#64748B', marginBottom: 6, display: 'block', fontWeight: 500 }}>
+            Merchant Name
+          </label>
+          <input style={inp} value={form.merchant_name} onChange={e => set('merchant_name', e.target.value)} placeholder="e.g. Mentoring Hub" />
+          <div style={{ fontSize: 11, color: '#94A3B8', marginTop: 5 }}>Your registered business / merchant display name.</div>
+        </div>
+
         <div>
           <label style={{ fontSize: 12, color: '#64748B', marginBottom: 6, display: 'block', fontWeight: 500 }}>
             Store ID <span style={{ color: '#EF4444' }}>*</span>
           </label>
-          <input style={inp} value={form.merchant_id} onChange={e => set('merchant_id', e.target.value)} placeholder="e.g. 10012345" />
-          <div style={{ fontSize: 11, color: '#94A3B8', marginTop: 5 }}>Enter your GoPayFast `store_id` here.</div>
+          <input style={inp} value={form.store_id} onChange={e => set('store_id', e.target.value)} placeholder="e.g. 10012345" />
+          <div style={{ fontSize: 11, color: '#94A3B8', marginTop: 5 }}>Enter your GoPayFast <code>store_id</code> here.</div>
         </div>
 
         <div>
           <label style={{ fontSize: 12, color: '#64748B', marginBottom: 6, display: 'block', fontWeight: 500 }}>
-            Store Password <span style={{ color: '#EF4444' }}>*</span>
+            Merchant Secured Key <span style={{ color: '#EF4444' }}>*</span>
           </label>
-          <input style={inp} value={form.merchant_key} onChange={e => set('merchant_key', e.target.value)} placeholder="Your store password" />
+          <input style={inp} type="password" value={form.merchant_key} onChange={e => set('merchant_key', e.target.value)} placeholder="Your secured key" />
         </div>
 
         <div>
           <label style={{ fontSize: 12, color: '#64748B', marginBottom: 6, display: 'block', fontWeight: 500 }}>
-            Passphrase <span style={{ color: '#94A3B8', fontWeight: 400 }}>(optional)</span>
+            Merchant Secret Word <span style={{ color: '#94A3B8', fontWeight: 400 }}>(optional)</span>
           </label>
           <input style={inp} type="password" value={form.passphrase} onChange={e => set('passphrase', e.target.value)} placeholder="Leave blank if not set" />
         </div>
@@ -140,7 +156,6 @@ export default function GHLConfigPage() {
         </div>
       </div>
 
-      {/* Help text */}
       <div style={{ background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: 10, padding: 14, marginTop: 20, fontSize: 12, color: '#64748B', lineHeight: 1.6 }}>
         <strong style={{ color: '#0F172A' }}>Setup:</strong> After saving, add this ITN (webhook) URL in your GoPayFast dashboard.
         <div style={{ background: '#EFF6FF', borderRadius: 7, padding: '7px 10px', marginTop: 8, fontFamily: 'monospace', fontSize: 11, color: '#0052FF', wordBreak: 'break-all' }}>
