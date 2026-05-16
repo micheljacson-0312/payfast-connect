@@ -154,7 +154,41 @@ if (!isTrustedHint && event.origin && !/^https:\/\//.test(event.origin)) return;
     );
   }
 
-  if (!payData) {
+  if (!payData) { // Fallback when no postMessage received
+  // Try to read from query parameters after a short delay
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      if (!payData) {
+        const qs = new URLSearchParams(window.location.search);
+        const amount = Number(qs.get('amount'));
+        const currency = qs.get('currency') ?? 'USD';
+        const locationId = qs.get('locationId');
+        const contactId = qs.get('contactId');
+        const ghlTransactionId = qs.get('ghlTransactionId');
+        if (amount && locationId && contactId && ghlTransactionId) {
+          setPayData({
+            amount,
+            currency,
+            locationId,
+            contactId,
+            ghlTransactionId,
+          } as any);
+        }
+      }
+    }, 1500);
+    return () => clearTimeout(timeout);
+  }, []);
+
+  return (
+    <div style={{ minHeight: '100vh', background: '#F8FAFC', display: 'grid', placeItems: 'center', fontFamily: 'DM Sans, sans-serif' }}>
+      <div style={{ textAlign: 'center', color: '#64748B', fontSize: 14 }}>
+        <div style={{ fontSize: 24, marginBottom: 8 }}>⚠️</div>
+        <p>Unable to load payment information.</p>
+        <p>Please open this page inside the HighLevel iframe.</p>
+      </div>
+    </div>
+  );
+}
     return (
       <div style={{ minHeight: '100vh', background: '#F8FAFC', display: 'grid', placeItems: 'center', fontFamily: 'DM Sans, sans-serif' }}>
         <div style={{ textAlign: 'center', color: '#64748B', fontSize: 14 }}>
