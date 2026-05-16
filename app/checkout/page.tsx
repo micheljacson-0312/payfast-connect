@@ -1,86 +1,155 @@
 'use client';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
-// CRM loads this page in an iframe when customer is checking out
-// CRM passes: amount, currency, contactId, locationId, invoiceId etc via postMessage or URL params
+// HighLevel loads this page in an iframe (paymentsUrl) during customer
+// checkout (funnels, invoices, payment links, subscriptions).
+//
+// Per official GHL docs:
+//   1. We send  -> { type: 'custom_provider_ready', loaded: true, addCardOnFileSupported: true }
+//   2. GHL sends -> { type: 'payment_initiate_props', amount, currency,
+//                     transactionId, orderId, subscriptionId, locationId, contact, mode }
+//   3. We charge via PayFast, then notify GHL on success/fail/cancel.
 
 interface GHLPaymentData {
-  amount:        number;
-  currency:      string;
-  contactId:     string;
-  locationId:    string;
-  invoiceId?:    string;
-  orderId?:      string;
-  ghlTransactionId: string;
-  description?:  string;
+  amount:         number;
+  currency:       string;
+  contactId:      string;
+  locationId:     string;
+  invoiceId?:     string;
+  orderId?:       string;
+  subscriptionId?:string;
+  transactionId:  string;
+  description?:   string;
+  mode?:          'payment' | 'setup';
+  productDetails?:{ productId?: string; priceId?: string };
   contact?: {
-    name:  string;
-    email: string;
-    phone: string;
+    id?:    string;
+    name:   string;
+    email:  string;
+    phone?: string;
+    contact?: string;
   };
 }
 
-export default function GHLCheckoutPage() {
-  const [payData,  setPayData]  = useState<GHLPaymentData | null>(null);
-  const [form,     setForm]     = useState({ name:'', email:'', phone:'' });
-  const [loading,  setLoading]  = useState(false);
-  const [error,    setError]    = useState('');
-  const [pfForm,   setPfForm]   = useState<{ actionUrl:string; fields:Record<string,string> } | null>(null);
+function readUrlPayData(): GHLPaymentData | null {
+  if (typeof window === 'undefined') return null;
+  const p = new URLSearchParams(window.location.search);
+  const amount     = parseFloat(p.get('amount') || '');
+  const locationId = p.get('locationId') || '';
+  if (!amount || !locationId) return null;
 
-  // CRM communication
+  return {
+    amount,
+    currency:       p.get('currency') || 'PKR',
+    contactId:      p.get('contactId') || '',
+    locationId,
+    invoiceId:      p.get('invoiceId')      || undefined,
+    orderId:        p.get('orderId')        || undefined,
+    subscriptionId: p.get('subscriptionId') || undefined,
+    transactionId:  p.get('transactionId') || p.get('ghlTransactionId') || '',
+    description:    p.get('description')   || undefined,
+    contact: {
+      name:  p.get('name')  || '',
+      email: p.get('email') || '',
+      phone: p.get('phone') || '',
+    },
+  };
+}
+
+export default function CheckoutPage() {
+  const [payData,        setPayData]        = useState<GHLPaymentData | null>(null);
+  const [form,           setForm]           = useState({ name: '', email: '', phone: '' });
+  const [loading,        setLoading]        = useState(false);
+  const [error,          setError]          = useState('');
+  const [pfForm,         setPfForm]         = useState<{ actionUrl: string; fields: Record<string, string> } | null>(null);
+  const [waitingForGhl,  setWaitingForGhl]  = useState(true);
+  const [debugMsg,       setDebugMsg]       = useState('');
+
+  const payDataRef = useRef<GHLPaymentData | null>(null);
+
   useEffect(() => {
-    function handleMessage(event: MessageEvent) {
-      const allowedOriginHints = ['gohighlevel', 'leadconnectorhq', 'msgsndr', 'localhost', '127.0.0.1'];
-const isTrustedHint = allowedOriginHints.some(h => event.origin.includes(h));
-if (!isTrustedHint && event.origin && !/^https:\/\//.test(event.origin)) return;
+    const fromUrl = readUrlPayData();
+    if (fromUrl) {
+      setPayData(fromUrl);
+      payDataRef.current = fromUrl;
+      setWaitingForGhl(false);
+      if (fromUrl.contact) {
+        setForm({
+          name:  fromUrl.contact.name  || '',
+          email: fromUrl.contact.email || '',
+          phone: fromUrl.contact.phone || fromUrl.contact.contact || '',
+        });
+      }
+    }
 
+    function handleMessage(event: MessageEvent) {
       const d = event.data;
-      
-      // 1. Handle payment initiation
-      if (d?.type === 'payment_initiate_props' || d?.type === 'payment-init' || d?.amount) {
-        setPayData(d);
-        if (d.contact) {
+      if (!d || typeof d !== 'object') return;
+
+      const isPaymentInit =
+        d.type === 'payment_initiate_props' ||
+        d.type === 'payment-init' ||
+        (typeof d.amount === 'number' && d.locationId);
+
+      if (isPaymentInit) {
+        const incoming: GHLPaymentData = {
+          amount:         Number(d.amount),
+          currency:       d.currency || 'PKR',
+          contactId:      d.contact?.id || d.contactId || '',
+          locationId:     d.locationId,
+          invoiceId:      d.invoiceId,
+          orderId:        d.orderId,
+          subscriptionId: d.subscriptionId,
+          transactionId:  d.transactionId || d.ghlTransactionId || '',
+          description:    d.description,
+          mode:           d.mode,
+          productDetails: d.productDetails,
+          contact:        d.contact,
+        };
+        setPayData(incoming);
+        payDataRef.current = incoming;
+        setWaitingForGhl(false);
+        if (incoming.contact) {
           setForm({
-            name:  d.contact.name  || '',
-            email: d.contact.email || '',
-            phone: d.contact.phone || '',
+            name:  incoming.contact.name  || '',
+            email: incoming.contact.email || '',
+            phone: incoming.contact.phone || incoming.contact.contact || '',
           });
         }
-      }
-
-      // 2. Handle Refund
-      if (d?.type === 'refund') {
-        alert(`Processing refund of ${d.amount} for transaction ${d.transactionId}`);
-        // Note: Actual refund is handled via queryUrl API
-      }
-
-      // 3. Handle Setup (Saved Cards)
-      if (d?.type === 'setup_initiate_props') {
-        alert('Saved cards are supported. Continue to PayFast to save this card.');
+        setDebugMsg('');
       }
     }
-
     window.addEventListener('message', handleMessage);
 
-    // Tell CRM the iframe is ready — defer to next tick so the message
-    // listener is wired before GHL sends payment_initiate_props back.
-    queueMicrotask(() => {
-      window.parent.postMessage({
-        type: 'custom_provider_ready',
-        loaded: true,
-        addCardOnFileSupported: true,
-      }, '*');
-    });
+    setTimeout(() => {
+      try {
+        window.parent.postMessage(
+          { type: 'custom_provider_ready', loaded: true, addCardOnFileSupported: true },
+          '*'
+        );
+      } catch { /* not in iframe */ }
+    }, 50);
 
-    return () => window.removeEventListener('message', handleMessage);
+    const t = setTimeout(() => {
+      if (!payDataRef.current) {
+        setWaitingForGhl(false);
+        setDebugMsg(
+          'No payment context received from HighLevel. ' +
+          'If you opened this URL directly, please return to your CRM and use the payment link/funnel/invoice button.'
+        );
+      }
+    }, 6000);
+
+    return () => {
+      window.removeEventListener('message', handleMessage);
+      clearTimeout(t);
+    };
   }, []);
 
-  // Auto-submit GoPayFast form after generation
   useEffect(() => {
-    if (pfForm) {
-      const frm = document.getElementById('pfSubmitForm') as HTMLFormElement;
-      if (frm) setTimeout(() => frm.submit(), 500);
-    }
+    if (!pfForm) return;
+    const frm = document.getElementById('pfSubmitForm') as HTMLFormElement | null;
+    if (frm) setTimeout(() => frm.submit(), 400);
   }, [pfForm]);
 
   async function pay() {
@@ -91,43 +160,48 @@ if (!isTrustedHint && event.origin && !/^https:\/\//.test(event.origin)) return;
     setLoading(true); setError('');
 
     try {
-      const res = await fetch('/api/provider/pay', {
+      const res = await fetch('/api/ghl/pay', {
         method:  'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           locationId:       payData.locationId,
           contactId:        payData.contactId,
-          ghlTransactionId: payData.ghlTransactionId,
+          ghlTransactionId: payData.transactionId,
           invoiceId:        payData.invoiceId,
           orderId:          payData.orderId,
+          subscriptionId:   payData.subscriptionId,
           amount:           payData.amount,
           currency:         payData.currency,
-          description:      payData.description || 'CRM Payment',
+          description:      payData.description || 'Payment',
           nameFirst:        form.name.split(' ')[0],
           nameLast:         form.name.split(' ').slice(1).join(' ') || '.',
           email:            form.email,
           phone:            form.phone,
+          isRecurring:      !!payData.subscriptionId,
         }),
       });
 
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || 'Failed to initiate payment');
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data?.error || `Payment initiation failed (${res.status})`);
+      if (!data?.actionUrl || !data?.fields) throw new Error('Invalid payment response from server');
 
-      // Tell CRM we're processing
-      window.parent.postMessage({ 
-        type: 'custom_element_success_response', 
-        chargeId: data.pf_payment_id 
-      }, '*');
+      try {
+        window.parent.postMessage(
+          { type: 'custom_element_success_response', chargeId: data.pf_payment_id || data.basket_id },
+          '*'
+        );
+      } catch { /* ignore */ }
 
-      setPfForm(data);
+      setPfForm({ actionUrl: data.actionUrl, fields: data.fields });
     } catch (e: unknown) {
-      setError(e instanceof Error ? e.message : 'Payment failed');
-      
-      window.parent.postMessage({ 
-        type: 'custom_element_error_response', 
-        error: { description: e instanceof Error ? e.message : 'Payment initiation failed' } 
-      }, '*');
-      
+      const msg = e instanceof Error ? e.message : 'Payment failed';
+      setError(msg);
+      try {
+        window.parent.postMessage(
+          { type: 'custom_element_error_response', error: { description: msg } },
+          '*'
+        );
+      } catch { /* ignore */ }
       setLoading(false);
     }
   }
@@ -154,22 +228,30 @@ if (!isTrustedHint && event.origin && !/^https:\/\//.test(event.origin)) return;
     );
   }
 
-  if (!payData) {
-  return (
-    <div style={{ minHeight: '100vh', background: '#F8FAFC', display: 'grid', placeItems: 'center', fontFamily: 'DM Sans, sans-serif' }}>
-      <div style={{ textAlign: 'center', color: '#64748B', fontSize: 14 }}>
-        <div style={{ fontSize: 24, marginBottom: 8 }}>⚠️</div>
-        <p>Unable to load payment information.</p>
-        <p>Please open this page inside the HighLevel iframe.</p>
-      </div>
-    </div>
-  );
-}
+  if (waitingForGhl && !payData) {
     return (
       <div style={{ minHeight: '100vh', background: '#F8FAFC', display: 'grid', placeItems: 'center', fontFamily: 'DM Sans, sans-serif' }}>
         <div style={{ textAlign: 'center', color: '#64748B', fontSize: 14 }}>
           <div style={{ fontSize: 24, marginBottom: 8 }}>⏳</div>
           Loading payment details…
+        </div>
+      </div>
+    );
+  }
+
+  if (!payData) {
+    return (
+      <div style={{ minHeight: '100vh', background: '#F8FAFC', display: 'grid', placeItems: 'center', fontFamily: 'DM Sans, sans-serif', padding: 20 }}>
+        <div style={{ textAlign: 'center', color: '#64748B', fontSize: 14, maxWidth: 440 }}>
+          <div style={{ fontSize: 28, marginBottom: 12 }}>⚠️</div>
+          <p style={{ fontWeight: 600, color: '#0F172A', marginBottom: 8 }}>Unable to load payment information.</p>
+          <p style={{ marginBottom: 14 }}>
+            {debugMsg || 'Please open this page inside the HighLevel checkout iframe.'}
+          </p>
+          <p style={{ fontSize: 12, color: '#94A3B8' }}>
+            If this persists, check that Payfast Connect is set as Default in your CRM:<br />
+            <strong>Payments → Integrations → Payfast Connect → Set as Default</strong>
+          </p>
         </div>
       </div>
     );
@@ -195,11 +277,16 @@ if (!isTrustedHint && event.origin && !/^https:\/\//.test(event.origin)) return;
       <div style={{ flex: 1, padding: '24px 20px', maxWidth: 440, margin: '0 auto', width: '100%' }}>
         <div style={{ background: 'white', border: '1px solid #E2E8F0', borderRadius: 14, padding: 20, marginBottom: 16, textAlign: 'center' }}>
           <div style={{ fontSize: 12, color: '#64748B', marginBottom: 6 }}>
-            {payData.description || 'Amount Due'}
+            {payData.description || (payData.subscriptionId ? 'Subscription Payment' : 'Amount Due')}
           </div>
           <div style={{ fontFamily: 'var(--font-head)', fontSize: 32, fontWeight: 800, color: '#0052FF' }}>
             {payData.currency || 'PKR'} {Number(payData.amount).toLocaleString('en-PK', { minimumFractionDigits: 2 })}
           </div>
+          {payData.subscriptionId && (
+            <div style={{ fontSize: 11, color: '#94A3B8', marginTop: 6 }}>
+              Recurring subscription · Auto-charged
+            </div>
+          )}
         </div>
 
         <div style={{ background: 'white', border: '1px solid #E2E8F0', borderRadius: 14, padding: 20, marginBottom: 16 }}>

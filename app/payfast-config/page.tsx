@@ -1,93 +1,206 @@
 'use client';
-import { useState, useEffect } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
-// CRM loads this page in an iframe when user clicks "Manage Integration"
-// in Payments > Integrations section of the CRM
-// We use SSO token from URL to identify the location
+// HighLevel Custom Page (loaded in iframe under Payments → Integrations → Manage,
+// and also under My Apps → PayFast Settings).
+//
+// To resolve `locationId`, we use three strategies in order:
+//   1. URL query param ?locationId=...  (most reliable when GHL passes it)
+//   2. postMessage REQUEST_USER_DATA flow (official, per GHL docs)
+//   3. URL query param ?ssoToken=...    (legacy fallback)
+//
+// After locationId is known, we GET existing config and pre-fill the form.
 
 export default function PayfastConfigPage() {
   const [form, setForm] = useState({
-    merchant_id:   '',  // PayFast numeric Merchant ID (e.g. 26290)
-    merchant_name: '',  // PayFast Merchant Name (e.g. "Mentoring Hub")
-    store_id:      '',  // PayFast Store ID
-    merchant_key:  '',  // PayFast Merchant Secured Key
-    passphrase:    '',  // PayFast Secret Word
+    merchant_id:   '',
+    merchant_name: '',
+    store_id:      '',
+    merchant_key:  '',
+    passphrase:    '',
     environment:   'live',
   });
   const [locationId, setLocationId] = useState('');
+  const [companyId,  setCompanyId]  = useState('');
   const [loading,    setLoading]    = useState(false);
   const [saved,      setSaved]      = useState(false);
   const [error,      setError]      = useState('');
   const [fetching,   setFetching]   = useState(true);
+  const locRef = useRef<string>('');
 
+  // ===== bootstrap: resolve locationId =====
   useEffect(() => {
-    const params  = new URLSearchParams(window.location.search);
-    const ssoToken = params.get('ssoToken') || params.get('token') || '';
-    const locId    = params.get('locationId') || '';
+    let mounted = true;
 
-    if (locId) setLocationId(locId);
-
-    async function loadConfig() {
+    async function loadExistingConfig(locId: string) {
       try {
-        const res = await fetch(`/api/provider/config?locationId=${locId}&ssoToken=${ssoToken}`);
-        if (res.ok) {
-          const data = await res.json();
-          if (data.merchant_id || data.store_id) {
-            setForm(f => ({ ...f, ...data }));
-          }
+        const res = await fetch(`/api/provider/config?locationId=${encodeURIComponent(locId)}`);
+        if (!res.ok) return;
+        const data = await res.json();
+        if ((data.merchant_id || data.store_id) && mounted) {
+          setForm(f => ({ ...f, ...data }));
         }
-      } catch { /* first time — no config yet */ }
-      setFetching(false);
+      } catch { /* no existing config */ }
     }
 
-    if (locId) loadConfig();
-    else setFetching(false);
+    function setLoc(loc: string, company?: string) {
+      if (!loc || locRef.current) return;
+      locRef.current = loc;
+      if (mounted) {
+        setLocationId(loc);
+        if (company) setCompanyId(company);
+      }
+      loadExistingConfig(loc).finally(() => mounted && setFetching(false));
+    }
 
-    window.parent.postMessage({ type: 'config-ready' }, '*');
+    async function decryptSso(encryptedData: string) {
+      try {
+        const res = await fetch('/api/sso/decode', {
+          method:  'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body:    JSON.stringify({ encryptedData }),
+        });
+        if (!res.ok) return null;
+        return await res.json();
+      } catch {
+        return null;
+      }
+    }
+
+    // --- Strategy 1: URL query param (most reliable) ---
+    const params = new URLSearchParams(window.location.search);
+    const urlLoc = params.get('locationId') || params.get('location_id') || '';
+    if (urlLoc) {
+      setLoc(urlLoc);
+    }
+
+    // --- Strategy 2: postMessage REQUEST_USER_DATA (official) ---
+    function handleParentMessage(e: MessageEvent) {
+      const d: any = e.data;
+      if (!d || typeof d !== 'object') return;
+
+      // Official GHL flow:
+      // GHL replies with { message: 'REQUEST_USER_DATA_RESPONSE', payload: <encrypted> }
+      if (d.message === 'REQUEST_USER_DATA_RESPONSE' && typeof d.payload === 'string') {
+        decryptSso(d.payload).then(decoded => {
+          if (decoded?.locationId && !locRef.current) {
+            setLoc(decoded.locationId, decoded.companyId || undefined);
+          }
+        });
+        return;
+      }
+
+      // Fallback shapes some GHL versions use:
+      const candidateLoc =
+        d.locationId || d.location_id ||
+        d.payload?.locationId || d.payload?.location_id ||
+        d.activeLocation;
+      if (candidateLoc && typeof candidateLoc === 'string' && !locRef.current) {
+        setLoc(candidateLoc, d.companyId || d.payload?.companyId);
+      }
+
+      const candidateToken =
+        d.ssoToken || d.token ||
+        d.payload?.ssoToken || d.payload?.token;
+      if (candidateToken && typeof candidateToken === 'string' && !locRef.current) {
+        decryptSso(candidateToken).then(decoded => {
+          if (decoded?.locationId && !locRef.current) {
+            setLoc(decoded.locationId, decoded.companyId || undefined);
+          }
+        });
+      }
+    }
+    window.addEventListener('message', handleParentMessage);
+
+    // Ask the parent for user data (per official GHL docs).
+    setTimeout(() => {
+      try {
+        window.parent.postMessage({ message: 'REQUEST_USER_DATA' }, '*');
+      } catch { /* not in iframe */ }
+    }, 50);
+
+    // --- Strategy 3: legacy ?ssoToken / ?token URL param ---
+    const urlToken = params.get('ssoToken') || params.get('token') || '';
+    if (urlToken && !locRef.current) {
+      decryptSso(urlToken).then(decoded => {
+        if (decoded?.locationId && !locRef.current) {
+          setLoc(decoded.locationId, decoded.companyId || undefined);
+        }
+      });
+    }
+
+    // Stop the spinner after 5s even if nothing resolves, so user sees the form.
+    const t = setTimeout(() => { if (mounted) setFetching(false); }, 5000);
+
+    return () => {
+      mounted = false;
+      window.removeEventListener('message', handleParentMessage);
+      clearTimeout(t);
+    };
   }, []);
 
   const set = (k: string, v: string) => setForm(f => ({ ...f, [k]: v }));
-  const inp = { width: '100%', background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: 10, padding: '11px 15px', color: '#0F172A', fontSize: 14, outline: 'none', fontFamily: 'inherit' } as const;
+
+  const inp = {
+    width: '100%', background: '#F8FAFC', border: '1px solid #E2E8F0',
+    borderRadius: 10, padding: '11px 15px', color: '#0F172A', fontSize: 14,
+    outline: 'none', fontFamily: 'inherit',
+  } as const;
 
   async function save() {
-    if (!form.merchant_id.trim() || !form.merchant_key.trim() || !form.store_id.trim()) {
-      setError('Merchant ID, Store ID and Merchant Secured Key are required');
+    if (!locationId) {
+      setError(
+        'Location not detected. Please open this page from inside HighLevel ' +
+        '(Payments → Integrations → Payfast Connect → Manage), not as a direct URL.'
+      );
       return;
     }
+    if (!form.merchant_id.trim() || !form.merchant_key.trim()) {
+      setError('Merchant ID and Merchant Secured Key are required');
+      return;
+    }
+
     setLoading(true); setError('');
+
     try {
-      const params   = new URLSearchParams(window.location.search);
-      const ssoToken = params.get('ssoToken') || params.get('token') || '';
       const res = await fetch('/api/provider/config', {
         method:  'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...form, locationId, ssoToken }),
+        body: JSON.stringify({ ...form, locationId, companyId }),
       });
-      if (!res.ok) throw new Error('Save failed');
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data?.error || data?.message || `Save failed (${res.status})`);
+
       setSaved(true);
       setTimeout(() => setSaved(false), 3000);
-      window.parent.postMessage({ type: 'config-saved', success: true }, '*');
-    } catch {
-      setError('Failed to save. Please try again.');
+
+      try {
+        window.parent.postMessage({ type: 'config-saved', success: true }, '*');
+      } catch { /* ignore */ }
+    } catch (err: any) {
+      setError(err?.message || 'Failed to save. Please try again.');
     }
     setLoading(false);
   }
 
   if (fetching) {
     return (
-      <div className="page-shell-light" style={{ display: 'grid', placeItems: 'center', fontFamily: 'DM Sans, sans-serif', color: '#64748B', fontSize: 14 }}>
-        Loading…
+      <div className="page-shell-light" style={{ display: 'grid', placeItems: 'center', fontFamily: 'DM Sans, sans-serif', color: '#64748B', fontSize: 14, padding: 20, minHeight: 240 }}>
+        <div style={{ textAlign: 'center' }}>
+          <div style={{ fontSize: 24, marginBottom: 8 }}>⏳</div>
+          Loading configuration…
+        </div>
       </div>
     );
   }
 
-  const isConfigured = !!(form.merchant_id && form.store_id);
+  const isConfigured = !!(form.merchant_id && form.merchant_key);
 
   return (
     <div className="page-shell-light" style={{ padding: '24px 20px' }}>
       <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet" />
 
-      <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 24, flexWrap: 'wrap' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 20, flexWrap: 'wrap' }}>
         <div style={{ width: 36, height: 36, background: '#0052FF', borderRadius: 9, display: 'grid', placeItems: 'center', flexShrink: 0 }}>
           <svg width="16" height="16" viewBox="0 0 24 24" fill="white"><path d="M13 2L4.5 13H11L10 22L19.5 11H13Z"/></svg>
         </div>
@@ -97,8 +210,15 @@ export default function PayfastConfigPage() {
         </div>
       </div>
 
-      {isConfigured && (
-        <div style={{ background: 'rgba(34,197,94,0.06)', border: '1px solid rgba(34,197,94,0.2)', borderRadius: 10, padding: '10px 14px', marginBottom: 20, display: 'flex', alignItems: 'center', gap: 8, fontSize: 13, color: '#22C55E' }}>
+      {!locationId && (
+        <div style={{ background: 'rgba(239,68,68,0.06)', border: '1px solid rgba(239,68,68,0.2)', borderRadius: 10, padding: '12px 16px', marginBottom: 16, fontSize: 13, color: '#EF4444', lineHeight: 1.5 }}>
+          <strong>⚠ Location not detected.</strong> Open this page from inside HighLevel:<br />
+          <strong>Payments → Integrations → Payfast Connect → Manage</strong>
+        </div>
+      )}
+
+      {locationId && isConfigured && (
+        <div style={{ background: 'rgba(34,197,94,0.06)', border: '1px solid rgba(34,197,94,0.2)', borderRadius: 10, padding: '10px 14px', marginBottom: 16, display: 'flex', alignItems: 'center', gap: 8, fontSize: 13, color: '#22C55E' }}>
           <span style={{ width: 7, height: 7, background: '#22C55E', borderRadius: '50%', display: 'inline-block' }} />
           GoPayFast Connected · {form.environment === 'live' ? 'Live Mode' : 'Sandbox Mode'}
         </div>
@@ -124,10 +244,10 @@ export default function PayfastConfigPage() {
 
         <div>
           <label style={{ fontSize: 12, color: '#64748B', marginBottom: 6, display: 'block', fontWeight: 500 }}>
-            Store ID <span style={{ color: '#EF4444' }}>*</span>
+            Store ID <span style={{ color: '#94A3B8', fontWeight: 400 }}>(optional)</span>
           </label>
           <input style={inp} value={form.store_id} onChange={e => set('store_id', e.target.value)} placeholder="e.g. 10012345" />
-          <div style={{ fontSize: 11, color: '#94A3B8', marginTop: 5 }}>Enter your GoPayFast <code>store_id</code> here.</div>
+          <div style={{ fontSize: 11, color: '#94A3B8', marginTop: 5 }}>Leave blank if you only use Merchant ID.</div>
         </div>
 
         <div>
@@ -163,10 +283,18 @@ export default function PayfastConfigPage() {
         </div>
       </div>
 
-      {error && <div style={{ background: 'rgba(239,68,68,0.06)', border: '1px solid rgba(239,68,68,0.2)', borderRadius: 9, padding: '10px 14px', fontSize: 13, color: '#EF4444', marginTop: 14 }}>{error}</div>}
-      {saved && <div style={{ background: 'rgba(34,197,94,0.06)', border: '1px solid rgba(34,197,94,0.2)', borderRadius: 9, padding: '10px 14px', fontSize: 13, color: '#22C55E', marginTop: 14 }}>✅ Settings saved successfully!</div>}
+      {error && (
+        <div style={{ background: 'rgba(239,68,68,0.06)', border: '1px solid rgba(239,68,68,0.2)', borderRadius: 9, padding: '10px 14px', fontSize: 13, color: '#EF4444', marginTop: 14 }}>
+          {error}
+        </div>
+      )}
+      {saved && (
+        <div style={{ background: 'rgba(34,197,94,0.06)', border: '1px solid rgba(34,197,94,0.2)', borderRadius: 9, padding: '10px 14px', fontSize: 13, color: '#22C55E', marginTop: 14 }}>
+          ✅ Settings saved successfully!
+        </div>
+      )}
 
-      <button onClick={save} disabled={loading} style={{ width: '100%', background: '#0052FF', color: 'white', border: 'none', padding: '13px', borderRadius: 11, fontSize: 14, fontWeight: 600, cursor: 'pointer', marginTop: 18, fontFamily: 'inherit', opacity: loading ? 0.6 : 1 }}>
+      <button onClick={save} disabled={loading || !locationId} style={{ width: '100%', background: locationId ? '#0052FF' : '#94A3B8', color: 'white', border: 'none', padding: '13px', borderRadius: 11, fontSize: 14, fontWeight: 600, cursor: locationId ? 'pointer' : 'not-allowed', marginTop: 18, fontFamily: 'inherit', opacity: loading ? 0.6 : 1 }}>
         {loading ? 'Saving…' : 'Save Configuration'}
       </button>
     </div>
