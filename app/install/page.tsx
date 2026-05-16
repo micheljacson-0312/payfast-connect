@@ -27,11 +27,18 @@ export default async function InstallPage({ searchParams }: { searchParams?: Pro
   const redirectUrl  = `${appUrl}/oauth/callback`;
 
   const scopes = [
+    'payments/orders.readonly',
+    'payments/orders.write',
+    'payments/transactions.readonly',
+    'payments/subscriptions.readonly',
+    'payments/custom-provider.readonly',
+    'payments/custom-provider.write',
+    'products.readonly',
+    'products/prices.readonly',
     'contacts.readonly',
-    'contacts.write',
-    'opportunities.readonly',
-    'opportunities.write',
     'locations.readonly',
+    'oauth.readonly',
+    'oauth.write',
   ].join(' ');
 
   const oauthUrl =
