@@ -17,7 +17,7 @@ Final internal API surface for the CRM-first build.
 
 ## GHL / CRM integration
 - `POST /api/provider/query` - CRM provider query endpoint
-- `POST /api/provider/webhooks` - CRM webhook receiver
+- `POST /api/ghl/query` - CRM webhook receiver
 - `POST /api/provider/provider/provision` - provision provider mapping
 - `GET|POST /api/provider/config` - provider config iframe
 - `POST /api/provider/notify` - internal CRM sync event

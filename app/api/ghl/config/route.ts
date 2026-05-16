@@ -87,7 +87,7 @@ export async function POST(request: NextRequest) {
         locationId,
         merchant_id,
         merchant_name || null,
-        store_id,
+        store_id || null,
         merchant_key,
         passphrase || null,
         environment || 'live',
