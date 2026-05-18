@@ -71,7 +71,7 @@ async function processAppsCallback(request: NextRequest, payload: Record<string,
     }
 
     if (payment.custom_str3) {
-      fetch(`${process.env.NEXT_PUBLIC_APP_URL}/api/provider/notify`, {
+      fetch(`${process.env.NEXT_PUBLIC_APP_URL}/api/ghl/notify`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

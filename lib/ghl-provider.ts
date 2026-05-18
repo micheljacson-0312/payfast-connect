@@ -89,7 +89,7 @@ export async function registerProviderForLocation(
     name: PROVIDER_NAME,
     description: PROVIDER_DESCRIPTION,
     paymentsUrl: appUrl('/checkout'),
-    queryUrl: appUrl('/api/provider/query'),
+    queryUrl: appUrl('/api/ghl/query'),
     imageUrl: process.env.GHL_PROVIDER_LOGO_URL || appUrl('/logo.png'),
     supportsSubscriptionSchedule: true,
   };

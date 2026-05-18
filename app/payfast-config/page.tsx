@@ -34,7 +34,7 @@ export default function PayfastConfigPage() {
 
     async function loadExistingConfig(locId: string) {
       try {
-        const res = await fetch(`/api/provider/config?locationId=${encodeURIComponent(locId)}`);
+        const res = await fetch(`/api/ghl/config?locationId=${encodeURIComponent(locId)}`);
         if (!res.ok) return;
         const data = await res.json();
         if ((data.merchant_id || data.store_id) && mounted) {
@@ -163,7 +163,7 @@ export default function PayfastConfigPage() {
     setLoading(true); setError('');
 
     try {
-      const res = await fetch('/api/provider/config', {
+      const res = await fetch('/api/ghl/config', {
         method:  'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ ...form, locationId, companyId }),
